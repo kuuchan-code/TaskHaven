@@ -50,9 +50,9 @@ const InteractiveTaskDashboard: React.FC<InteractiveTaskDashboardProps> = ({
   // 選択された日付と一致する期限付きタスクを抽出
   const tasksForSelectedDate = selectedDate
     ? tasksWithDeadline.filter((task) => {
-        const taskDate = new Date(task.deadline!.replace(" ", "T"));
-        return formatDate(taskDate) === formatDate(selectedDate);
-      })
+      const taskDate = new Date(task.deadline!.replace(" ", "T"));
+      return formatDate(taskDate) === formatDate(selectedDate);
+    })
     : [];
 
   // タスククリック時：選択日を更新し、拡張状態をトグル
@@ -74,56 +74,56 @@ const InteractiveTaskDashboard: React.FC<InteractiveTaskDashboardProps> = ({
     <div>
       {/* 期限なしタスク */}
       <section className="mb-12">
-  <div className="flex justify-between items-center border-b border-gray-300 dark:border-gray-700 pb-2 mb-4">
-    <h2 className="text-3xl font-semibold text-gray-800 dark:text-gray-200">
-      期限なしタスク (重要度順)
-    </h2>
-    <button
-      onClick={() => setShowNoDeadlineSection((prev) => !prev)}
-      className="text-blue-500 hover:underline"
-    >
-      {showNoDeadlineSection ? "折りたたむ" : "展開する"}
-    </button>
-  </div>
-  {showNoDeadlineSection && (
-    <>
-      {tasksWithoutDeadline.length > 0 ? (
-        <ul className="space-y-4">
-          {tasksWithoutDeadline.map((task) => (
-            <li
-              key={task.title}
-              className="bg-white dark:bg-gray-800 rounded-lg shadow p-6 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-200"
-            >
-              <div className="flex justify-between items-center">
-                <span className="text-xl font-medium text-gray-900 dark:text-gray-100">
-                  {task.title}
-                </span>
-                <div className="flex items-center space-x-4">
-                  <span className="text-base text-gray-600 dark:text-gray-300">
-                    重要度: {task.importance}
-                  </span>
-                  {task.importance === 10 || task.importance === 9 ? (
-                    <span className="bg-red-500 text-white text-xs font-semibold rounded-full px-2 py-0.5">
-                      高重要度
-                    </span>
-                  ) : task.importance === 8 || task.importance === 7 ? (
-                    <span className="bg-yellow-500 text-white text-xs font-semibold rounded-full px-2 py-0.5">
-                      中重要度
-                    </span>
-                  ) : null}
-                </div>
-              </div>
-            </li>
-          ))}
-        </ul>
-      ) : (
-        <p className="text-gray-600 dark:text-gray-300">
-          期限なしタスクはありません。
-        </p>
-      )}
-    </>
-  )}
-</section>
+        <div className="flex justify-between items-center border-b border-gray-300 dark:border-gray-700 pb-2 mb-4">
+          <h2 className="text-3xl font-semibold text-gray-800 dark:text-gray-200">
+            期限なしタスク (重要度順)
+          </h2>
+          <button
+            onClick={() => setShowNoDeadlineSection((prev) => !prev)}
+            className="text-blue-500 hover:underline"
+          >
+            {showNoDeadlineSection ? "折りたたむ" : "展開する"}
+          </button>
+        </div>
+        {showNoDeadlineSection && (
+          <>
+            {tasksWithoutDeadline.length > 0 ? (
+              <ul className="space-y-4">
+                {tasksWithoutDeadline.map((task) => (
+                  <li
+                    key={task.title}
+                    className="bg-white dark:bg-gray-800 rounded-lg shadow p-6 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-200"
+                  >
+                    <div className="flex justify-between items-center">
+                      <span className="text-xl font-medium text-gray-900 dark:text-gray-100">
+                        {task.title}
+                      </span>
+                      <div className="flex items-center space-x-4">
+                        <span className="text-base text-gray-600 dark:text-gray-300">
+                          重要度: {task.importance}
+                        </span>
+                        {task.importance === 10 || task.importance === 9 ? (
+                          <span className="bg-red-500 text-white text-xs font-semibold rounded-full px-2 py-0.5">
+                            高重要度
+                          </span>
+                        ) : task.importance === 8 || task.importance === 7 ? (
+                          <span className="bg-yellow-500 text-white text-xs font-semibold rounded-full px-2 py-0.5">
+                            中重要度
+                          </span>
+                        ) : null}
+                      </div>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p className="text-gray-600 dark:text-gray-300">
+                期限なしタスクはありません。
+              </p>
+            )}
+          </>
+        )}
+      </section>
 
       {/* 期限付きタスク */}
       <section className="mb-12">
@@ -148,7 +148,7 @@ const InteractiveTaskDashboard: React.FC<InteractiveTaskDashboardProps> = ({
                     selectedDate &&
                     task.deadline &&
                     formatDate(new Date(task.deadline.replace(" ", "T"))) ===
-                      formatDate(selectedDate);
+                    formatDate(selectedDate);
                   const isExpanded = expandedTasks.has(taskKey);
                   return (
                     <li
@@ -158,9 +158,8 @@ const InteractiveTaskDashboard: React.FC<InteractiveTaskDashboardProps> = ({
                           ? handleTaskClick(task.deadline, taskKey)
                           : null
                       }
-                      className={`cursor-pointer bg-white dark:bg-gray-800 rounded-lg shadow p-6 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-200 ${
-                        selected ? "ring-2 ring-blue-500" : ""
-                      }`}
+                      className={`cursor-pointer bg-white dark:bg-gray-800 rounded-lg shadow p-6 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-200 ${selected ? "ring-2 ring-blue-500" : ""
+                        }`}
                     >
                       <div className="flex flex-col sm:flex-row justify-between items-center">
                         <span className="text-xl font-medium text-gray-900 dark:text-gray-100">
@@ -213,7 +212,7 @@ const InteractiveTaskDashboard: React.FC<InteractiveTaskDashboardProps> = ({
         <h2 className="text-3xl font-semibold text-gray-800 dark:text-gray-200 mb-4 border-b border-gray-300 dark:border-gray-700 pb-2">
           カレンダー表示
         </h2>
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
+        <div className="dark:bg-gray-800 p-6">
           <CalendarWrapper
             tasks={tasks.filter((task) => task.deadline !== null)}
             selectedDate={selectedDate}
