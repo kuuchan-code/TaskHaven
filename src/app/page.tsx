@@ -1,8 +1,9 @@
-// app/page.tsx
+// src/app/page.tsx
 import { promises as fs } from 'fs';
 import path from 'path';
+import CalendarWrapper from './components/CalendarWrapper';
 
-type Task = {
+export type Task = {
   title: string;
   importance: number;
   deadline: string | null; // "YYYY-MM-DD" or null
@@ -19,14 +20,13 @@ export default async function Page() {
     .filter(task => task.deadline === null)
     .sort((a, b) => b.importance - a.importance);
 
-  // (2) 期限が設定されているタスクについて、残り時間の逆数×importance×調整係数でスコア計算
-  const ADJUSTMENT_FACTOR = 24; // 必要に応じて調整
+  // (2) 期限付きタスクのスコア計算（残り時間の逆数×importance×調整係数）
+  const ADJUSTMENT_FACTOR = 24;
   const now = new Date();
   const tasksWithDeadline = tasks
     .filter(task => task.deadline !== null)
     .map(task => {
       const deadlineDate = new Date(task.deadline as string);
-      // 残り時間を計算（小数点以下も含む）。マイナスの場合は最低1時間として扱う。
       const diffTime = deadlineDate.getTime() - now.getTime();
       const remainingHours = Math.max(diffTime / (1000 * 60 * 60), 1);
       const score = task.importance * (1 / remainingHours) * ADJUSTMENT_FACTOR;
@@ -59,7 +59,7 @@ export default async function Page() {
           )}
         </section>
 
-        <section>
+        <section className="mb-12">
           <h2 className="text-2xl font-semibold text-gray-700 mb-4">
             期限付きタスク (スコア降順: importance × 1/残り時間 × 調整係数)
           </h2>
@@ -84,6 +84,9 @@ export default async function Page() {
             <p className="text-gray-600">期限付きタスクはありません。</p>
           )}
         </section>
+
+        {/* カレンダー表示用のクライアントコンポーネント */}
+        <CalendarWrapper tasks={tasks.filter(task => task.deadline !== null)} />
       </div>
     </main>
   );
