@@ -17,14 +17,15 @@
     { "title": "転入届提出", "importance": 8, "deadline": "2025-03-31 23:59" },
     { "title": "みずほ銀行の住所変更", "importance": 7, "deadline": "2025-03-31 23:59" },
     { "title": "変わる努力をする", "importance": 10, "deadline": null },
-    { "title": "自分を安売りしない", "importance": 10, "deadline": null },
-    { "title": "大事な話をちゃんと聞く", "importance": 10, "deadline": null },
-    { "title": "特に重要なリストや時間の近いリストは毎朝確認する", "importance": 9, "deadline": null },
-    { "title": "母から離れる", "importance": 9, "deadline": null },
-    { "title": "などちゃんと過ごす", "importance": 8, "deadline": null },
-    { "title": "民度の悪いゲームや通話等を避ける", "importance": 7, "deadline": null },
-    { "title": "部屋を綺麗にする", "importance": 9, "deadline": null },
-    { "title": "目を合わせる", "importance": 8, "deadline": null },
-    { "title": "ちゃんと食べる", "importance": 7, "deadline": null }
+    { "title": "約束を忘れない", "importance": 9, "deadline": null },
+    { "title": "自分を安売りしない", "importance": 9, "deadline": null },
+    { "title": "大事な話をちゃんと聞く", "importance": 9, "deadline": null },
+    { "title": "特に重要なリストや優先度の高いリストは毎朝確認する", "importance": 8, "deadline": null },
+    { "title": "母から離れる", "importance": 8, "deadline": null },
+    { "title": "などちゃんと過ごす", "importance": 7, "deadline": null },
+    { "title": "民度の悪いゲームや通話等を避ける", "importance": 6, "deadline": null },
+    { "title": "部屋を綺麗にする", "importance": 8, "deadline": null },
+    { "title": "目を合わせる", "importance": 7, "deadline": null },
+    { "title": "ちゃんと食べる", "importance": 6, "deadline": null }
   ]
   
