@@ -38,10 +38,12 @@ const InteractiveTaskDashboard: React.FC<InteractiveTaskDashboardProps> = ({
   tasksWithDeadline,
   tasksWithoutDeadline,
 }) => {
-  // 日付の選択状態を管理（カレンダーとタスク一覧で共有）
+  // 選択状態（カレンダーとタスク一覧で共有）
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
+  // 各タスクの拡張状態を管理（タスクのキーは title で一意と仮定）
+  const [expandedTasks, setExpandedTasks] = useState<Set<string>>(new Set());
 
-  // 選択された日付と一致する期限付きタスクを抽出（優先度付き）
+  // 選択された日付と一致する期限付きタスクを抽出
   const tasksForSelectedDate = selectedDate
     ? tasksWithDeadline.filter((task) => {
         const taskDate = new Date(task.deadline!.replace(" ", "T"));
@@ -49,15 +51,24 @@ const InteractiveTaskDashboard: React.FC<InteractiveTaskDashboardProps> = ({
       })
     : [];
 
-  // 期限付きタスク一覧でタスクがクリックされた場合、対応する日付を選択
-  const handleTaskClick = (deadline: string) => {
+  // タスククリック時：選択日を更新し、拡張状態をトグル
+  const handleTaskClick = (deadline: string, taskKey: string) => {
     const date = new Date(deadline.replace(" ", "T"));
     setSelectedDate(date);
+    setExpandedTasks((prev) => {
+      const newSet = new Set(prev);
+      if (newSet.has(taskKey)) {
+        newSet.delete(taskKey);
+      } else {
+        newSet.add(taskKey);
+      }
+      return newSet;
+    });
   };
 
   return (
     <div>
-      {/* 期限なしタスクはそのまま表示 */}
+      {/* 期限なしタスク */}
       <section className="mb-12">
         <h2 className="text-3xl font-semibold text-gray-800 dark:text-gray-200 mb-4 border-b border-gray-300 dark:border-gray-700 pb-2">
           期限なしタスク (重要度順)
@@ -87,7 +98,7 @@ const InteractiveTaskDashboard: React.FC<InteractiveTaskDashboardProps> = ({
         )}
       </section>
 
-      {/* 期限付きタスク一覧（クリックでカレンダーと連動） */}
+      {/* 期限付きタスク一覧 */}
       <section className="mb-12">
         <h2 className="text-3xl font-semibold text-gray-800 dark:text-gray-200 mb-4 border-b border-gray-300 dark:border-gray-700 pb-2">
           期限付きタスク (優先度順)
@@ -95,38 +106,18 @@ const InteractiveTaskDashboard: React.FC<InteractiveTaskDashboardProps> = ({
         {tasksWithDeadline.length > 0 ? (
           <ul className="space-y-4">
             {tasksWithDeadline.map((task) => {
+              const taskKey = task.title; // タイトルをキーとして使用（ユニークであると仮定）
               const selected =
                 selectedDate &&
                 task.deadline &&
                 formatDate(new Date(task.deadline.replace(" ", "T"))) ===
                   formatDate(selectedDate);
-
-              // 優先度に応じたバッジ
-              const renderBadge = () => {
-                if (task.priority >= HIGH_PRIORITY_THRESHOLD) {
-                  return (
-                    <span className="bg-red-500 text-white text-xs font-semibold rounded-full px-2 py-0.5">
-                      高優先度
-                    </span>
-                  );
-                } else if (
-                  task.priority > MEDIUM_PRIORITY_THRESHOLD &&
-                  task.priority < HIGH_PRIORITY_THRESHOLD
-                ) {
-                  return (
-                    <span className="bg-yellow-500 text-white text-xs font-semibold rounded-full px-2 py-0.5">
-                      中優先度
-                    </span>
-                  );
-                }
-                return null;
-              };
-
+              const isExpanded = expandedTasks.has(taskKey);
               return (
                 <li
-                  key={task.title}
+                  key={taskKey}
                   onClick={() =>
-                    task.deadline ? handleTaskClick(task.deadline) : null
+                    task.deadline ? handleTaskClick(task.deadline, taskKey) : null
                   }
                   className={`cursor-pointer bg-white dark:bg-gray-800 rounded-lg shadow p-6 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-200 ${
                     selected ? "ring-2 ring-blue-500" : ""
@@ -143,9 +134,29 @@ const InteractiveTaskDashboard: React.FC<InteractiveTaskDashboardProps> = ({
                       <span className="text-base text-gray-600 dark:text-gray-300">
                         残り: {formatRemainingTime(task.remainingHours)}
                       </span>
-                      {renderBadge()}
+                      {/* バッジは常に表示 */}
+                      {task.priority >= HIGH_PRIORITY_THRESHOLD ? (
+                        <span className="bg-red-500 text-white text-xs font-semibold rounded-full px-2 py-0.5">
+                          高優先度
+                        </span>
+                      ) : task.priority > MEDIUM_PRIORITY_THRESHOLD &&
+                        task.priority < HIGH_PRIORITY_THRESHOLD ? (
+                        <span className="bg-yellow-500 text-white text-xs font-semibold rounded-full px-2 py-0.5">
+                          中優先度
+                        </span>
+                      ) : null}
                     </div>
                   </div>
+                  {isExpanded && (
+                    <div className="mt-2 text-sm text-gray-500 dark:text-gray-400 border-t pt-2">
+                      <div>
+                        <strong>重要度:</strong> {task.importance}
+                      </div>
+                      <div>
+                        <strong>締切:</strong> {task.deadline}
+                      </div>
+                    </div>
+                  )}
                 </li>
               );
             })}
@@ -157,7 +168,7 @@ const InteractiveTaskDashboard: React.FC<InteractiveTaskDashboardProps> = ({
         )}
       </section>
 
-      {/* カレンダー表示（カレンダー側で日付選択すると state を更新） */}
+      {/* カレンダー表示 */}
       <section className="mb-12">
         <h2 className="text-3xl font-semibold text-gray-800 dark:text-gray-200 mb-4 border-b border-gray-300 dark:border-gray-700 pb-2">
           カレンダー表示
@@ -171,7 +182,7 @@ const InteractiveTaskDashboard: React.FC<InteractiveTaskDashboardProps> = ({
         </div>
       </section>
 
-      {/* 選択された日のタスクを一覧表示（ヘッダーに日付を追加、優先度と残り時間のみ表示） */}
+      {/* 選択された日のタスク一覧 */}
       <section className="mb-12">
         <h2 className="text-3xl font-semibold text-gray-800 dark:text-gray-200 mb-4 border-b border-gray-300 dark:border-gray-700 pb-2">
           {selectedDate
