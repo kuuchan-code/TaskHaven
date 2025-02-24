@@ -15,7 +15,7 @@ const formatDate = (date: Date) => {
 
 interface InteractiveTaskDashboardProps {
   tasks: Task[];
-  tasksWithDeadline: Task[];
+  tasksWithDeadline: (Task & { priority: number; remainingHours: number })[];
   tasksWithoutDeadline: Task[];
 }
 
@@ -27,14 +27,11 @@ const InteractiveTaskDashboard: React.FC<InteractiveTaskDashboardProps> = ({
   // 日付の選択状態を管理（カレンダーとタスク一覧で共有）
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
 
-  // 選択された日付と一致するタスクを抽出
+  // 選択された日付と一致する期限付きタスクを抽出（優先度付き）
   const tasksForSelectedDate = selectedDate
-    ? tasks.filter((task) => {
-        if (task.deadline) {
-          const taskDate = new Date(task.deadline.replace(" ", "T"));
-          return formatDate(taskDate) === formatDate(selectedDate);
-        }
-        return false;
+    ? tasksWithDeadline.filter((task) => {
+        const taskDate = new Date(task.deadline!.replace(" ", "T"));
+        return formatDate(taskDate) === formatDate(selectedDate);
       })
     : [];
 
@@ -70,14 +67,16 @@ const InteractiveTaskDashboard: React.FC<InteractiveTaskDashboardProps> = ({
             ))}
           </ul>
         ) : (
-          <p className="text-gray-600 dark:text-gray-300">期限なしタスクはありません。</p>
+          <p className="text-gray-600 dark:text-gray-300">
+            期限なしタスクはありません。
+          </p>
         )}
       </section>
 
       {/* 期限付きタスク一覧（クリックでカレンダーと連動） */}
       <section className="mb-12">
         <h2 className="text-3xl font-semibold text-gray-800 dark:text-gray-200 mb-4 border-b border-gray-300 dark:border-gray-700 pb-2">
-          期限付きタスク (スコア順)
+          期限付きタスク (優先度順)
         </h2>
         {tasksWithDeadline.length > 0 ? (
           <ul className="space-y-4">
@@ -96,19 +95,23 @@ const InteractiveTaskDashboard: React.FC<InteractiveTaskDashboardProps> = ({
                     : ""
                 }`}
               >
-                <div className="flex justify-between items-center">
+                <div className="flex flex-col sm:flex-row justify-between items-center">
                   <span className="text-xl font-medium text-gray-900 dark:text-gray-100">
                     {task.title}
                   </span>
-                  <span className="text-base text-gray-600 dark:text-gray-300">
-                    重要度: {task.importance}
-                  </span>
+                  <div className="flex space-x-4">
+                    <span className="text-base text-gray-600 dark:text-gray-300">
+                      優先度: {task.priority.toFixed(2)}
+                    </span>
+                  </div>
                 </div>
               </li>
             ))}
           </ul>
         ) : (
-          <p className="text-gray-600 dark:text-gray-300">期限付きタスクはありません。</p>
+          <p className="text-gray-600 dark:text-gray-300">
+            期限付きタスクはありません。
+          </p>
         )}
       </section>
 
@@ -126,7 +129,7 @@ const InteractiveTaskDashboard: React.FC<InteractiveTaskDashboardProps> = ({
         </div>
       </section>
 
-      {/* 選択された日のタスクを一覧表示（ヘッダーに日付を追加） */}
+      {/* 選択された日のタスクを一覧表示（ヘッダーに日付を追加、優先度のみ表示） */}
       <section className="mb-12">
         <h2 className="text-3xl font-semibold text-gray-800 dark:text-gray-200 mb-4 border-b border-gray-300 dark:border-gray-700 pb-2">
           {selectedDate
@@ -146,14 +149,16 @@ const InteractiveTaskDashboard: React.FC<InteractiveTaskDashboardProps> = ({
                       {task.title}
                     </span>
                     <span className="text-base text-gray-600 dark:text-gray-300">
-                      重要度: {task.importance}
+                      優先度: {task.priority.toFixed(2)}
                     </span>
                   </div>
                 </li>
               ))}
             </ul>
           ) : (
-            <p className="text-gray-600 dark:text-gray-300">この日にタスクはありません。</p>
+            <p className="text-gray-600 dark:text-gray-300">
+              この日にタスクはありません。
+            </p>
           )
         ) : (
           <p className="text-gray-600 dark:text-gray-300">

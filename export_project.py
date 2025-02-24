@@ -3,7 +3,8 @@ import os
 files = [
     "src/app/components/CalendarView.tsx",
     "src/app/components/CalendarWrapper.tsx",
-    "src/app/page.tsx"
+    "src/app/components/InteractiveTaskDashboard.tsx",
+    "src/app/page.tsx",
 ]
 
 # 出力するプロンプトファイルの名前

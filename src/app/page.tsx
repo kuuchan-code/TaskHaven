@@ -20,8 +20,8 @@ export default async function Page() {
     .filter((task) => task.deadline === null)
     .sort((a, b) => b.importance - a.importance);
 
-  // 期限付きタスク（スコア計算後、スコア順）
-  const ADJUSTMENT_FACTOR = 24;
+  // 期限付きタスク（優先度計算後、優先度順）
+  const ADJUSTMENT_FACTOR = 0.2;
   const now = new Date();
   const tasksWithDeadline = tasks
     .filter((task) => task.deadline !== null)
@@ -29,11 +29,10 @@ export default async function Page() {
       const deadlineDate = new Date(task.deadline as string);
       const diffTime = deadlineDate.getTime() - now.getTime();
       const remainingHours = Math.max(diffTime / (1000 * 60 * 60), 1);
-      const score =
-        task.importance * (1 / remainingHours) * ADJUSTMENT_FACTOR;
-      return { ...task, remainingHours, score };
+      const priority = task.importance / Math.pow(remainingHours + 1, ADJUSTMENT_FACTOR)
+      return { ...task, remainingHours, priority };
     })
-    .sort((a, b) => b.score - a.score);
+    .sort((a, b) => b.priority - a.priority);
 
   return (
     <main className="min-h-screen bg-gray-100 dark:bg-gray-900 p-8">
