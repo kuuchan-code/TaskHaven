@@ -1,7 +1,9 @@
 // src/app/page.tsx
 import { promises as fs } from 'fs';
 import path from 'path';
+import { parse } from 'csv-parse/sync';
 import InteractiveTaskDashboard from './components/InteractiveTaskDashboard';
+
 const ADJUSTMENT_FACTOR = 0.5;
 
 export type Task = {
@@ -9,11 +11,22 @@ export type Task = {
   importance: number;
   deadline: string | null; // "YYYY-MM-DD" or null（※期限付きタスクの場合は "YYYY-MM-DD HH:mm" 形式）
 };
+
 export default async function Page() {
-  // public/tasks.json を読み込む
-  const filePath = path.join(process.cwd(), "public", "tasks.json");
-  const jsonData = await fs.readFile(filePath, "utf8");
-  const tasks: Task[] = JSON.parse(jsonData);
+  // tasks/tasks.csv を読み込む
+  const filePath = path.join(process.cwd(), "", "tasks.csv");
+  const csvData = await fs.readFile(filePath, "utf8");
+  // CSV をパース（ヘッダー行がある前提）
+  const records = parse(csvData, {
+    columns: true,
+    skip_empty_lines: true,
+  });
+  // レコードを Task 型の配列に変換
+  const tasks: Task[] = records.map((record: any) => ({
+    title: record.title,
+    importance: Number(record.importance),
+    deadline: record.deadline === "" ? null : record.deadline,
+  }));
 
   // 期限なしタスク（importance 降順）
   const tasksWithNoDeadline = tasks
@@ -28,7 +41,7 @@ export default async function Page() {
       const deadlineDate = new Date(task.deadline as string);
       const diffTime = deadlineDate.getTime() - now.getTime();
       const remainingHours = Math.max(diffTime / (1000 * 60 * 60), 1);
-      const priority = task.importance / Math.pow(remainingHours + 1, ADJUSTMENT_FACTOR)
+      const priority = task.importance / Math.pow(remainingHours + 1, ADJUSTMENT_FACTOR);
       return { ...task, remainingHours, priority };
     })
     .sort((a, b) => b.priority - a.priority);
