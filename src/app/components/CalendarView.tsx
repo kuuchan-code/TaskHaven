@@ -88,7 +88,7 @@ const CalendarView: React.FC<CalendarViewProps> = ({ tasks }) => {
       </div>
       {selectedDate && (
         <div
-          className={`mt-8 max-w-md mx-auto rounded-xl shadow-lg overflow-hidden transform transition-all hover:scale-105 ${
+          className={`mt-8 max-w-xl mx-auto rounded-xl shadow-lg overflow-hidden transform transition-all hover:scale-105 ${
             prefersColorSchemeDark ? "bg-gray-800" : "bg-white"
           }`}
         >
