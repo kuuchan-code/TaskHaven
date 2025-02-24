@@ -16,17 +16,24 @@ export default async function Page() {
   // tasks/tasks.csv を読み込む
   const filePath = path.join(process.cwd(), "", "tasks.csv");
   const csvData = await fs.readFile(filePath, "utf8");
-  // CSV をパース（ヘッダー行がある前提）
+  // CSV のレコード型を定義
+  type CSVRecord = {
+    title: string;
+    importance: string;
+    deadline: string;
+  };
+
   const records = parse(csvData, {
     columns: true,
     skip_empty_lines: true,
-  });
-  // レコードを Task 型の配列に変換
-  const tasks: Task[] = records.map((record: any) => ({
+  }) as CSVRecord[];
+
+  const tasks: Task[] = records.map((record) => ({
     title: record.title,
     importance: Number(record.importance),
     deadline: record.deadline === "" ? null : record.deadline,
   }));
+
 
   // 期限なしタスク（importance 降順）
   const tasksWithNoDeadline = tasks
