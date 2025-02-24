@@ -2,9 +2,8 @@
 "use client";
 
 import dynamic from 'next/dynamic';
-import { Task } from '../page'; // 型定義を共通化する場合。適宜パス調整してください。
+import { Task } from '../page';
 
-// クライアント側でのみレンダリングするためssr: falseを指定
 const CalendarView = dynamic(() => import('./CalendarView'), { ssr: false });
 
 interface CalendarWrapperProps {

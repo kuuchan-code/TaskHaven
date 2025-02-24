@@ -13,7 +13,7 @@ export type Task = {
 
 interface CalendarViewProps {
   tasks: Task[];
-}
+};
 
 // ユーティリティ：Date を "YYYY-MM-DD" 形式に変換
 const formatDate = (date: Date) => {
@@ -42,37 +42,52 @@ const CalendarView: React.FC<CalendarViewProps> = ({ tasks }) => {
 
   return (
     <div className="mt-8">
-      <h2 className="text-2xl font-semibold text-gray-700 mb-4">カレンダーで確認</h2>
+      <h2 className="text-2xl font-semibold text-gray-700 mb-4 text-center">カレンダーでタスクを確認</h2>
       <Calendar
         onChange={(date) => setSelectedDate(date as Date)}
         tileContent={({ date, view }) => {
           if (view === 'month') {
             const tasksForDate = tasksOnDate(date);
             return tasksForDate.length > 0 ? (
-              <div className="text-xs text-red-500 mt-1">
-                {tasksForDate.length}件
+              <div className="flex justify-center items-center mt-1">
+                {/* タスクの件数を小さいバッジとして表示 */}
+                <span className="bg-blue-500 text-white text-xs rounded-full px-2 py-0.5">
+                  {tasksForDate.length}件
+                </span>
               </div>
             ) : null;
           }
           return null;
         }}
+        tileClassName={({ date, view }) => {
+          // タスクがある日は背景色を変更して強調
+          if (view === 'month') {
+            const tasksForDate = tasksOnDate(date);
+            return tasksForDate.length > 0 ? 'bg-red-50 hover:bg-red-100 rounded-full' : '';
+          }
+          return '';
+        }}
         className="mx-auto"
       />
       {selectedDate && (
-        <div className="mt-4 p-4 bg-white shadow rounded">
-          <h3 className="text-xl font-medium mb-2">
+        <div className="mt-6 p-4 bg-white shadow rounded max-w-md mx-auto">
+          <h3 className="text-xl font-medium mb-3 border-b pb-2">
             {selectedDate.toLocaleDateString()} のタスク
           </h3>
           {tasksOnDate(selectedDate).length > 0 ? (
-            <ul className="list-disc pl-5">
+            <ul className="list-disc pl-5 space-y-2">
               {tasksOnDate(selectedDate).map((task, index) => (
-                <li key={index} className="mb-1">
-                  <span className="font-medium">{task.title}</span> (重要度: {task.importance}, 期限: {task.deadline})
+                <li key={index}>
+                  <span className="font-medium">{task.title}</span>
+                  <span className="text-sm text-gray-600 ml-1">(重要度: {task.importance})</span>
+                  {task.deadline && (
+                    <span className="text-xs text-gray-500 ml-1">期限: {task.deadline}</span>
+                  )}
                 </li>
               ))}
             </ul>
           ) : (
-            <p className="text-gray-600">この日にタスクはありません。</p>
+            <p className="text-gray-600 text-center">この日にタスクはありません。</p>
           )}
         </div>
       )}
