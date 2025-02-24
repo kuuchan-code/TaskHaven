@@ -81,7 +81,7 @@ const InteractiveTaskDashboard: React.FC<InteractiveTaskDashboardProps> = ({
                 {tasksWithDeadline.length > 0 ? (
                     <ul className="space-y-4">
                         {tasksWithDeadline.map((task) => {
-                            // 優先度の閾値。タスクの計算結果に合わせて調整してください。
+                            // 優先度の閾値。実際のデータに合わせて調整してください。
                             const HIGH_PRIORITY_THRESHOLD = 5;
                             const isHighPriority = task.priority >= HIGH_PRIORITY_THRESHOLD;
                             return (
@@ -107,9 +107,14 @@ const InteractiveTaskDashboard: React.FC<InteractiveTaskDashboardProps> = ({
                                                 優先度: {task.priority.toFixed(2)}
                                             </span>
                                             {isHighPriority && (
-                                                <span className="bg-red-500 text-white text-xs font-semibold rounded-full px-2 py-0.5">
-                                                    高優先度
-                                                </span>
+                                                <>
+                                                    <span className="bg-red-500 text-white text-xs font-semibold rounded-full px-2 py-0.5">
+                                                        高優先度
+                                                    </span>
+                                                    <span className="text-base text-gray-600 dark:text-gray-300">
+                                                        残り: {task.remainingHours.toFixed(1)}時間
+                                                    </span>
+                                                </>
                                             )}
                                         </div>
                                     </div>
