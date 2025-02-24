@@ -36,57 +36,59 @@ export default async function Page() {
     .sort((a, b) => b.score - a.score);
 
   return (
-    <main className="min-h-screen bg-gray-50 p-6">
+    <main className="min-h-screen bg-gray-100 dark:bg-gray-900 p-8">
       <div className="max-w-5xl mx-auto">
-        <h1 className="text-4xl font-extrabold text-center text-gray-800 mb-10">タスク一覧</h1>
+        <h1 className="text-5xl font-extrabold text-center text-gray-900 dark:text-gray-100 mb-12">
+          タスク一覧
+        </h1>
 
         {/* 期限なしタスク */}
         <section className="mb-12">
-          <h2 className="text-2xl font-semibold text-gray-700 mb-4 border-b pb-2">
+          <h2 className="text-3xl font-semibold text-gray-800 dark:text-gray-200 mb-4 border-b border-gray-300 dark:border-gray-700 pb-2">
             期限なしタスク (重要度順)
           </h2>
           {tasksWithNoDeadline.length > 0 ? (
-            <ul className="space-y-3">
+            <ul className="space-y-4">
               {tasksWithNoDeadline.map(task => (
                 <li
                   key={task.title}
-                  className="bg-white shadow rounded p-4 hover:bg-gray-100 transition-colors"
+                  className="bg-white dark:bg-gray-800 rounded-lg shadow p-6 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-200"
                 >
                   <div className="flex justify-between items-center">
-                    <span className="text-lg font-medium text-gray-800">
+                    <span className="text-xl font-medium text-gray-900 dark:text-gray-100">
                       {task.title}
                     </span>
-                    <span className="text-sm text-gray-600">重要度: {task.importance}</span>
+                    <span className="text-base text-gray-600 dark:text-gray-300">
+                      重要度: {task.importance}
+                    </span>
                   </div>
                 </li>
               ))}
             </ul>
           ) : (
-            <p className="text-gray-600">期限なしタスクはありません。</p>
+            <p className="text-gray-600 dark:text-gray-300">期限なしタスクはありません。</p>
           )}
         </section>
 
         {/* 期限付きタスク */}
         <section className="mb-12">
-          <h2 className="text-2xl font-semibold text-gray-700 mb-4 border-b pb-2">
+          <h2 className="text-3xl font-semibold text-gray-800 dark:text-gray-200 mb-4 border-b border-gray-300 dark:border-gray-700 pb-2">
             期限付きタスク (スコア順)
           </h2>
           {tasksWithDeadline.length > 0 ? (
-            <ul className="space-y-3">
+            <ul className="space-y-4">
               {tasksWithDeadline.map(task => (
                 <li
                   key={task.title}
-                  className="bg-white shadow rounded p-4 hover:bg-gray-100 transition-colors"
+                  className="bg-white dark:bg-gray-800 rounded-lg shadow p-6 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-200"
                 >
                   <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center">
-                    <span className="text-lg font-medium text-gray-800">
+                    <span className="text-xl font-medium text-gray-900 dark:text-gray-100">
                       {task.title}
                     </span>
-                    <div className="mt-2 sm:mt-0 text-sm text-gray-600 space-x-2">
+                    <div className="mt-4 sm:mt-0 text-base text-gray-600 dark:text-gray-300 space-x-4">
                       <span>スコア: {task.score.toFixed(2)}</span>
-                      <span>|</span>
                       <span>重要度: {task.importance}</span>
-                      <span>|</span>
                       <span>残り: {task.remainingHours.toFixed(1)}時間</span>
                     </div>
                   </div>
@@ -94,13 +96,18 @@ export default async function Page() {
               ))}
             </ul>
           ) : (
-            <p className="text-gray-600">期限付きタスクはありません。</p>
+            <p className="text-gray-600 dark:text-gray-300">期限付きタスクはありません。</p>
           )}
         </section>
 
         {/* カレンダー表示 */}
         <section className="mb-12">
-          <CalendarWrapper tasks={tasks.filter(task => task.deadline !== null)} />
+          <h2 className="text-3xl font-semibold text-gray-800 dark:text-gray-200 mb-4 border-b border-gray-300 dark:border-gray-700 pb-2">
+            カレンダー表示
+          </h2>
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6 ">
+            <CalendarWrapper tasks={tasks.filter(task => task.deadline !== null)} />
+          </div>
         </section>
       </div>
     </main>
