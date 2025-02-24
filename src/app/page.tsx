@@ -3,6 +3,7 @@ import { promises as fs } from 'fs';
 import path from 'path';
 import CalendarWrapper from './components/CalendarWrapper';
 import InteractiveTaskDashboard from './components/InteractiveTaskDashboard';
+const ADJUSTMENT_FACTOR = 0.5;
 
 export type Task = {
   title: string;
@@ -21,7 +22,6 @@ export default async function Page() {
     .sort((a, b) => b.importance - a.importance);
 
   // 期限付きタスク（優先度計算後、優先度順）
-  const ADJUSTMENT_FACTOR = 0.2;
   const now = new Date();
   const tasksWithDeadline = tasks
     .filter((task) => task.deadline !== null)
