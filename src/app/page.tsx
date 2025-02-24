@@ -1,7 +1,6 @@
 // src/app/page.tsx
 import { promises as fs } from 'fs';
 import path from 'path';
-import CalendarWrapper from './components/CalendarWrapper';
 import InteractiveTaskDashboard from './components/InteractiveTaskDashboard';
 const ADJUSTMENT_FACTOR = 0.5;
 
