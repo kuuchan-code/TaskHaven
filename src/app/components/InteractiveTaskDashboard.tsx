@@ -114,10 +114,15 @@ const InteractiveTaskDashboard: React.FC<InteractiveTaskDashboardProps> = ({ tas
     setSelectedDate(new Date(deadline.replace(" ", "T")));
     setExpandedTasks((prev) => {
       const newSet = new Set(prev);
-      newSet.has(taskKey) ? newSet.delete(taskKey) : newSet.add(taskKey);
+      if (newSet.has(taskKey)) {
+        newSet.delete(taskKey);
+      } else {
+        newSet.add(taskKey);
+      }
       return newSet;
     });
   };
+
 
   return (
     <div className="space-y-8">
