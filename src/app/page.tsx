@@ -1,7 +1,6 @@
-// src/app/page.tsx
-import { promises as fs } from 'fs';
+import { google } from 'googleapis';
+import { OAuth2Client } from 'google-auth-library';
 import path from 'path';
-import { parse } from 'csv-parse/sync';
 import InteractiveTaskDashboard from './components/InteractiveTaskDashboard';
 
 export type Task = {
@@ -10,31 +9,41 @@ export type Task = {
   deadline: string | null; // "YYYY-MM-DD" or "YYYY-MM-DD HH:mm" (null if no deadline)
 };
 
-export default async function Page() {
-  // CSV 読み込み
-  const filePath = path.join(process.cwd(), "", "tasks.csv");
-  const csvData = await fs.readFile(filePath, "utf8");
+async function getTasksFromGoogleSheets(): Promise<Task[]> {
+  const auth = new google.auth.GoogleAuth({
+    keyFile: path.join(process.cwd(), "big-bison-388808-10558f7654da.json"),
+    scopes: ['https://www.googleapis.com/auth/spreadsheets.readonly'],
+  });
 
-  // CSV Recordの型
-  type CSVRecord = {
-    title: string;
-    importance: string;
-    deadline: string;
-  };
+  // 取得した認証クライアントを OAuth2Client にキャスト
+  const client = (await auth.getClient()) as OAuth2Client;
+  const sheets = google.sheets({ version: 'v4', auth: client });
 
-  const records = parse(csvData, {
-    columns: true,
-    skip_empty_lines: true,
-  }) as CSVRecord[];
+  const spreadsheetId = process.env.SPREADSHEET_ID as string;
+  const range = 'Sheet1!A:C';
 
-  // タスク情報を整形
-  const tasks: Task[] = records.map((record) => ({
-    title: record.title,
-    importance: Number(record.importance),
-    deadline: record.deadline === "" ? null : record.deadline,
+  const response = await sheets.spreadsheets.values.get({
+    spreadsheetId,
+    range,
+  });
+
+  const rows = response.data.values;
+  if (!rows || rows.length < 2) {
+    return [];
+  }
+
+  const [, ...data] = rows;
+  const tasks: Task[] = data.map((row) => ({
+    title: row[0],
+    importance: Number(row[1]),
+    deadline: row[2] ? row[2] : null,
   }));
+  return tasks;
+}
 
-  // ここでは「計算」はしない。タスクの生データをそのままクライアントに渡す
+export default async function Page() {
+  const tasks = await getTasksFromGoogleSheets();
+
   return (
     <main className="min-h-screen bg-gray-100 dark:bg-gray-900 p-8">
       <div className="max-w-5xl mx-auto">
