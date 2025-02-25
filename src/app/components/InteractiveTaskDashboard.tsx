@@ -38,12 +38,13 @@ const InteractiveTaskDashboard: React.FC<InteractiveTaskDashboardProps> = ({ tas
   // 「現在時刻」を state で管理。これを随時更新することで残り時間を再計算させる
   const [currentTime, setCurrentTime] = useState<Date>(new Date());
 
-  // タスク展開状態管理用
+  // タスク展開状態管理用（タスクタイトルをキーにして展開状態を保持）
   const [expandedTasks, setExpandedTasks] = useState<Set<string>>(new Set());
 
-  // セクションの表示・非表示切り替え
+  // 各セクションの表示・非表示切り替え
   const [showNoDeadlineSection, setShowNoDeadlineSection] = useState(false);
-  const [showDeadlineSection, setShowDeadlineSection] = useState(true);
+  const [showActiveDeadlineSection, setShowActiveDeadlineSection] = useState(true);
+  const [showExpiredSection, setShowExpiredSection] = useState(false);
 
   // カレンダー選択日
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
@@ -57,37 +58,36 @@ const InteractiveTaskDashboard: React.FC<InteractiveTaskDashboardProps> = ({ tas
     return () => clearInterval(timer);
   }, []);
 
-  // 期限なしタスク
+  // 期限なしタスク： importance が高い順にソート
   const tasksWithNoDeadline = tasks
     .filter((task) => task.deadline === null)
-    // importance が高い順にソート
     .sort((a, b) => b.importance - a.importance);
 
-  // 期限ありタスク
-  // ここで「現在時刻 (currentTime)」を元に残り時間・優先度を計算
+  // 期限付きタスク： 各タスクに残り時間と優先度を計算
   const tasksWithDeadline = tasks
     .filter((task) => task.deadline !== null)
     .map((task) => {
       const deadlineDate = new Date(task.deadline as string);
       const diffTime = deadlineDate.getTime() - currentTime.getTime();
-      const remainingHours = Math.max(diffTime / (1000 * 60 * 60), 0);
-      // 0未満にならないように (期限切れタスクの場合は0)
+      const remainingHours = diffTime > 0 ? diffTime / (1000 * 60 * 60) : 0;
       const priority = task.importance / Math.pow(remainingHours + 1, ADJUSTMENT_FACTOR);
       return {
         ...task,
         remainingHours,
         priority,
+        deadlineDate,
       };
-    })
-    // priority の降順でソート
+    });
+
+  // 期限が未来のタスク（未完了タスク）と、期限が過ぎたタスクに分割
+  const activeTasks = tasksWithDeadline.filter((task) => task.deadlineDate > currentTime)
+    .sort((a, b) => b.priority - a.priority);
+  const expiredTasks = tasksWithDeadline.filter((task) => task.deadlineDate <= currentTime)
     .sort((a, b) => b.priority - a.priority);
 
-  // 選択された日のタスク
+  // 選択された日のタスク（active のみ対象）
   const tasksForSelectedDate = selectedDate
-    ? tasksWithDeadline.filter((task) => {
-      const taskDate = new Date(task.deadline!.replace(" ", "T"));
-      return formatDate(taskDate) === formatDate(selectedDate);
-    })
+    ? activeTasks.filter((task) => formatDate(task.deadlineDate) === formatDate(selectedDate))
     : [];
 
   // タスククリック時: 日付を選択し、展開状態をトグル
@@ -106,7 +106,6 @@ const InteractiveTaskDashboard: React.FC<InteractiveTaskDashboardProps> = ({ tas
     });
   };
 
-
   function PriorityLabel({ priority }: { priority: number }) {
     if (priority >= HIGH_PRIORITY_THRESHOLD) {
       return (
@@ -124,19 +123,37 @@ const InteractiveTaskDashboard: React.FC<InteractiveTaskDashboardProps> = ({ tas
     return null;
   }
 
+  // 折りたたみボタン用のアイコン
+  const ToggleButton = ({
+    expanded,
+    onClick,
+    label,
+  }: {
+    expanded: boolean;
+    onClick: () => void;
+    label: string;
+  }) => (
+    <button onClick={onClick} className="text-blue-500 hover:underline flex items-center gap-1">
+      {expanded ? "▲" : "▼"} {label}
+    </button>
+  );
+
   return (
-    <div>
+    <div className="space-y-8">
       {/* 期限なしタスク */}
-      <section className="mb-12">
+      <section>
         <div className="flex justify-between items-center border-b border-gray-300 dark:border-gray-700 pb-2 mb-4">
           <h2 className="text-3xl font-semibold text-gray-800 dark:text-gray-200">
             期限なしタスク (重要度順)
           </h2>
           <button
             onClick={() => setShowNoDeadlineSection((prev) => !prev)}
-            className="text-blue-500 hover:underline"
+            className="flex items-center space-x-2 text-blue-500 hover:bg-blue-100 dark:hover:bg-blue-900 rounded-lg px-4 py-2 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
           >
-            {showNoDeadlineSection ? "折りたたむ" : "展開する"}
+            <span>{showNoDeadlineSection ? "折りたたむ" : "展開する"}</span>
+            <span className="text-xl">
+              {showNoDeadlineSection ? "▲" : "▼"}
+            </span>
           </button>
         </div>
         {showNoDeadlineSection && (
@@ -155,7 +172,6 @@ const InteractiveTaskDashboard: React.FC<InteractiveTaskDashboardProps> = ({ tas
                       <span className="text-base text-gray-600 dark:text-gray-300">
                         重要度: {task.importance}
                       </span>
-                      {/* 重要度ラベル表示例 */}
                       {task.importance >= 9 ? (
                         <span className="bg-red-500 text-white text-xs font-semibold rounded-full px-2 py-0.5">
                           高重要度
@@ -178,26 +194,28 @@ const InteractiveTaskDashboard: React.FC<InteractiveTaskDashboardProps> = ({ tas
         )}
       </section>
 
-      {/* 期限付きタスク */}
-      <section className="mb-12">
+      {/* 未完了（期限付き）タスク */}
+      <section>
         <div className="flex justify-between items-center border-b border-gray-300 dark:border-gray-700 pb-2 mb-4">
           <h2 className="text-3xl font-semibold text-gray-800 dark:text-gray-200">
-            期限付きタスク (優先度順)
+            期限付きタスク (未完了・優先度順)
           </h2>
           <button
-            onClick={() => setShowDeadlineSection((prev) => !prev)}
-            className="text-blue-500 hover:underline"
+            onClick={() => setShowActiveDeadlineSection((prev) => !prev)}
+            className="flex items-center space-x-2 text-blue-500 hover:bg-blue-100 dark:hover:bg-blue-900 rounded-lg px-4 py-2 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
           >
-            {showDeadlineSection ? "折りたたむ" : "展開する"}
+            <span>{showActiveDeadlineSection ? "折りたたむ" : "展開する"}</span>
+            <span className="text-xl">
+              {showActiveDeadlineSection ? "▲" : "▼"}
+            </span>
           </button>
         </div>
-        {showDeadlineSection && (
+        {showActiveDeadlineSection && (
           <ul className="space-y-4">
-            {tasksWithDeadline.length > 0 ? (
-              tasksWithDeadline.map((task) => {
+            {activeTasks.length > 0 ? (
+              activeTasks.map((task) => {
                 const taskKey = task.title;
                 const isExpanded = expandedTasks.has(taskKey);
-
                 return (
                   <li
                     key={taskKey}
@@ -213,7 +231,6 @@ const InteractiveTaskDashboard: React.FC<InteractiveTaskDashboardProps> = ({ tas
                         <PriorityLabel priority={task.priority} />
                       </div>
                     </div>
-                    {/* 展開部分 */}
                     {isExpanded && (
                       <div className="mt-2 text-sm text-gray-500 dark:text-gray-400 border-t pt-2">
                         <div>
@@ -222,6 +239,10 @@ const InteractiveTaskDashboard: React.FC<InteractiveTaskDashboardProps> = ({ tas
                         <div>
                           <strong>締切:</strong> {task.deadline}
                         </div>
+                        <div>
+                          <strong>残り時間:</strong>{" "}
+                          {formatRemainingTime(task.remainingHours)}
+                        </div>
                       </div>
                     )}
                   </li>
@@ -229,7 +250,70 @@ const InteractiveTaskDashboard: React.FC<InteractiveTaskDashboardProps> = ({ tas
               })
             ) : (
               <p className="text-gray-600 dark:text-gray-300">
-                期限付きタスクはありません。
+                未完了の期限付きタスクはありません。
+              </p>
+            )}
+          </ul>
+        )}
+      </section>
+
+      {/* 期限切れタスク */}
+      <section>
+        <div className="flex justify-between items-center border-b border-gray-300 dark:border-gray-700 pb-2 mb-4">
+          <h2 className="text-3xl font-semibold text-gray-800 dark:text-gray-200">
+            期限切れタスク
+          </h2>
+          <button
+            onClick={() => setShowExpiredSection((prev) => !prev)}
+            className="flex items-center space-x-2 text-blue-500 hover:bg-blue-100 dark:hover:bg-blue-900 rounded-lg px-4 py-2 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          >
+            <span>{showExpiredSection ? "折りたたむ" : "展開する"}</span>
+            <span className="text-xl">
+              {showExpiredSection ? "▲" : "▼"}
+            </span>
+          </button>
+        </div>
+        {showExpiredSection && (
+          <ul className="space-y-4">
+            {expiredTasks.length > 0 ? (
+              expiredTasks.map((task) => {
+                const taskKey = task.title;
+                const isExpanded = expandedTasks.has(taskKey);
+                return (
+                  <li
+                    key={taskKey}
+                    onClick={() => handleTaskClick(task.deadline, taskKey)}
+                    className="cursor-pointer bg-gray-200 dark:bg-gray-700 rounded-lg shadow p-6 hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors duration-200"
+                  >
+                    <div className="flex flex-col sm:flex-row justify-between items-center">
+                      <span className="text-xl font-medium text-gray-900 dark:text-gray-100">
+                        {task.title}
+                      </span>
+                      <div className="flex items-center space-x-4">
+                        <span>優先度: {task.priority.toFixed(2)}</span>
+                        <PriorityLabel priority={task.priority} />
+                      </div>
+                    </div>
+                    {isExpanded && (
+                      <div className="mt-2 text-sm text-gray-500 dark:text-gray-400 border-t pt-2">
+                        <div>
+                          <strong>重要度:</strong> {task.importance}
+                        </div>
+                        <div>
+                          <strong>締切:</strong> {task.deadline}
+                        </div>
+                        <div>
+                          <strong>残り時間:</strong>{" "}
+                          {formatRemainingTime(task.remainingHours)}
+                        </div>
+                      </div>
+                    )}
+                  </li>
+                );
+              })
+            ) : (
+              <p className="text-gray-600 dark:text-gray-300">
+                期限切れタスクはありません。
               </p>
             )}
           </ul>
@@ -237,7 +321,7 @@ const InteractiveTaskDashboard: React.FC<InteractiveTaskDashboardProps> = ({ tas
       </section>
 
       {/* カレンダー表示 */}
-      <section className="mb-12">
+      <section>
         <h2 className="text-3xl font-semibold text-gray-800 dark:text-gray-200 mb-4 border-b border-gray-300 dark:border-gray-700 pb-2">
           カレンダー表示
         </h2>
@@ -251,7 +335,7 @@ const InteractiveTaskDashboard: React.FC<InteractiveTaskDashboardProps> = ({ tas
       </section>
 
       {/* 選択された日のタスク */}
-      <section className="mb-12">
+      <section>
         <h2 className="text-3xl font-semibold text-gray-800 dark:text-gray-200 mb-4 border-b border-gray-300 dark:border-gray-700 pb-2">
           {selectedDate
             ? `選択された日のタスク (${formatDate(selectedDate)})`

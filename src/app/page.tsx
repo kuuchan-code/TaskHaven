@@ -1,5 +1,5 @@
 // src/app/page.tsx
-'use client';
+"use client";
 import useSWR from 'swr';
 import InteractiveTaskDashboard from './components/InteractiveTaskDashboard';
 
