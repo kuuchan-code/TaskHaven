@@ -7,9 +7,10 @@ import "react-calendar/dist/Calendar.css";
 import { usePrefersColorSchemeDark } from "@wojtekmaj/react-hooks";
 
 export type Task = {
+  id?: number;
   title: string;
   importance: number;
-  deadline: string | null; // "YYYY-MM-DD HH:mm" or null
+  deadline: string | null;
 };
 
 interface CalendarViewProps {
@@ -18,7 +19,6 @@ interface CalendarViewProps {
   setSelectedDate: (date: Date | null) => void;
 }
 
-// 日付を "YYYY-MM-DD" に変換するユーティリティ
 const formatDate = (date: Date) => {
   const year = date.getFullYear();
   const month = String(date.getMonth() + 1).padStart(2, "0");
@@ -38,14 +38,12 @@ const CalendarView: React.FC<CalendarViewProps> = ({
     return tasks.filter((task) => {
       if (task.deadline) {
         const taskDate = new Date(task.deadline);
-        // 同じフォーマット関数を利用することで比較可能にする
         const taskDateString = formatDate(taskDate);
         return taskDateString === targetDateString;
       }
       return false;
     });
   };
-  
 
   return (
     <div className="mt-4">
@@ -80,9 +78,7 @@ const CalendarView: React.FC<CalendarViewProps> = ({
           }
           return "";
         }}
-        className={`react-calendar mx-auto ${
-          prefersColorSchemeDark ? "dark" : ""
-        }`}
+        className={`react-calendar mx-auto ${prefersColorSchemeDark ? "dark" : ""}`}
       />
     </div>
   );

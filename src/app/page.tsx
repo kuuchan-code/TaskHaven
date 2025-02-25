@@ -2,9 +2,10 @@
 "use client";
 import useSWR from 'swr';
 import InteractiveTaskDashboard from './components/InteractiveTaskDashboard';
-
+import TaskForm from './components/TaskForm';
 
 export type Task = {
+  id: number;
   title: string;
   importance: number;
   deadline: string | null;
@@ -13,7 +14,7 @@ export type Task = {
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
 export default function Page() {
-  const { data: tasks, error } = useSWR<Task[]>('/api/tasks', fetcher, { refreshInterval: 5000 });
+  const { data: tasks, error, mutate } = useSWR<Task[]>('/api/tasks', fetcher, { refreshInterval: 5000 });
 
   if (error) return <div>Error loading tasks.</div>;
   if (!tasks) return <div>Loading...</div>;
@@ -24,7 +25,8 @@ export default function Page() {
         <h1 className="text-5xl font-extrabold text-center text-gray-900 dark:text-gray-100 mb-12">
           タスク一覧
         </h1>
-        <InteractiveTaskDashboard tasks={tasks} />
+        <TaskForm onTaskAdded={mutate} />
+        <InteractiveTaskDashboard tasks={tasks} refreshTasks={mutate} />
       </div>
     </main>
   );

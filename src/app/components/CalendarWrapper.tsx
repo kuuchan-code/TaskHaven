@@ -1,7 +1,7 @@
 // src/app/components/CalendarWrapper.tsx
 "use client";
-
-import dynamic from "next/dynamic";
+import React from "react";
+import CalendarView from "./CalendarView";
 import { Task } from "../page";
 
 interface CalendarWrapperProps {
@@ -10,17 +10,8 @@ interface CalendarWrapperProps {
   setSelectedDate: (date: Date | null) => void;
 }
 
-const CalendarView = dynamic(
-  () => import("./CalendarView"),
-  { ssr: false }
-);
+const CalendarWrapper: React.FC<CalendarWrapperProps> = ({ tasks, selectedDate, setSelectedDate }) => {
+  return <CalendarView tasks={tasks} selectedDate={selectedDate} setSelectedDate={setSelectedDate} />;
+};
 
-export default function CalendarWrapper({ tasks, selectedDate, setSelectedDate }: CalendarWrapperProps) {
-  return (
-    <CalendarView
-      tasks={tasks}
-      selectedDate={selectedDate}
-      setSelectedDate={setSelectedDate}
-    />
-  );
-}
+export default CalendarWrapper;
