@@ -1,49 +1,22 @@
-import { google } from 'googleapis';
-import { OAuth2Client } from 'google-auth-library';
-import path from 'path';
+// src/app/page.tsx
+'use client';
+import useSWR from 'swr';
 import InteractiveTaskDashboard from './components/InteractiveTaskDashboard';
-export const revalidate = 1;
+
 
 export type Task = {
   title: string;
   importance: number;
-  deadline: string | null; // "YYYY-MM-DD" or "YYYY-MM-DD HH:mm" (null if no deadline)
+  deadline: string | null;
 };
 
-async function getTasksFromGoogleSheets(): Promise<Task[]> {
-  const auth = new google.auth.GoogleAuth({
-    keyFile: path.join(process.cwd(), "big-bison-388808-10558f7654da.json"),
-    scopes: ['https://www.googleapis.com/auth/spreadsheets.readonly'],
-  });
+const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
-  // 取得した認証クライアントを OAuth2Client にキャスト
-  const client = (await auth.getClient()) as OAuth2Client;
-  const sheets = google.sheets({ version: 'v4', auth: client });
+export default function Page() {
+  const { data: tasks, error } = useSWR<Task[]>('/api/tasks', fetcher);
 
-  const spreadsheetId = process.env.SPREADSHEET_ID as string;
-  const range = 'Sheet1!A:C';
-
-  const response = await sheets.spreadsheets.values.get({
-    spreadsheetId,
-    range,
-  });
-
-  const rows = response.data.values;
-  if (!rows || rows.length < 2) {
-    return [];
-  }
-
-  const [, ...data] = rows;
-  const tasks: Task[] = data.map((row) => ({
-    title: row[0],
-    importance: Number(row[1]),
-    deadline: row[2] ? row[2] : null,
-  }));
-  return tasks;
-}
-
-export default async function Page() {
-  const tasks = await getTasksFromGoogleSheets();
+  if (error) return <div>Error loading tasks.</div>;
+  if (!tasks) return <div>Loading...</div>;
 
   return (
     <main className="min-h-screen bg-gray-100 dark:bg-gray-900 p-8">
