@@ -1,4 +1,6 @@
 // src/app/api/tasks/route.ts
+export const runtime = 'edge';
+
 import { createClient, PostgrestError } from '@supabase/supabase-js';
 import type { NextRequest } from 'next/server';
 
@@ -18,7 +20,7 @@ export async function GET(_request: NextRequest) {
   void _request;
 
   const { data, error } = await supabase
-    .from('tasks')
+    .from('kuu')
     .select('*') as { data: Task[] | null; error: PostgrestError | null };
 
   if (error) {
