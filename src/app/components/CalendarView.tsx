@@ -33,18 +33,19 @@ const CalendarView: React.FC<CalendarViewProps> = ({
 }) => {
   const prefersColorSchemeDark = usePrefersColorSchemeDark();
 
-  // 指定日付と一致するタスクを抽出
   const tasksOnDate = (date: Date) => {
     const targetDateString = formatDate(date);
     return tasks.filter((task) => {
       if (task.deadline) {
-        const taskDate = new Date(task.deadline.replace(" ", "T"));
+        const taskDate = new Date(task.deadline);
+        // 同じフォーマット関数を利用することで比較可能にする
         const taskDateString = formatDate(taskDate);
         return taskDateString === targetDateString;
       }
       return false;
     });
   };
+  
 
   return (
     <div className="mt-4">

@@ -213,7 +213,10 @@ const InteractiveTaskDashboard: React.FC<InteractiveTaskDashboardProps> = ({ tas
                           <strong>重要度:</strong> {task.importance}
                         </div>
                         <div>
-                          <strong>締切:</strong> {task.deadline}
+                          <strong>締切:</strong> {task.deadline
+                            ? new Date(task.deadline.replace(" ", "T"))
+                              .toLocaleString("ja-JP", { timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone })
+                            : "期限なし"}
                         </div>
                         <div>
                           <strong>残り時間:</strong> {formatRemainingTime(task.remainingHours)}
@@ -271,7 +274,7 @@ const InteractiveTaskDashboard: React.FC<InteractiveTaskDashboardProps> = ({ tas
                           <strong>重要度:</strong> {task.importance}
                         </div>
                         <div>
-                          <strong>締切:</strong> {task.deadline}
+                          <strong>締切:</strong> {task.deadline ? new Date(task.deadline).toLocaleString('ja-JP') : '期限なし'}
                         </div>
                         <div>
                           <strong>残り時間:</strong> {formatRemainingTime(task.remainingHours)}
