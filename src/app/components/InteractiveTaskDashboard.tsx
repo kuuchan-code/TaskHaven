@@ -109,9 +109,11 @@ const InteractiveTaskDashboard: React.FC<InteractiveTaskDashboardProps> = ({ tas
     ? activeTasks.filter((task) => formatDate(task.deadlineDate) === formatDate(selectedDate))
     : [];
 
+  // タスククリック時、期限があればカレンダー選択も行い、ない場合は展開のみ
   const handleTaskClick = (deadline: string | null, taskId: number) => {
-    if (!deadline) return;
-    setSelectedDate(new Date(deadline.replace(" ", "T")));
+    if (deadline) {
+      setSelectedDate(new Date(deadline.replace(" ", "T")));
+    }
     setExpandedTasks((prev) => {
       const newSet = new Set(prev);
       if (newSet.has(taskId)) {
@@ -187,7 +189,8 @@ const InteractiveTaskDashboard: React.FC<InteractiveTaskDashboardProps> = ({ tas
               tasksWithNoDeadline.map((task) => (
                 <li
                   key={task.id}
-                  className="bg-white dark:bg-gray-800 rounded-lg shadow p-6 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-200"
+                  onClick={() => handleTaskClick(task.deadline, task.id)}
+                  className="cursor-pointer bg-white dark:bg-gray-800 rounded-lg shadow p-6 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-200"
                 >
                   <div className="flex justify-between items-center">
                     <span className="text-xl font-medium text-gray-900 dark:text-gray-100">
@@ -208,6 +211,83 @@ const InteractiveTaskDashboard: React.FC<InteractiveTaskDashboardProps> = ({ tas
                       ) : null}
                     </div>
                   </div>
+                  {expandedTasks.has(task.id) && (
+                    <div
+                      className="mt-2 text-sm text-gray-500 dark:text-gray-400 border-t pt-2"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      {editingTaskId === task.id ? (
+                        <div className="space-y-2">
+                          <div>
+                            <label className="block text-sm font-medium">タイトル:</label>
+                            <input
+                              type="text"
+                              value={editingTitle}
+                              onChange={(e) => setEditingTitle(e.target.value)}
+                              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm"
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-sm font-medium">重要度:</label>
+                            <input
+                              type="number"
+                              value={editingImportance}
+                              onChange={(e) => setEditingImportance(Number(e.target.value))}
+                              min={1}
+                              max={10}
+                              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm"
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-sm font-medium">締切:</label>
+                            <input
+                              type="datetime-local"
+                              value={editingDeadline}
+                              onChange={(e) => setEditingDeadline(e.target.value)}
+                              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm"
+                            />
+                          </div>
+                          <div className="flex space-x-2">
+                            <button onClick={() => saveEditing(task.id)} className="px-3 py-1 bg-green-500 text-white rounded">
+                              保存
+                            </button>
+                            <button onClick={cancelEditing} className="px-3 py-1 bg-gray-500 text-white rounded">
+                              キャンセル
+                            </button>
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="space-y-2">
+                          <div>
+                            <strong>重要度:</strong> {task.importance}
+                          </div>
+                          <div>
+                            <strong>締切:</strong> 期限なし
+                          </div>
+                          <div className="flex space-x-2 mt-2">
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                startEditing(task);
+                              }}
+                              className="px-3 py-1 bg-green-500 text-white rounded"
+                            >
+                              編集
+                            </button>
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                deleteTask(task.id);
+                              }}
+                              className="px-3 py-1 bg-red-500 text-white rounded"
+                            >
+                              削除
+                            </button>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  )}
                 </li>
               ))
             ) : (
@@ -300,7 +380,9 @@ const InteractiveTaskDashboard: React.FC<InteractiveTaskDashboardProps> = ({ tas
                             <div>
                               <strong>締切:</strong>{" "}
                               {task.deadline
-                                ? new Date(task.deadline.replace(" ", "T")).toLocaleString("ja-JP", { timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone })
+                                ? new Date(task.deadline.replace(" ", "T")).toLocaleString("ja-JP", {
+                                    timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+                                  })
                                 : "期限なし"}
                             </div>
                             <div>
