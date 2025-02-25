@@ -241,7 +241,7 @@ const InteractiveTaskDashboard: React.FC<InteractiveTaskDashboardProps> = ({ tas
         <h2 className="text-3xl font-semibold text-gray-800 dark:text-gray-200 mb-4 border-b border-gray-300 dark:border-gray-700 pb-2">
           カレンダー表示
         </h2>
-        <div className="dark:bg-gray-800 p-6">
+        <div className="p-6">
           <CalendarWrapper
             tasks={tasks.filter((task) => task.deadline !== null)}
             selectedDate={selectedDate}
