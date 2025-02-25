@@ -1,3 +1,4 @@
+export const runtime = 'edge';
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { google } from 'googleapis';
 import { OAuth2Client } from 'google-auth-library';
