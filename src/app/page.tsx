@@ -13,7 +13,7 @@ export type Task = {
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
 export default function Page() {
-  const { data: tasks, error } = useSWR<Task[]>('/api/tasks', fetcher);
+  const { data: tasks, error } = useSWR<Task[]>('/api/tasks', fetcher, { refreshInterval: 5000 });
 
   if (error) return <div>Error loading tasks.</div>;
   if (!tasks) return <div>Loading...</div>;
