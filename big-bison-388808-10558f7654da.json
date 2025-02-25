@@ -1,0 +1,13 @@
+{
+  "type": "service_account",
+  "project_id": "big-bison-388808",
+  "private_key_id": "10558f7654dac942dc56a1f7ce7b7200a881b178",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQCni2ub7FJdQFdl\nk5BYUjnYM7cbZ/D1bpez+CLAPG5JwEC9kWzz4dlCSuIxOVFgFTG9A3uCrpT0d4VW\niYssOkFWDMrwNPpZzw3dy05ZUSrxKUQtWOnjA3BJlNxcn6jfofG6ziG3tAbo7vZy\n0jw17JiJjSNyvbzsN7b0rmn63Qa8kiIXKUwHmnvgpI6F/Bdfws5zjnbqTTDeB2wM\nntS5ZTNl8kaagVZ5FIw0qW5u+s7PTXIVhbnnHy4ZH+Yy26GzTxwkB2npgSzdr1n+\nef/71J1qAA3nPBtCEPO1DctCNntuF1yNLeiygN7RJR5/4wfIMUgvKTxXXsmRqicO\nbaYA+6tbAgMBAAECggEABIqmdZkP2IBEfjfkS0ibUc2BEqicIwMG8LVyt7RLpwsj\nlh/pjKjcG0xtWjk8B/c7HG0KPY4e8ouE3UYoNCA2Ii+BlsZQ3PtcXF1E9+3X1Kay\nNup4mJNAyXXUDVy0lq9Mnqw0xMaIA2tq2czyHeIWdnARfGxBQUP3XSWXMNop8xWV\nxSw6qgacTvAunU7/748ZeeW7qGkNSgEvfy35I+6o8yWdG0PiQ+v/XsIk0STiCQJi\nLudwpcBONSC2pF/kIWizCnWLnJWOUM55N43V+qf7fbWv888NsW9wFoEmhomdOnwZ\nJJkwrjGqDRdX4rn9sHmEUiKWCssw+IC7yT294JxtQQKBgQDS0yrRDyJq0l6b1IGD\nhvJE2TOIJdWf+igLqmAvjQilofVjW5SNlzEvU1hhUyL3DRNnWtjmdOWw+ASdVtzy\nrVy4lsnP76R2mPLw27IrrdDVmsqFWoCoOKhFcVSaeE4TP6LK+h+3QtrB3+4fmr5G\nnUyAGC2wnY0s7IhcIMeiiPS2mwKBgQDLcht3+s6f7WtDZILUCV9WzpAG4lacDM04\nIFJXXvh9p1/HPDA4hMJkn/av+fMyV+PXGULnBEfC0CG6+gkhZfG/ZRhpnFCV7+Os\n7sBnODBJjAf5KtAgwVaXpgosJnloq+wn/X/+qAQIg8iLK3vglksNdCiyXOkQC0Wi\nAazE8vnKQQKBgQCOPa0guh5VhjQQ3VK4o/6nVwg+rpAwTH5iSIR28KfJ4LkIXUyg\nL0cfEBOMLqRjnO3fiNrYujwSp3OtmGKgVTk+zXXCFoSXA+C9guz2LWK+C57iVEqD\ntR5LJAiZ49uBfyjd2940LiYcMnKd3jDMwepQbn+9Lr+GdNwXlII89jxtSwKBgQC2\nmbY52+z08h2iIWajdb4SpdfztdbSvVK8m5YMQXt7HG0E3+rP76iitEiv7gHwH56q\nA0xfGSJnonOD5MOpLFzs0oo00E4sJWIOZ0Rd4LrGaF8HrvubSqyz9B2RPv8diaGu\nywLEyHzGP7IR53eKPpsiei3E2Ut+UP+wxxwQsZytgQKBgHnjw0yeMN1neTpEKOn9\n3AtG435Tcb8fejTJ8jxtEE+Z+ORCJhOCgr+lIU239eqaHn2GoNcuBDMJv1MsWniW\nCMLXZ/IyfiX/CTcPZuDSFTpZUJn8aM1jA5/iJeAtS+W2fgdMXhvosltJZvIREOOY\nZGhDQ57dkJLyryrXi4dZNBeU\n-----END PRIVATE KEY-----\n",
+  "client_email": "nextjs@big-bison-388808.iam.gserviceaccount.com",
+  "client_id": "117873667813981562618",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/nextjs%40big-bison-388808.iam.gserviceaccount.com",
+  "universe_domain": "googleapis.com"
+}
