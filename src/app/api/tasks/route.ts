@@ -10,7 +10,7 @@ export async function GET(request: Request) {
   // 環境変数からスプレッドシートのIDと API キーを取得
   const spreadsheetId = process.env.SPREADSHEET_ID;
   const apiKey = process.env.GOOGLE_SHEETS_API_KEY;
-  const range = 'Sheet1!A:C';
+  const range = 'Sheet1!A:D';
 
   if (!spreadsheetId || !apiKey) {
     return new Response(
@@ -43,7 +43,7 @@ export async function GET(request: Request) {
     const tasks: Task[] = data.map((row: string[]) => ({
       title: row[0],
       importance: Number(row[1]),
-      deadline: row[2] ? row[2] : null,
+      deadline: row[3] ? row[3] : null,
     }));
 
     return new Response(JSON.stringify(tasks), {
