@@ -1,8 +1,8 @@
 // src/app/page.tsx
 "use client";
 import useSWR from 'swr';
-import InteractiveTaskDashboard from './components/InteractiveTaskDashboard';
-import TaskForm from './components/TaskForm';
+import InteractiveTaskDashboard from '../components/InteractiveTaskDashboard';
+import TaskForm from '../components/TaskForm';
 
 export type Task = {
   id: number;
@@ -14,7 +14,7 @@ export type Task = {
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
 export default function Page() {
-  const { data: tasks, error, mutate } = useSWR<Task[]>('/api/kuu-tasks', fetcher, { refreshInterval: 5000 });
+  const { data: tasks, error, mutate } = useSWR<Task[]>('/api/nado-tasks', fetcher, { refreshInterval: 5000 });
 
   if (error) return <div>Error loading tasks.</div>;
   if (!tasks) return <div>Loading...</div>;
