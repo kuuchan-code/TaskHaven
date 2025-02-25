@@ -2,6 +2,7 @@ import { google } from 'googleapis';
 import { OAuth2Client } from 'google-auth-library';
 import path from 'path';
 import InteractiveTaskDashboard from './components/InteractiveTaskDashboard';
+export const revalidate = 1;
 
 export type Task = {
   title: string;
