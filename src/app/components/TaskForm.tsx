@@ -29,6 +29,19 @@ export default function TaskForm({ onTaskAdded, source }: TaskFormProps) {
   const [deadline, setDeadline] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
 
+  // 相対的な締切日時を datetime-local 用フォーマットで取得するヘルパー関数
+  const getRelativeDeadline = (hoursOffset: number): string => {
+    const date = new Date();
+    date.setHours(date.getHours() + hoursOffset);
+    const pad = (num: number) => String(num).padStart(2, "0");
+    const year = date.getFullYear();
+    const month = pad(date.getMonth() + 1);
+    const day = pad(date.getDate());
+    const hours = pad(date.getHours());
+    const minutes = pad(date.getMinutes());
+    return `${year}-${month}-${day}T${hours}:${minutes}`;
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -97,6 +110,47 @@ export default function TaskForm({ onTaskAdded, source }: TaskFormProps) {
           onChange={(e) => setDeadline(e.target.value)}
           className="mt-1 block w-full rounded-md border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200 shadow-sm focus:ring-blue-500 focus:border-blue-500"
         />
+      </div>
+      {/* 相対的な締切日時を選択できるショートカット */}
+      <div>
+        <span className="block text-sm font-medium text-gray-700 dark:text-gray-300">ショートカット締切：</span>
+        <div className="flex space-x-2 mt-1">
+          <button
+            type="button"
+            onClick={() => setDeadline(getRelativeDeadline(1))}
+            className="px-2 py-1 bg-gray-200 dark:bg-gray-600 text-sm rounded"
+          >
+            1時間後
+          </button>
+          <button
+            type="button"
+            onClick={() => setDeadline(getRelativeDeadline(3))}
+            className="px-2 py-1 bg-gray-200 dark:bg-gray-600 text-sm rounded"
+          >
+            3時間後
+          </button>
+          <button
+            type="button"
+            onClick={() => setDeadline(getRelativeDeadline(24))}
+            className="px-2 py-1 bg-gray-200 dark:bg-gray-600 text-sm rounded"
+          >
+            1日後
+          </button>
+          <button
+            type="button"
+            onClick={() => setDeadline(getRelativeDeadline(72))}
+            className="px-2 py-1 bg-gray-200 dark:bg-gray-600 text-sm rounded"
+          >
+            3日後
+          </button>
+          <button
+            type="button"
+            onClick={() => setDeadline(getRelativeDeadline(168))}
+            className="px-2 py-1 bg-gray-200 dark:bg-gray-600 text-sm rounded"
+          >
+            1週間後
+          </button>
+        </div>
       </div>
       <button
         type="submit"
