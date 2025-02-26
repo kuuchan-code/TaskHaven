@@ -27,14 +27,14 @@ interface PriorityLabelProps {
 const PriorityLabel: React.FC<PriorityLabelProps> = ({ priority }) => {
   if (priority >= HIGH_PRIORITY_THRESHOLD) {
     return (
-      <span className="bg-red-600 text-white text-xs font-bold rounded-full px-2 py-0.5">
+      <span className="bg-red-600 dark:bg-red-700 text-white text-xs font-bold rounded-full px-2 py-0.5">
         高優先度
       </span>
     );
   }
   if (priority > MEDIUM_PRIORITY_THRESHOLD && priority < HIGH_PRIORITY_THRESHOLD) {
     return (
-      <span className="bg-yellow-500 text-white text-xs font-bold rounded-full px-2 py-0.5">
+      <span className="bg-yellow-500 dark:bg-yellow-600 text-white text-xs font-bold rounded-full px-2 py-0.5">
         中優先度
       </span>
     );
@@ -50,7 +50,7 @@ interface ToggleButtonProps {
 const ToggleButton: React.FC<ToggleButtonProps> = ({ expanded, onClick, label }) => (
   <button
     onClick={onClick}
-    className="flex items-center justify-center text-sm font-semibold text-blue-600 hover:bg-blue-100 dark:hover:bg-blue-900 rounded-md px-4 py-2 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
+    className="flex items-center justify-center text-sm font-semibold text-blue-600 dark:text-blue-300 hover:bg-blue-100 dark:hover:bg-blue-800 rounded-md px-4 py-2 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
   >
     {expanded ? "▲" : "▼"} {label}
   </button>
@@ -124,7 +124,7 @@ const TaskEditor: React.FC<TaskEditorProps> = ({
   onSave,
   onCancel,
 }) => (
-  <div className="space-y-4 p-4 bg-gray-50 dark:bg-gray-900 rounded-md shadow-inner">
+  <div className="space-y-4 p-4 bg-gray-50 dark:bg-gray-800 rounded-md shadow-inner">
     <div>
       <label className="block text-sm font-medium text-gray-800 dark:text-gray-200">
         タイトル:
@@ -133,7 +133,7 @@ const TaskEditor: React.FC<TaskEditorProps> = ({
         type="text"
         value={editingTitle}
         onChange={(e) => setEditingTitle(e.target.value)}
-        className="mt-1 block w-full rounded-md border border-gray-300 dark:border-gray-600 shadow-sm p-2"
+        className="mt-1 block w-full rounded-md border border-gray-300 dark:border-gray-600 shadow-sm p-2 bg-white dark:bg-gray-900"
       />
     </div>
     <div>
@@ -157,15 +157,15 @@ const TaskEditor: React.FC<TaskEditorProps> = ({
         type="datetime-local"
         value={editingDeadline || ""}
         onChange={(e) => setEditingDeadline(e.target.value)}
-        className="mt-1 block w-full rounded-md border border-gray-300 dark:border-gray-600 shadow-sm p-2"
+        className="mt-1 block w-full rounded-md border border-gray-300 dark:border-gray-600 shadow-sm p-2 bg-white dark:bg-gray-900"
       />
       <DeadlineShortcuts setDeadline={setEditingDeadline} />
     </div>
     <div className="flex justify-end space-x-3">
-      <button onClick={onSave} className="px-4 py-2 bg-green-600 text-white rounded-md shadow hover:bg-green-700 transition-colors">
+      <button onClick={onSave} className="px-4 py-2 bg-green-600 dark:bg-green-700 text-white rounded-md shadow hover:bg-green-700 dark:hover:bg-green-800 transition-colors">
         保存
       </button>
-      <button onClick={onCancel} className="px-4 py-2 bg-gray-500 text-white rounded-md shadow hover:bg-gray-600 transition-colors">
+      <button onClick={onCancel} className="px-4 py-2 bg-gray-500 dark:bg-gray-600 text-white rounded-md shadow hover:bg-gray-600 dark:hover:bg-gray-700 transition-colors">
         キャンセル
       </button>
     </div>
@@ -192,7 +192,8 @@ interface TaskItemProps {
   setEditingTitle: (title: string) => void;
   setEditingImportance: (importance: number) => void;
   setEditingDeadline: (deadline: string) => void;
-}const TaskItem: React.FC<TaskItemProps> = ({
+}
+const TaskItem: React.FC<TaskItemProps> = ({
   task,
   isEditing,
   onStartEditing,
@@ -217,7 +218,7 @@ interface TaskItemProps {
   // タスクタイトル部分は常に表示し、クリックで詳細表示を切り替え
   return (
     <li
-      className="cursor-pointer bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+      className="cursor-pointer bg-white dark:bg-gray-900 rounded-xl shadow-md p-6 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
       onClick={() => setShowDetails((prev) => !prev)}
     >
       <div className="flex justify-between items-center">
@@ -242,11 +243,11 @@ interface TaskItemProps {
               重要度: {task.importance}
             </span>
             {task.importance >= 9 ? (
-              <span className="bg-red-600 text-white text-xs font-bold rounded-full px-2 py-0.5">
+              <span className="bg-red-600 dark:bg-red-700 text-white text-xs font-bold rounded-full px-2 py-0.5">
                 高重要度
               </span>
             ) : task.importance >= 7 ? (
-              <span className="bg-yellow-500 text-white text-xs font-bold rounded-full px-2 py-0.5">
+              <span className="bg-yellow-500 dark:bg-yellow-600 text-white text-xs font-bold rounded-full px-2 py-0.5">
                 中重要度
               </span>
             ) : null}
@@ -286,7 +287,7 @@ interface TaskItemProps {
                       e.stopPropagation();
                       onStartEditing();
                     }}
-                    className="px-4 py-2 bg-green-600 text-white rounded-md shadow hover:bg-green-700 transition-colors text-sm"
+                    className="px-4 py-2 bg-green-600 dark:bg-green-700 text-white rounded-md shadow hover:bg-green-700 dark:hover:bg-green-800 transition-colors text-sm"
                   >
                     編集
                   </button>
@@ -296,7 +297,7 @@ interface TaskItemProps {
                         e.stopPropagation();
                         onReopen();
                       }}
-                      className="px-4 py-2 bg-blue-600 text-white rounded-md shadow hover:bg-blue-700 transition-colors text-sm"
+                      className="px-4 py-2 bg-blue-600 dark:bg-blue-700 text-white rounded-md shadow hover:bg-blue-700 dark:hover:bg-blue-800 transition-colors text-sm"
                     >
                       再開
                     </button>
@@ -306,7 +307,7 @@ interface TaskItemProps {
                         e.stopPropagation();
                         onComplete();
                       }}
-                      className="px-4 py-2 bg-blue-600 text-white rounded-md shadow hover:bg-blue-700 transition-colors text-sm"
+                      className="px-4 py-2 bg-blue-600 dark:bg-blue-700 text-white rounded-md shadow hover:bg-blue-700 dark:hover:bg-blue-800 transition-colors text-sm"
                     >
                       完了
                     </button>
@@ -316,7 +317,7 @@ interface TaskItemProps {
                       e.stopPropagation();
                       onDelete();
                     }}
-                    className="px-4 py-2 bg-red-600 text-white rounded-md shadow hover:bg-red-700 transition-colors text-sm"
+                    className="px-4 py-2 bg-red-600 dark:bg-red-700 text-white rounded-md shadow hover:bg-red-700 dark:hover:bg-red-800 transition-colors text-sm"
                   >
                     削除
                   </button>
@@ -329,7 +330,6 @@ interface TaskItemProps {
     </li>
   );
 };
-
 
 interface InteractiveTaskDashboardProps {
   tasks: Task[];
@@ -481,7 +481,7 @@ const InteractiveTaskDashboard: React.FC<InteractiveTaskDashboardProps> = ({
             key={task.id}
             task={task}
             isEditing={editingTaskId === task.id}
-            onClick={() => { }}
+            onClick={() => {}}
             onStartEditing={() => startEditing(task)}
             onSaveEditing={() => saveEditing(task.id)}
             onCancelEditing={cancelEditing}
@@ -507,7 +507,7 @@ const InteractiveTaskDashboard: React.FC<InteractiveTaskDashboardProps> = ({
   return (
     <div className="space-y-12">
       {/* 期限なしタスク */}
-      <section className="bg-white dark:bg-gray-800 rounded-xl shadow p-6">
+      <section className="bg-white dark:bg-gray-900 rounded-xl shadow p-6">
         <div className="flex justify-between items-center border-b pb-3 mb-4">
           <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-100">
             期限なしタスク
@@ -522,7 +522,7 @@ const InteractiveTaskDashboard: React.FC<InteractiveTaskDashboardProps> = ({
       </section>
 
       {/* 期限付きタスク */}
-      <section className="bg-white dark:bg-gray-800 rounded-xl shadow p-6">
+      <section className="bg-white dark:bg-gray-900 rounded-xl shadow p-6">
         <div className="flex justify-between items-center border-b pb-3 mb-4">
           <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-100">
             期限付きタスク
@@ -537,7 +537,7 @@ const InteractiveTaskDashboard: React.FC<InteractiveTaskDashboardProps> = ({
       </section>
 
       {/* 完了済みタスク */}
-      <section className="bg-white dark:bg-gray-800 rounded-xl shadow p-6">
+      <section className="bg-white dark:bg-gray-900 rounded-xl shadow p-6">
         <div className="flex justify-between items-center border-b pb-3 mb-4">
           <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-100">
             完了済みタスク
