@@ -23,7 +23,7 @@ const PushNotificationSetup: React.FC = () => {
     // Service Worker の登録
     if ("serviceWorker" in navigator) {
       navigator.serviceWorker
-        .register(`${process.env.PUBLIC_URL}/firebase-messaging-sw.js`)
+        .register(`/firebase-messaging-sw.js`)
         .then((registration) => {
           console.log("Service Worker 登録成功:", registration);
           // messaging に Service Worker を関連付ける（Firebase v9 の場合は自動関連付けされることもあります）
