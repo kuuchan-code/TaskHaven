@@ -27,7 +27,6 @@ const getTableName = (source: string | null) => {
 
 
 export async function GET(request: NextRequest) {
-  // クエリパラメータから source を取得（未指定の場合はデフォルトの "kuu" 相当として tasks を利用）
   const { searchParams } = new URL(request.url);
   const source = searchParams.get('source');
   const tableName = getTableName(source);

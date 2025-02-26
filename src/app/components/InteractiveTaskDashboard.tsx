@@ -196,7 +196,7 @@ const InteractiveTaskDashboard: React.FC<InteractiveTaskDashboardProps> = ({ tas
 
   const deleteTask = async (taskId: number) => {
     if (confirm("本当に削除しますか？")) {
-      const res = await fetch("/api/tasks", {
+      const res = await fetch("../api/tasks", {
         method: "DELETE",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ id: taskId, source }),
@@ -209,7 +209,7 @@ const InteractiveTaskDashboard: React.FC<InteractiveTaskDashboardProps> = ({ tas
 
   const completeTask = async (taskId: number) => {
     if (confirm("このタスクを完了にしますか？")) {
-      const res = await fetch("/api/tasks", {
+      const res = await fetch("../api/tasks", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ id: taskId, completed: true, source }),
