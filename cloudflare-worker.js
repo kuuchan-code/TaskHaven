@@ -1,5 +1,4 @@
 // cloudflare-worker.js
-import { sign } from "jsonwebtoken";
 
 addEventListener("fetch", (event) => {
     event.respondWith(handleRequest(event.request));
