@@ -552,7 +552,7 @@ const InteractiveTaskDashboard: React.FC<InteractiveTaskDashboardProps> = ({
       <section>
         <div className="flex justify-between items-center border-b border-gray-300 dark:border-gray-700 pb-2 mb-4">
           <h2 className="text-3xl font-semibold text-gray-800 dark:text-gray-200">
-            カレンダー＆選択日のタスク
+            カレンダー
           </h2>
           <ToggleButton
             expanded={showCalendarAndTasks}
@@ -570,11 +570,11 @@ const InteractiveTaskDashboard: React.FC<InteractiveTaskDashboardProps> = ({
               />
             </div>
             <section>
-              <h2 className="text-3xl font-semibold text-gray-800 dark:text-gray-200 mb-4 border-b border-gray-300 dark:border-gray-700 pb-2">
+              <h3 className="text-2xl font-semibold text-gray-800 dark:text-gray-200 mb-4 border-b border-gray-300 dark:border-gray-700 pb-2">
                 {selectedDate
                   ? `選択された日のタスク (${formatDate(selectedDate)})`
                   : "選択された日のタスク"}
-              </h2>
+              </h3>
               {selectedDate ? renderTaskList(tasksForSelectedDate) : (
                 <p className="text-gray-600 dark:text-gray-300">
                   カレンダーまたはタスクをクリックして日付を選択してください。
