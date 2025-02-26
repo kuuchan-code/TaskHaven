@@ -27,14 +27,14 @@ interface PriorityLabelProps {
 const PriorityLabel: React.FC<PriorityLabelProps> = ({ priority }) => {
   if (priority >= HIGH_PRIORITY_THRESHOLD) {
     return (
-      <span className="bg-red-600 dark:bg-red-700 text-white text-xs font-bold rounded-full px-2 py-0.5">
+      <span className="bg-red-600 dark:bg-red-800 text-white text-xs font-bold rounded-full px-2 py-0.5">
         高優先度
       </span>
     );
   }
   if (priority > MEDIUM_PRIORITY_THRESHOLD && priority < HIGH_PRIORITY_THRESHOLD) {
     return (
-      <span className="bg-yellow-500 dark:bg-yellow-600 text-white text-xs font-bold rounded-full px-2 py-0.5">
+      <span className="bg-yellow-500 dark:bg-yellow-700 text-white text-xs font-bold rounded-full px-2 py-0.5">
         中優先度
       </span>
     );
@@ -50,13 +50,12 @@ interface ToggleButtonProps {
 const ToggleButton: React.FC<ToggleButtonProps> = ({ expanded, onClick, label }) => (
   <button
     onClick={onClick}
-    className="flex items-center justify-center text-sm font-semibold text-blue-600 dark:text-blue-300 hover:bg-blue-100 dark:hover:bg-blue-800 rounded-md px-4 py-2 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
+    className="flex items-center justify-center text-sm font-semibold text-blue-600 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-800 rounded-md px-4 py-2 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
   >
     {expanded ? "▲" : "▼"} {label}
   </button>
 );
 
-// Helper functions for date formatting and relative deadlines
 const formatForDatetimeLocal = (isoString: string): string => {
   const date = new Date(isoString);
   const offset = date.getTimezoneOffset() * 60000;
@@ -94,7 +93,7 @@ const DeadlineShortcuts: React.FC<DeadlineShortcutsProps> = ({ setDeadline }) =>
             key={hours}
             type="button"
             onClick={() => setDeadline(getRelativeDeadline(hours))}
-            className="px-2 py-1 bg-gray-200 dark:bg-gray-700 text-sm rounded hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors"
+            className="px-2 py-1 bg-gray-300 dark:bg-gray-700 text-sm rounded hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors"
           >
             {label}
           </button>
@@ -124,7 +123,7 @@ const TaskEditor: React.FC<TaskEditorProps> = ({
   onSave,
   onCancel,
 }) => (
-  <div className="space-y-4 p-4 bg-gray-50 dark:bg-gray-800 rounded-md shadow-inner">
+  <div className="space-y-4 p-4 bg-gray-200 dark:bg-gray-800 rounded-md shadow-inner">
     <div>
       <label className="block text-sm font-medium text-gray-800 dark:text-gray-200">
         タイトル:
@@ -133,7 +132,7 @@ const TaskEditor: React.FC<TaskEditorProps> = ({
         type="text"
         value={editingTitle}
         onChange={(e) => setEditingTitle(e.target.value)}
-        className="mt-1 block w-full rounded-md border border-gray-300 dark:border-gray-600 shadow-sm p-2 bg-white dark:bg-gray-900"
+        className="mt-1 block w-full rounded-md border border-gray-300 dark:border-gray-700 shadow-sm p-2 bg-white dark:bg-gray-700 dark:text-gray-100"
       />
     </div>
     <div>
@@ -157,7 +156,7 @@ const TaskEditor: React.FC<TaskEditorProps> = ({
         type="datetime-local"
         value={editingDeadline || ""}
         onChange={(e) => setEditingDeadline(e.target.value)}
-        className="mt-1 block w-full rounded-md border border-gray-300 dark:border-gray-600 shadow-sm p-2 bg-white dark:bg-gray-900"
+        className="mt-1 block w-full rounded-md border border-gray-300 dark:border-gray-700 shadow-sm p-2 bg-white dark:bg-gray-700 dark:text-gray-100"
       />
       <DeadlineShortcuts setDeadline={setEditingDeadline} />
     </div>
@@ -209,16 +208,14 @@ const TaskItem: React.FC<TaskItemProps> = ({
   setEditingImportance,
   setEditingDeadline,
 }) => {
-  // タスク項目がクリックされたときの詳細表示状態
   const [showDetails, setShowDetails] = useState(false);
   const displayDeadline = task.deadline
     ? new Date(task.deadline).toLocaleString()
     : "期限なし";
 
-  // タスクタイトル部分は常に表示し、クリックで詳細表示を切り替え
   return (
     <li
-      className="cursor-pointer bg-white dark:bg-gray-900 rounded-xl shadow-md p-6 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+      className="cursor-pointer bg-gray-100 dark:bg-gray-900 rounded-xl shadow-md p-6 hover:bg-gray-300 dark:hover:bg-gray-700 transition-colors"
       onClick={() => setShowDetails((prev) => !prev)}
     >
       <div className="flex justify-between items-center">
@@ -231,7 +228,7 @@ const TaskItem: React.FC<TaskItemProps> = ({
               優先度: {task.priority.toFixed(2)}
             </span>
             <PriorityLabel priority={task.priority} />
-            <span className="text-sm text-gray-600 dark:text-gray-300">
+            <span className="text-sm text-gray-600 dark:text-gray-400">
               {task.timeDiff >= 0
                 ? `残り: ${formatRemainingTime(task.timeDiff)}`
                 : `超過: ${formatRemainingTime(-task.timeDiff)}`}
@@ -243,11 +240,11 @@ const TaskItem: React.FC<TaskItemProps> = ({
               重要度: {task.importance}
             </span>
             {task.importance >= 9 ? (
-              <span className="bg-red-600 dark:bg-red-700 text-white text-xs font-bold rounded-full px-2 py-0.5">
+              <span className="bg-red-600 dark:bg-red-800 text-white text-xs font-bold rounded-full px-2 py-0.5">
                 高重要度
               </span>
             ) : task.importance >= 7 ? (
-              <span className="bg-yellow-500 dark:bg-yellow-600 text-white text-xs font-bold rounded-full px-2 py-0.5">
+              <span className="bg-yellow-500 dark:bg-yellow-700 text-white text-xs font-bold rounded-full px-2 py-0.5">
                 中重要度
               </span>
             ) : null}
@@ -271,7 +268,7 @@ const TaskItem: React.FC<TaskItemProps> = ({
               />
             </div>
           ) : (
-            <div className="mt-4 border-t pt-3" onClick={(e) => e.stopPropagation()}>
+            <div className="mt-4 border-t border-gray-300 dark:border-gray-700 pt-3" onClick={(e) => e.stopPropagation()}>
               <div className="space-y-2">
                 <div>
                   <strong className="text-sm text-gray-800 dark:text-gray-200">重要度:</strong>{" "}
@@ -317,7 +314,7 @@ const TaskItem: React.FC<TaskItemProps> = ({
                       e.stopPropagation();
                       onDelete();
                     }}
-                    className="px-4 py-2 bg-red-600 dark:bg-red-700 text-white rounded-md shadow hover:bg-red-700 dark:hover:bg-red-800 transition-colors text-sm"
+                    className="px-4 py-2 bg-red-600 dark:bg-red-800 text-white rounded-md shadow hover:bg-red-700 dark:hover:bg-red-900 transition-colors text-sm"
                   >
                     削除
                   </button>
@@ -347,7 +344,7 @@ const InteractiveTaskDashboard: React.FC<InteractiveTaskDashboardProps> = ({
   const [showDeadlineSection, setShowDeadlineSection] = useState(true);
   const [showCompletedSection, setShowCompletedSection] = useState(false);
 
-  // 編集状態 (各セクション共通)
+  // 編集状態
   const [editingTaskId, setEditingTaskId] = useState<number | null>(null);
   const [editingTitle, setEditingTitle] = useState("");
   const [editingImportance, setEditingImportance] = useState(1);
@@ -497,7 +494,7 @@ const InteractiveTaskDashboard: React.FC<InteractiveTaskDashboardProps> = ({
           />
         ))
       ) : (
-        <p className="text-gray-600 dark:text-gray-300">
+        <p className="text-gray-600 dark:text-gray-400">
           {completedSection ? "完了済みタスクはありません。" : "タスクはありません。"}
         </p>
       )}
@@ -507,8 +504,8 @@ const InteractiveTaskDashboard: React.FC<InteractiveTaskDashboardProps> = ({
   return (
     <div className="space-y-12">
       {/* 期限なしタスク */}
-      <section className="bg-white dark:bg-gray-900 rounded-xl shadow p-6">
-        <div className="flex justify-between items-center border-b pb-3 mb-4">
+      <section className="bg-gray-50 dark:bg-gray-950 rounded-xl shadow p-6">
+        <div className="flex justify-between items-center border-b border-gray-300 dark:border-gray-700 pb-3 mb-4">
           <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-100">
             期限なしタスク
           </h2>
@@ -522,8 +519,8 @@ const InteractiveTaskDashboard: React.FC<InteractiveTaskDashboardProps> = ({
       </section>
 
       {/* 期限付きタスク */}
-      <section className="bg-white dark:bg-gray-900 rounded-xl shadow p-6">
-        <div className="flex justify-between items-center border-b pb-3 mb-4">
+      <section className="bg-gray-50 dark:bg-gray-950 rounded-xl shadow p-6">
+        <div className="flex justify-between items-center border-b border-gray-300 dark:border-gray-700 pb-3 mb-4">
           <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-100">
             期限付きタスク
           </h2>
@@ -537,8 +534,8 @@ const InteractiveTaskDashboard: React.FC<InteractiveTaskDashboardProps> = ({
       </section>
 
       {/* 完了済みタスク */}
-      <section className="bg-white dark:bg-gray-900 rounded-xl shadow p-6">
-        <div className="flex justify-between items-center border-b pb-3 mb-4">
+      <section className="bg-gray-50 dark:bg-gray-950 rounded-xl shadow p-6">
+        <div className="flex justify-between items-center border-b border-gray-300 dark:border-gray-700 pb-3 mb-4">
           <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-100">
             完了済みタスク
           </h2>

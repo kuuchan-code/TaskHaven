@@ -15,7 +15,6 @@ const convertLocalToIsoWithOffset = (localDateString: string): string => {
   const hours = pad(localDate.getHours());
   const minutes = pad(localDate.getMinutes());
   const seconds = pad(localDate.getSeconds());
-  // getTimezoneOffset は分単位。ここではオフセットの符号を反転して利用
   const timezoneOffset = -localDate.getTimezoneOffset();
   const offsetSign = timezoneOffset >= 0 ? "+" : "-";
   const offsetHours = pad(Math.floor(Math.abs(timezoneOffset) / 60));
@@ -45,7 +44,6 @@ export default function TaskForm({ onTaskAdded, source }: TaskFormProps) {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // deadline が入力されていれば、タイムゾーン付きのISO形式に変換
     const deadlineToSend = deadline ? convertLocalToIsoWithOffset(deadline) : null;
 
     const res = await fetch("/api/tasks", {
@@ -55,7 +53,7 @@ export default function TaskForm({ onTaskAdded, source }: TaskFormProps) {
         title,
         importance,
         deadline: deadlineToSend,
-        source, // 親から渡された source を利用
+        source,
       }),
     });
     if (res.ok) {
@@ -64,15 +62,14 @@ export default function TaskForm({ onTaskAdded, source }: TaskFormProps) {
       setImportance(1);
       setDeadline("");
       setSuccessMessage("タスクが追加されました！");
-      // 数秒後にメッセージを消す
       setTimeout(() => setSuccessMessage(""), 3000);
     }
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4 p-6 bg-white dark:bg-gray-900 rounded-xl shadow mb-8">
+    <form onSubmit={handleSubmit} className="space-y-4 p-6 bg-gray-50 dark:bg-gray-950 rounded-xl shadow mb-8">
       {successMessage && (
-        <div className="p-2 bg-green-100 text-green-700 rounded">
+        <div className="p-2 bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-100 rounded">
           {successMessage}
         </div>
       )}
@@ -83,7 +80,7 @@ export default function TaskForm({ onTaskAdded, source }: TaskFormProps) {
           value={title}
           onChange={(e) => setTitle(e.target.value)}
           required
-          className="mt-1 block w-full rounded-md border border-gray-300 dark:border-gray-600 shadow-sm p-2 bg-white dark:bg-gray-900 dark:text-gray-200 focus:ring-blue-500 focus:border-blue-500"
+          className="mt-1 block w-full rounded-md border border-gray-300 dark:border-gray-700 shadow-sm p-2 bg-white dark:bg-gray-800 dark:text-gray-100 focus:ring-blue-500 focus:border-blue-500"
         />
       </div>
       <div>
@@ -108,48 +105,29 @@ export default function TaskForm({ onTaskAdded, source }: TaskFormProps) {
           type="datetime-local"
           value={deadline}
           onChange={(e) => setDeadline(e.target.value)}
-          className="mt-1 block w-full rounded-md border border-gray-300 dark:border-gray-600 shadow-sm p-2 bg-white dark:bg-gray-900 dark:text-gray-200 focus:ring-blue-500 focus:border-blue-500"
+          className="mt-1 block w-full rounded-md border border-gray-300 dark:border-gray-700 shadow-sm p-2 bg-white dark:bg-gray-800 dark:text-gray-100 focus:ring-blue-500 focus:border-blue-500"
         />
       </div>
-      {/* 相対的な締切日時を選択できるショートカット */}
+      {/* ショートカットボタン */}
       <div>
         <span className="block text-sm font-medium text-gray-700 dark:text-gray-300">ショートカット締切：</span>
         <div className="flex space-x-2 mt-1">
-          <button
-            type="button"
-            onClick={() => setDeadline(getRelativeDeadline(1))}
-            className="px-2 py-1 bg-gray-200 dark:bg-gray-700 text-sm rounded hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors"
-          >
-            1時間後
-          </button>
-          <button
-            type="button"
-            onClick={() => setDeadline(getRelativeDeadline(3))}
-            className="px-2 py-1 bg-gray-200 dark:bg-gray-700 text-sm rounded hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors"
-          >
-            3時間後
-          </button>
-          <button
-            type="button"
-            onClick={() => setDeadline(getRelativeDeadline(24))}
-            className="px-2 py-1 bg-gray-200 dark:bg-gray-700 text-sm rounded hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors"
-          >
-            1日後
-          </button>
-          <button
-            type="button"
-            onClick={() => setDeadline(getRelativeDeadline(72))}
-            className="px-2 py-1 bg-gray-200 dark:bg-gray-700 text-sm rounded hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors"
-          >
-            3日後
-          </button>
-          <button
-            type="button"
-            onClick={() => setDeadline(getRelativeDeadline(168))}
-            className="px-2 py-1 bg-gray-200 dark:bg-gray-700 text-sm rounded hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors"
-          >
-            1週間後
-          </button>
+          {[
+            { label: "1時間後", offset: 1 },
+            { label: "3時間後", offset: 3 },
+            { label: "1日後", offset: 24 },
+            { label: "3日後", offset: 72 },
+            { label: "1週間後", offset: 168 },
+          ].map(({ label, offset }) => (
+            <button
+              key={offset}
+              type="button"
+              onClick={() => setDeadline(getRelativeDeadline(offset))}
+              className="px-2 py-1 bg-gray-200 dark:bg-gray-700 text-sm rounded hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors"
+            >
+              {label}
+            </button>
+          ))}
         </div>
       </div>
       <button
