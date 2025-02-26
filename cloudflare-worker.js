@@ -68,11 +68,12 @@ export default {
     }
   }
 };
+import { importPKCS8, SignJWT } from 'jose';
 
 async function getAccessToken(serviceAccount) {
   const iat = Math.floor(Date.now() / 1000);
   const exp = iat + 3600; // 1時間有効
-  
+
   const payload = {
     iss: serviceAccount.client_email,
     scope: "https://www.googleapis.com/auth/cloud-platform",
@@ -80,16 +81,20 @@ async function getAccessToken(serviceAccount) {
     exp,
     iat,
   };
-  
-  const privateKey = serviceAccount.private_key.replace(/\\n/g, "\n");
-  
+
+  // 改行のエスケープを元に戻す
+  const privateKeyPEM = serviceAccount.private_key.replace(/\\n/g, "\n");
+
   try {
+    // PEM形式の秘密鍵を CryptoKey に変換する
+    const cryptoKey = await importPKCS8(privateKeyPEM, 'RS256');
+
     const jwt = await new SignJWT(payload)
       .setProtectedHeader({ alg: 'RS256', typ: 'JWT' })
       .setIssuedAt(iat)
       .setExpirationTime(exp)
-      .sign(new TextEncoder().encode(privateKey));
-  
+      .sign(cryptoKey);
+
     const tokenResponse = await fetch("https://oauth2.googleapis.com/token", {
       method: "POST",
       headers: { "Content-Type": "application/x-www-form-urlencoded" },
