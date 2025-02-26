@@ -92,6 +92,7 @@ const InteractiveTaskDashboard: React.FC<InteractiveTaskDashboardProps> = ({ tas
   const [showNoDeadlineSection, setShowNoDeadlineSection] = useState(false);
   const [showDeadlineSection, setShowDeadlineSection] = useState(true);
   const [showCompletedSection, setShowCompletedSection] = useState(false);
+  const [showCalendarAndTasks, setShowCalendarAndTasks] = useState(true);
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
 
   // 編集用ステート（editingDeadlineはstring|null）
@@ -571,62 +572,69 @@ const InteractiveTaskDashboard: React.FC<InteractiveTaskDashboardProps> = ({ tas
           </ul>
         )}
       </section>
-
-      {/* カレンダー表示 */}
+      {/* カレンダーと選択日のタスク（まとめて折りたたみ可能） */}
       <section>
-        <h2 className="text-3xl font-semibold text-gray-800 dark:text-gray-200 mb-4 border-b border-gray-300 dark:border-gray-700 pb-2">
-          カレンダー表示
-        </h2>
-        <div className="p-6">
-          <CalendarWrapper
-            tasks={tasks.filter((task) => task.deadline !== null)}
-            selectedDate={selectedDate}
-            setSelectedDate={setSelectedDate}
+        <div className="flex justify-between items-center border-b border-gray-300 dark:border-gray-700 pb-2 mb-4">
+          <h2 className="text-3xl font-semibold text-gray-800 dark:text-gray-200">
+            カレンダー＆選択日のタスク
+          </h2>
+          <ToggleButton
+            expanded={showCalendarAndTasks}
+            onClick={() => setShowCalendarAndTasks((prev) => !prev)}
+            label={showCalendarAndTasks ? "折りたたむ" : "展開する"}
           />
         </div>
-      </section>
-
-      {/* 選択された日のタスク */}
-      <section>
-        <h2 className="text-3xl font-semibold text-gray-800 dark:text-gray-200 mb-4 border-b border-gray-300 dark:border-gray-700 pb-2">
-          {selectedDate ? `選択された日のタスク (${formatDate(selectedDate)})` : "選択された日のタスク"}
-        </h2>
-        {selectedDate ? (
-          tasksForSelectedDate.length > 0 ? (
-            <ul className="space-y-4">
-              {tasksForSelectedDate.map((task) => (
-                <li
-                  key={task.id}
-                  className="bg-white dark:bg-gray-800 rounded-lg shadow p-6"
-                >
-                  <div className="flex justify-between items-center">
-                    <span className={`text-xl font-medium ${task.completed ? "line-through" : ""} text-gray-900 dark:text-gray-100`}>
-                      {task.title}
-                    </span>
-                    <div className="flex items-center space-x-4">
-                      <span className="text-base text-gray-600 dark:text-gray-300">
-                        優先度: {task.priority.toFixed(2)}
-                      </span>
-                      <span className="text-base text-gray-600 dark:text-gray-300">
-                        {task.timeDiff >= 0
-                          ? `残り: ${formatRemainingTime(task.timeDiff)}`
-                          : `超過: ${formatRemainingTime(-task.timeDiff)}`}
-                      </span>
-                    </div>
-                  </div>
-                </li>
-              ))}
-            </ul>
-          ) : (
-            <p className="text-gray-600 dark:text-gray-300">この日にタスクはありません。</p>
-          )
-        ) : (
-          <p className="text-gray-600 dark:text-gray-300">
-            カレンダーまたはタスクをクリックして日付を選択してください。
-          </p>
+        {showCalendarAndTasks && (
+          <>
+            <div className="p-6">
+              <CalendarWrapper
+                tasks={tasks.filter((task) => task.deadline !== null)}
+                selectedDate={selectedDate}
+                setSelectedDate={setSelectedDate}
+              />
+            </div>
+            <section>
+              <h2 className="text-3xl font-semibold text-gray-800 dark:text-gray-200 mb-4 border-b border-gray-300 dark:border-gray-700 pb-2">
+                {selectedDate ? `選択された日のタスク (${formatDate(selectedDate)})` : "選択された日のタスク"}
+              </h2>
+              {selectedDate ? (
+                tasksForSelectedDate.length > 0 ? (
+                  <ul className="space-y-4">
+                    {tasksForSelectedDate.map((task) => (
+                      <li
+                        key={task.id}
+                        className="bg-white dark:bg-gray-800 rounded-lg shadow p-6"
+                      >
+                        <div className="flex justify-between items-center">
+                          <span className={`text-xl font-medium ${task.completed ? "line-through" : ""} text-gray-900 dark:text-gray-100`}>
+                            {task.title}
+                          </span>
+                          <div className="flex items-center space-x-4">
+                            <span className="text-base text-gray-600 dark:text-gray-300">
+                              優先度: {task.priority.toFixed(2)}
+                            </span>
+                            <span className="text-base text-gray-600 dark:text-gray-300">
+                              {task.timeDiff >= 0
+                                ? `残り: ${formatRemainingTime(task.timeDiff)}`
+                                : `超過: ${formatRemainingTime(-task.timeDiff)}`}
+                            </span>
+                          </div>
+                        </div>
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  <p className="text-gray-600 dark:text-gray-300">この日にタスクはありません。</p>
+                )
+              ) : (
+                <p className="text-gray-600 dark:text-gray-300">
+                  カレンダーまたはタスクをクリックして日付を選択してください。
+                </p>
+              )}
+            </section>
+          </>
         )}
       </section>
-
       {/* 完了済みタスク */}
       <section>
         <div className="flex justify-between items-center border-b border-gray-300 dark:border-gray-700 pb-2 mb-4">
