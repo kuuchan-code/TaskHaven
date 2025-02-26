@@ -9,20 +9,22 @@ const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
 const supabase = createClient(supabaseUrl, supabaseKey);
 
 export type Task = {
+  completed: boolean;
   id: number;
   title: string;
   importance: number;
   deadline: string | null;
 };
 
+
 // クライアントから渡された source に応じたテーブル名の決定
 const getTableName = (source: string | null) => {
-    if (!source) {
-      throw new Error("source is required");
-    }
-    return source;
-  };
-  
+  if (!source) {
+    throw new Error("source is required");
+  }
+  return source;
+};
+
 
 export async function GET(request: NextRequest) {
   // クエリパラメータから source を取得（未指定の場合はデフォルトの "kuu" 相当として tasks を利用）
@@ -91,12 +93,19 @@ export async function DELETE(request: Request) {
   });
 }
 
+interface UpdateTask {
+  title: string;
+  importance: number;
+  deadline: string | null;
+  completed?: boolean;
+}
+
 export async function PUT(request: Request) {
   const { id, title, importance, deadline, completed, source } = await request.json();
   const tableName = getTableName(source);
 
-  // 更新するデータオブジェクトを構築（completed が指定されていれば更新対象に含める）
-  const updateData: any = { title, importance, deadline };
+  // 更新するデータオブジェクトの型を明示
+  const updateData: UpdateTask = { title, importance, deadline };
   if (typeof completed !== 'undefined') {
     updateData.completed = completed;
   }

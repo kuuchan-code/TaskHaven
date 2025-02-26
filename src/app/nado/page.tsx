@@ -5,11 +5,13 @@ import InteractiveTaskDashboard from '../components/InteractiveTaskDashboard';
 import TaskForm from '../components/TaskForm';
 
 export type Task = {
+  completed: boolean;
   id: number;
   title: string;
   importance: number;
   deadline: string | null;
 };
+
 
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
 

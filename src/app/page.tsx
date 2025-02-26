@@ -5,7 +5,7 @@ import InteractiveTaskDashboard from './components/InteractiveTaskDashboard';
 import TaskForm from './components/TaskForm';
 
 export type Task = {
-  completed: any;
+  completed: boolean;
   id: number;
   title: string;
   importance: number;
