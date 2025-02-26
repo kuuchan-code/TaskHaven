@@ -514,7 +514,7 @@ const InteractiveTaskDashboard: React.FC<InteractiveTaskDashboardProps> = ({
   );
 
   return (
-    <div className="space-y-12 p-6">
+    <div className="space-y-12">
       {/* 期限なしタスク */}
       <section className="bg-white dark:bg-gray-800 rounded-xl shadow p-6">
         <div className="flex justify-between items-center border-b pb-3 mb-4">
