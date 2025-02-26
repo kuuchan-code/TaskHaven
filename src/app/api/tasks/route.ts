@@ -121,8 +121,6 @@ export async function PUT(request: Request) {
       { status: 500, headers: { 'Content-Type': 'application/json' } }
     );
   }
-
-  console.log("test");
   
   // たとえば、重要度が一定以上の場合に通知を送信する
   const HIGH_PRIORITY_THRESHOLD = 2;
