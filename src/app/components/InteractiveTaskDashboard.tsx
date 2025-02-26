@@ -130,8 +130,15 @@ const InteractiveTaskDashboard: React.FC<InteractiveTaskDashboardProps> = ({ tas
     setEditingTaskId(task.id);
     setEditingTitle(task.title);
     setEditingImportance(task.importance);
-    setEditingDeadline(task.deadline ? task.deadline.replace(" ", "T") : "");
+    if (task.deadline) {
+      // Dateオブジェクトに変換後、datetime-local入力欄用に整形
+      const date = new Date(task.deadline);
+      setEditingDeadline(date.toISOString().slice(0, 16));
+    } else {
+      setEditingDeadline("");
+    }
   };
+  
 
   const cancelEditing = () => {
     setEditingTaskId(null);
