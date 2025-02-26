@@ -70,7 +70,7 @@ export default function TaskForm({ onTaskAdded, source }: TaskFormProps) {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4 p-4 bg-white dark:bg-gray-800 rounded-lg shadow mb-8">
+    <form onSubmit={handleSubmit} className="space-y-4 p-6 bg-white dark:bg-gray-900 rounded-xl shadow mb-8">
       {successMessage && (
         <div className="p-2 bg-green-100 text-green-700 rounded">
           {successMessage}
@@ -83,7 +83,7 @@ export default function TaskForm({ onTaskAdded, source }: TaskFormProps) {
           value={title}
           onChange={(e) => setTitle(e.target.value)}
           required
-          className="mt-1 block w-full rounded-md border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200 shadow-sm focus:ring-blue-500 focus:border-blue-500"
+          className="mt-1 block w-full rounded-md border border-gray-300 dark:border-gray-600 shadow-sm p-2 bg-white dark:bg-gray-900 dark:text-gray-200 focus:ring-blue-500 focus:border-blue-500"
         />
       </div>
       <div>
@@ -108,7 +108,7 @@ export default function TaskForm({ onTaskAdded, source }: TaskFormProps) {
           type="datetime-local"
           value={deadline}
           onChange={(e) => setDeadline(e.target.value)}
-          className="mt-1 block w-full rounded-md border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200 shadow-sm focus:ring-blue-500 focus:border-blue-500"
+          className="mt-1 block w-full rounded-md border border-gray-300 dark:border-gray-600 shadow-sm p-2 bg-white dark:bg-gray-900 dark:text-gray-200 focus:ring-blue-500 focus:border-blue-500"
         />
       </div>
       {/* 相対的な締切日時を選択できるショートカット */}
@@ -118,35 +118,35 @@ export default function TaskForm({ onTaskAdded, source }: TaskFormProps) {
           <button
             type="button"
             onClick={() => setDeadline(getRelativeDeadline(1))}
-            className="px-2 py-1 bg-gray-200 dark:bg-gray-600 text-sm rounded"
+            className="px-2 py-1 bg-gray-200 dark:bg-gray-700 text-sm rounded hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors"
           >
             1時間後
           </button>
           <button
             type="button"
             onClick={() => setDeadline(getRelativeDeadline(3))}
-            className="px-2 py-1 bg-gray-200 dark:bg-gray-600 text-sm rounded"
+            className="px-2 py-1 bg-gray-200 dark:bg-gray-700 text-sm rounded hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors"
           >
             3時間後
           </button>
           <button
             type="button"
             onClick={() => setDeadline(getRelativeDeadline(24))}
-            className="px-2 py-1 bg-gray-200 dark:bg-gray-600 text-sm rounded"
+            className="px-2 py-1 bg-gray-200 dark:bg-gray-700 text-sm rounded hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors"
           >
             1日後
           </button>
           <button
             type="button"
             onClick={() => setDeadline(getRelativeDeadline(72))}
-            className="px-2 py-1 bg-gray-200 dark:bg-gray-600 text-sm rounded"
+            className="px-2 py-1 bg-gray-200 dark:bg-gray-700 text-sm rounded hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors"
           >
             3日後
           </button>
           <button
             type="button"
             onClick={() => setDeadline(getRelativeDeadline(168))}
-            className="px-2 py-1 bg-gray-200 dark:bg-gray-600 text-sm rounded"
+            className="px-2 py-1 bg-gray-200 dark:bg-gray-700 text-sm rounded hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors"
           >
             1週間後
           </button>
@@ -154,7 +154,7 @@ export default function TaskForm({ onTaskAdded, source }: TaskFormProps) {
       </div>
       <button
         type="submit"
-        className="px-4 py-2 bg-blue-500 dark:bg-blue-600 text-white rounded hover:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+        className="px-4 py-2 bg-blue-500 dark:bg-blue-600 text-white rounded-md shadow hover:bg-blue-600 dark:hover:bg-blue-700 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500"
       >
         追加
       </button>
