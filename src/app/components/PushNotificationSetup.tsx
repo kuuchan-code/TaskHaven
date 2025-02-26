@@ -1,5 +1,5 @@
-// src/PushNotificationSetup.tsx
-import React, { useEffect } from "react";
+// src/app/components/PushNotificationSetup.tsx
+import React, { useEffect, useState } from "react";
 import { initializeApp } from "firebase/app";
 import { getMessaging, getToken, onMessage } from "firebase/messaging";
 
@@ -13,53 +13,59 @@ const firebaseConfig = {
   appId: "1:529762432667:web:3e57bcc886100d801b383e"
 };
 
-
 // Firebase 初期化
 const app = initializeApp(firebaseConfig);
 const messaging = getMessaging(app);
 
 const PushNotificationSetup: React.FC = () => {
+  const [status, setStatus] = useState("プッシュ通知の設定中...");
+
   useEffect(() => {
     // Service Worker の登録
     if ("serviceWorker" in navigator) {
       navigator.serviceWorker
-        .register(`/firebase-messaging-sw.js`)
+        .register("/firebase-messaging-sw.js")
         .then((registration) => {
           console.log("Service Worker 登録成功:", registration);
-          // messaging に Service Worker を関連付ける（Firebase v9 の場合は自動関連付けされることもあります）
         })
-        .catch((error) => console.error("Service Worker 登録失敗:", error));
+        .catch((error) => {
+          console.error("Service Worker 登録失敗:", error);
+          setStatus("Service Worker の登録に失敗しました");
+        });
     }
 
     // 通知許可のリクエストとトークン取得
     Notification.requestPermission().then((permission) => {
       if (permission === "granted") {
-        getToken(messaging, { vapidKey: "BMSl6lNwY1vU5sJQegkBAh7ccrYEiTs1J5flIDY8N64yiaeNT_Llb5xpkKD3-TjpDvnZssx5l6fJ779jtNuPQ-4" })
+        getToken(messaging, { vapidKey: "BAtGmxTOUuZeXbCVaUCSeqgjdgh9Rd8Q2yoogBASjrUC9ep1vXDO5igfmG30QwzFVAkJR8mdG_O_ATlZq3Vueos" })
           .then((currentToken) => {
             if (currentToken) {
               console.log("FCM Token:", currentToken);
-              // ここでトークンをバックエンドに送信して、プッシュ通知送信に利用する
+              setStatus("プッシュ通知の設定が完了しました");
+              // 必要なら、ここでトークンをバックエンドに送信する処理を追加
             } else {
-              console.warn("トークンが取得できませんでした。");
+              console.warn("FCM トークンが取得できませんでした。");
+              setStatus("FCM トークンが取得できませんでした");
             }
           })
           .catch((err) => {
             console.error("トークン取得中にエラーが発生:", err);
+            setStatus("トークン取得中にエラーが発生しました");
           });
       } else {
         console.warn("通知の許可が得られませんでした。");
+        setStatus("通知の許可が得られませんでした");
       }
     });
 
     // フォアグラウンドでの通知受信
     onMessage(messaging, (payload) => {
       console.log("フォアグラウンドメッセージ受信:", payload);
-      // 必要に応じて UI の更新などを行う
-      // 例: ブラウザ内に独自の通知表示を実装するなど
+      // 必要に応じて UI の更新などをここで行う
     });
   }, []);
 
-  return <div>プッシュ通知の設定中...</div>;
+  return <div>{status}</div>;
 };
 
 export default PushNotificationSetup;
