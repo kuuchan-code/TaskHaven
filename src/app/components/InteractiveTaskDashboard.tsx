@@ -70,7 +70,8 @@ const InteractiveTaskDashboard: React.FC<InteractiveTaskDashboardProps> = ({ tas
     return () => clearInterval(timer);
   }, []);
 
-  const [expandedTasks, setExpandedTasks] = useState<Set<number>>(new Set());
+  // 単一の展開中タスクID
+  const [expandedTaskId, setExpandedTaskId] = useState<number | null>(null);
   const [showNoDeadlineSection, setShowNoDeadlineSection] = useState(false);
   const [showDeadlineSection, setShowDeadlineSection] = useState(true);
   const [showCompletedSection, setShowCompletedSection] = useState(false);
@@ -108,19 +109,12 @@ const InteractiveTaskDashboard: React.FC<InteractiveTaskDashboardProps> = ({ tas
     ? tasksWithDeadlineActive.filter((task) => formatDate(task.deadlineDate) === formatDate(selectedDate))
     : [];
 
+  // クリック時は、同じタスクなら閉じ、別なら新たに設定
   const handleTaskClick = (deadline: string | null, taskId: number) => {
     if (deadline) {
       setSelectedDate(new Date(deadline.replace(" ", "T")));
     }
-    setExpandedTasks((prev) => {
-      const newSet = new Set(prev);
-      if (newSet.has(taskId)) {
-        newSet.delete(taskId);
-      } else {
-        newSet.add(taskId);
-      }
-      return newSet;
-    });
+    setExpandedTaskId((prev) => (prev === taskId ? null : taskId));
   };
 
   const startEditing = (task: Task) => {
@@ -233,7 +227,7 @@ const InteractiveTaskDashboard: React.FC<InteractiveTaskDashboardProps> = ({ tas
                       ) : null}
                     </div>
                   </div>
-                  {expandedTasks.has(task.id) && (
+                  {expandedTaskId === task.id && (
                     <div className="mt-2 text-sm text-gray-500 dark:text-gray-400 border-t pt-2" onClick={(e) => e.stopPropagation()}>
                       {editingTaskId === task.id ? (
                         <div className="space-y-2">
@@ -342,7 +336,6 @@ const InteractiveTaskDashboard: React.FC<InteractiveTaskDashboardProps> = ({ tas
             {tasksWithDeadlineActive.length > 0 ? (
               tasksWithDeadlineActive.map((task) => {
                 const taskId = task.id;
-                const isExpanded = expandedTasks.has(taskId);
                 return (
                   <li
                     key={taskId}
@@ -358,9 +351,9 @@ const InteractiveTaskDashboard: React.FC<InteractiveTaskDashboardProps> = ({ tas
                         <PriorityLabel priority={task.priority} />
                       </div>
                     </div>
-                    {isExpanded && (
+                    {expandedTaskId === task.id && (
                       <div className="mt-2 text-sm text-gray-500 dark:text-gray-400 border-t pt-2" onClick={(e) => e.stopPropagation()}>
-                        {editingTaskId === taskId ? (
+                        {editingTaskId === task.id ? (
                           <div className="space-y-2">
                             <div>
                               <label className="block text-sm font-medium">タイトル:</label>
@@ -392,7 +385,7 @@ const InteractiveTaskDashboard: React.FC<InteractiveTaskDashboardProps> = ({ tas
                               />
                             </div>
                             <div className="flex space-x-2">
-                              <button onClick={() => saveEditing(taskId)} className="px-3 py-1 bg-green-500 text-white rounded">
+                              <button onClick={() => saveEditing(task.id)} className="px-3 py-1 bg-green-500 text-white rounded">
                                 保存
                               </button>
                               <button onClick={cancelEditing} className="px-3 py-1 bg-gray-500 text-white rounded">
@@ -533,7 +526,7 @@ const InteractiveTaskDashboard: React.FC<InteractiveTaskDashboardProps> = ({ tas
                   className="cursor-pointer bg-gray-200 dark:bg-gray-700 rounded-lg shadow p-6 hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors duration-200"
                 >
                   <div className="flex justify-between items-center">
-                    <span className={`text-xl font-medium line-through text-gray-900 dark:text-gray-100`}>
+                    <span className="text-xl font-medium line-through text-gray-900 dark:text-gray-100">
                       {task.title}
                     </span>
                     <div className="flex items-center space-x-4">
@@ -551,7 +544,7 @@ const InteractiveTaskDashboard: React.FC<InteractiveTaskDashboardProps> = ({ tas
                       ) : null}
                     </div>
                   </div>
-                  {expandedTasks.has(task.id) && (
+                  {expandedTaskId === task.id && (
                     <div className="mt-2 text-sm text-gray-500 dark:text-gray-400 border-t pt-2" onClick={(e) => e.stopPropagation()}>
                       {editingTaskId === task.id ? (
                         <div className="space-y-2">
