@@ -57,6 +57,14 @@ const ToggleButton: React.FC<ToggleButtonProps> = ({ expanded, onClick, label })
   </button>
 );
 
+// ブラウザのローカル日時（datetime-local形式）に変換する関数
+const formatForDatetimeLocal = (isoString: string): string => {
+  const date = new Date(isoString);
+  const offset = date.getTimezoneOffset() * 60000; // ミリ秒換算
+  const localDate = new Date(date.getTime() - offset);
+  return localDate.toISOString().slice(0, 16);
+};
+
 interface InteractiveTaskDashboardProps {
   tasks: Task[];
   refreshTasks: () => void;
@@ -70,7 +78,7 @@ const InteractiveTaskDashboard: React.FC<InteractiveTaskDashboardProps> = ({ tas
     return () => clearInterval(timer);
   }, []);
 
-  // 単一の展開中タスクID
+  // 単一の展開中タスクID（1件のみ展開）
   const [expandedTaskId, setExpandedTaskId] = useState<number | null>(null);
   const [showNoDeadlineSection, setShowNoDeadlineSection] = useState(false);
   const [showDeadlineSection, setShowDeadlineSection] = useState(true);
@@ -109,10 +117,10 @@ const InteractiveTaskDashboard: React.FC<InteractiveTaskDashboardProps> = ({ tas
     ? tasksWithDeadlineActive.filter((task) => formatDate(task.deadlineDate) === formatDate(selectedDate))
     : [];
 
-  // クリック時は、同じタスクなら閉じ、別なら新たに設定
+  // クリック時は、同じタスクなら閉じ、別ならそのタスクのみ展開
   const handleTaskClick = (deadline: string | null, taskId: number) => {
     if (deadline) {
-      setSelectedDate(new Date(deadline.replace(" ", "T")));
+      setSelectedDate(new Date(deadline));
     }
     setExpandedTaskId((prev) => (prev === taskId ? null : taskId));
   };
@@ -122,8 +130,8 @@ const InteractiveTaskDashboard: React.FC<InteractiveTaskDashboardProps> = ({ tas
     setEditingTitle(task.title);
     setEditingImportance(task.importance);
     if (task.deadline) {
-      const date = new Date(task.deadline);
-      setEditingDeadline(date.toISOString().slice(0, 16));
+      // ISO文字列からローカル日時形式に変換してセット
+      setEditingDeadline(formatForDatetimeLocal(task.deadline));
     } else {
       setEditingDeadline("");
     }
@@ -136,7 +144,30 @@ const InteractiveTaskDashboard: React.FC<InteractiveTaskDashboardProps> = ({ tas
     setEditingDeadline("");
   };
 
+  // ユーザーの入力値（"YYYY-MM-DDTHH:mm"）をタイムゾーンオフセット付きのISO文字列に変換
+  const convertLocalToIsoWithOffset = (localDateString: string): string => {
+    const localDate = new Date(localDateString);
+    const pad = (num: number) => String(num).padStart(2, "0");
+    const year = localDate.getFullYear();
+    const month = pad(localDate.getMonth() + 1);
+    const day = pad(localDate.getDate());
+    const hours = pad(localDate.getHours());
+    const minutes = pad(localDate.getMinutes());
+    const seconds = pad(localDate.getSeconds());
+    // getTimezoneOffset は分単位。正の値の場合、UTCより西（例：日本は -540）
+    const timezoneOffset = localDate.getTimezoneOffset();
+    const offsetSign = timezoneOffset > 0 ? "-" : "+";
+    const offsetHours = pad(Math.floor(Math.abs(timezoneOffset) / 60));
+    const offsetMinutes = pad(Math.abs(timezoneOffset) % 60);
+    return `${year}-${month}-${day}T${hours}:${minutes}:${seconds}${offsetSign}${offsetHours}:${offsetMinutes}`;
+  };
+
   const saveEditing = async (taskId: number) => {
+    let deadlineToSave = editingDeadline;
+    if (deadlineToSave) {
+      // ユーザー入力（ローカルタイム）をタイムゾーンオフセット付きのISO文字列に変換
+      deadlineToSave = convertLocalToIsoWithOffset(deadlineToSave);
+    }
     const res = await fetch("/api/tasks", {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
@@ -144,7 +175,7 @@ const InteractiveTaskDashboard: React.FC<InteractiveTaskDashboardProps> = ({ tas
         id: taskId,
         title: editingTitle,
         importance: editingImportance,
-        deadline: editingDeadline ? editingDeadline : null,
+        deadline: deadlineToSave,
         source,
       }),
     });
@@ -275,7 +306,10 @@ const InteractiveTaskDashboard: React.FC<InteractiveTaskDashboardProps> = ({ tas
                             <strong>重要度:</strong> {task.importance}
                           </div>
                           <div>
-                            <strong>締切:</strong> 期限なし
+                            <strong>締切:</strong>{" "}
+                            {task.deadline
+                              ? new Date(task.deadline).toLocaleString()
+                              : "期限なし"}
                           </div>
                           <div className="flex space-x-2 mt-2">
                             <button
@@ -401,9 +435,7 @@ const InteractiveTaskDashboard: React.FC<InteractiveTaskDashboardProps> = ({ tas
                             <div>
                               <strong>締切:</strong>{" "}
                               {task.deadline
-                                ? new Date(task.deadline.replace(" ", "T")).toLocaleString("ja-JP", {
-                                    timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-                                  })
+                                ? new Date(task.deadline).toLocaleString()
                                 : "期限なし"}
                             </div>
                             <div className="flex space-x-2 mt-2">
@@ -504,7 +536,7 @@ const InteractiveTaskDashboard: React.FC<InteractiveTaskDashboardProps> = ({ tas
         )}
       </section>
 
-      {/* 完了済みタスク（編集・削除可能：展開できるよう onClick を追加） */}
+      {/* 完了済みタスク */}
       <section>
         <div className="flex justify-between items-center border-b border-gray-300 dark:border-gray-700 pb-2 mb-4">
           <h2 className="text-3xl font-semibold text-gray-800 dark:text-gray-200">
@@ -594,9 +626,7 @@ const InteractiveTaskDashboard: React.FC<InteractiveTaskDashboardProps> = ({ tas
                           <div>
                             <strong>締切:</strong>{" "}
                             {task.deadline
-                              ? new Date(task.deadline.replace(" ", "T")).toLocaleString("ja-JP", {
-                                  timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-                                })
+                              ? new Date(task.deadline).toLocaleString()
                               : "期限なし"}
                           </div>
                           <div className="flex space-x-2 mt-2">
@@ -608,6 +638,15 @@ const InteractiveTaskDashboard: React.FC<InteractiveTaskDashboardProps> = ({ tas
                               className="px-3 py-1 bg-green-500 text-white rounded"
                             >
                               編集
+                            </button>
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                completeTask(task.id);
+                              }}
+                              className="px-3 py-1 bg-blue-500 text-white rounded"
+                            >
+                              完了
                             </button>
                             <button
                               onClick={(e) => {

@@ -5,6 +5,24 @@ interface TaskFormProps {
   source: string;
 }
 
+// ローカル日時をタイムゾーン付きISO形式に変換する関数
+const convertLocalToIsoWithOffset = (localDateString: string): string => {
+  const localDate = new Date(localDateString);
+  const pad = (num: number) => String(num).padStart(2, "0");
+  const year = localDate.getFullYear();
+  const month = pad(localDate.getMonth() + 1);
+  const day = pad(localDate.getDate());
+  const hours = pad(localDate.getHours());
+  const minutes = pad(localDate.getMinutes());
+  const seconds = pad(localDate.getSeconds());
+  // getTimezoneOffset は分単位。ここではオフセットの符号を反転して利用
+  const timezoneOffset = -localDate.getTimezoneOffset();
+  const offsetSign = timezoneOffset >= 0 ? "+" : "-";
+  const offsetHours = pad(Math.floor(Math.abs(timezoneOffset) / 60));
+  const offsetMinutes = pad(Math.abs(timezoneOffset) % 60);
+  return `${year}-${month}-${day}T${hours}:${minutes}:${seconds}${offsetSign}${offsetHours}:${offsetMinutes}`;
+};
+
 export default function TaskForm({ onTaskAdded, source }: TaskFormProps) {
   const [title, setTitle] = useState("");
   const [importance, setImportance] = useState(1);
@@ -13,13 +31,17 @@ export default function TaskForm({ onTaskAdded, source }: TaskFormProps) {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    // deadline が入力されていれば、タイムゾーン付きのISO形式に変換
+    const deadlineToSend = deadline ? convertLocalToIsoWithOffset(deadline) : null;
+
     const res = await fetch("/api/tasks", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         title,
         importance,
-        deadline: deadline ? deadline : null,
+        deadline: deadlineToSend,
         source, // 親から渡された source を利用
       }),
     });
@@ -52,9 +74,7 @@ export default function TaskForm({ onTaskAdded, source }: TaskFormProps) {
         />
       </div>
       <div>
-        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-          重要度：
-        </label>
+        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">重要度：</label>
         <div className="mt-1">
           <input
             type="range"
