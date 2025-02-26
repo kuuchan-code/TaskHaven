@@ -67,7 +67,7 @@ export default function TaskForm({ onTaskAdded, source }: TaskFormProps) {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4 p-6 bg-gray-50 dark:bg-gray-950 rounded-xl shadow mb-8">
+    <form onSubmit={handleSubmit} className="space-y-4 p-6 bg-white dark:bg-gray-800 rounded-xl shadow mb-8">
       {successMessage && (
         <div className="p-2 bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-100 rounded">
           {successMessage}

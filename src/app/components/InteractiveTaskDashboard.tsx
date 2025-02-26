@@ -1,3 +1,4 @@
+// 例：InteractiveTaskDashboard.tsx
 import React, { useEffect, useState } from "react";
 
 export type Task = {
@@ -93,7 +94,7 @@ const DeadlineShortcuts: React.FC<DeadlineShortcutsProps> = ({ setDeadline }) =>
             key={hours}
             type="button"
             onClick={() => setDeadline(getRelativeDeadline(hours))}
-            className="px-2 py-1 bg-gray-300 dark:bg-gray-700 text-sm rounded hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors"
+            className="px-2 py-1 bg-gray-300 dark:bg-gray-700 text-sm rounded hover:bg-gray-400 dark:hover:bg-gray-600 transition-colors"
           >
             {label}
           </button>
@@ -215,7 +216,7 @@ const TaskItem: React.FC<TaskItemProps> = ({
 
   return (
     <li
-      className="cursor-pointer bg-gray-100 dark:bg-gray-900 rounded-xl shadow-md p-6 hover:bg-gray-300 dark:hover:bg-gray-700 transition-colors"
+      className="cursor-pointer bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
       onClick={() => setShowDetails((prev) => !prev)}
     >
       <div className="flex justify-between items-center">
@@ -504,7 +505,7 @@ const InteractiveTaskDashboard: React.FC<InteractiveTaskDashboardProps> = ({
   return (
     <div className="space-y-12">
       {/* 期限なしタスク */}
-      <section className="bg-gray-50 dark:bg-gray-950 rounded-xl shadow p-6">
+      <section className="bg-white dark:bg-gray-800 rounded-xl shadow p-6">
         <div className="flex justify-between items-center border-b border-gray-300 dark:border-gray-700 pb-3 mb-4">
           <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-100">
             期限なしタスク
@@ -519,7 +520,7 @@ const InteractiveTaskDashboard: React.FC<InteractiveTaskDashboardProps> = ({
       </section>
 
       {/* 期限付きタスク */}
-      <section className="bg-gray-50 dark:bg-gray-950 rounded-xl shadow p-6">
+      <section className="bg-white dark:bg-gray-800 rounded-xl shadow p-6">
         <div className="flex justify-between items-center border-b border-gray-300 dark:border-gray-700 pb-3 mb-4">
           <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-100">
             期限付きタスク
@@ -534,7 +535,7 @@ const InteractiveTaskDashboard: React.FC<InteractiveTaskDashboardProps> = ({
       </section>
 
       {/* 完了済みタスク */}
-      <section className="bg-gray-50 dark:bg-gray-950 rounded-xl shadow p-6">
+      <section className="bg-white dark:bg-gray-800 rounded-xl shadow p-6">
         <div className="flex justify-between items-center border-b border-gray-300 dark:border-gray-700 pb-3 mb-4">
           <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-100">
             完了済みタスク
