@@ -1,4 +1,4 @@
-// 例：InteractiveTaskDashboard.tsx
+// src/app/components/InteractiveTaskDashboard.tsx
 import React, { useEffect, useState } from "react";
 
 export type Task = {
@@ -412,6 +412,7 @@ const InteractiveTaskDashboard: React.FC<InteractiveTaskDashboardProps> = ({
     } else {
       deadlineToSave = null;
     }
+    const fcmToken = localStorage.getItem("fcmToken");
     const res = await fetch("/api/tasks", {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
@@ -421,6 +422,7 @@ const InteractiveTaskDashboard: React.FC<InteractiveTaskDashboardProps> = ({
         importance: editingImportance,
         deadline: deadlineToSave,
         source,
+        fcmToken,
       }),
     });
     if (res.ok) {

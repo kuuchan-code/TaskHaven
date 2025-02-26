@@ -41,6 +41,7 @@ const PushNotificationSetup: React.FC = () => {
           .then((currentToken) => {
             if (currentToken) {
               console.log("FCM Token:", currentToken);
+              localStorage.setItem("fcmToken", currentToken);
               setStatus("プッシュ通知の設定が完了しました");
               // 必要なら、ここでトークンをバックエンドに送信する処理を追加
             } else {
