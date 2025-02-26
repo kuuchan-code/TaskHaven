@@ -1,13 +1,8 @@
-// app/layout.tsx
+// src/app/layout.tsx
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import dynamic from "next/dynamic";
-
-const PushNotificationSetup = dynamic(
-  () => import("./components/PushNotificationSetup"),
-  { ssr: false }
-);
+import PushNotificationSetupWrapper from "./PushNotificationSetupWrapper"; // クライアントコンポーネントをインポート
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -26,13 +21,14 @@ export const metadata: Metadata = {
 
 export default function RootLayout({
   children,
-}: Readonly<{
+}: {
   children: React.ReactNode;
-}>) {
+}) {
   return (
     <html lang="en">
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
-        <PushNotificationSetup />
+        {/* クライアントコンポーネントのラッパーをここで利用 */}
+        <PushNotificationSetupWrapper />
         {children}
       </body>
     </html>
