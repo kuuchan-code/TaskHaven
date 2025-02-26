@@ -577,7 +577,7 @@ const InteractiveTaskDashboard: React.FC<InteractiveTaskDashboardProps> = ({
               </h3>
               {selectedDate ? renderTaskList(tasksForSelectedDate) : (
                 <p className="text-gray-600 dark:text-gray-300">
-                  カレンダーまたはタスクをクリックして日付を選択してください。
+                  カレンダーをクリックして日付を選択してください。
                 </p>
               )}
             </section>
