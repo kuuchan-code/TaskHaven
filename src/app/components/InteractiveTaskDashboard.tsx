@@ -1,6 +1,13 @@
 import React, { useEffect, useState } from "react";
-import { Task } from "../page";
 import CalendarWrapper from "./CalendarWrapper";
+
+export type Task = {
+  completed: boolean;
+  id: number;
+  title: string;
+  importance: number;
+  deadline: string | null;
+};
 
 const ADJUSTMENT_FACTOR = 0.5;
 const HIGH_PRIORITY_THRESHOLD = 2;
@@ -196,7 +203,7 @@ const InteractiveTaskDashboard: React.FC<InteractiveTaskDashboardProps> = ({ tas
 
   const deleteTask = async (taskId: number) => {
     if (confirm("本当に削除しますか？")) {
-      const res = await fetch("../api/tasks", {
+      const res = await fetch("/api/tasks", {
         method: "DELETE",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ id: taskId, source }),
@@ -209,7 +216,7 @@ const InteractiveTaskDashboard: React.FC<InteractiveTaskDashboardProps> = ({ tas
 
   const completeTask = async (taskId: number) => {
     if (confirm("このタスクを完了にしますか？")) {
-      const res = await fetch("../api/tasks", {
+      const res = await fetch("/api/tasks", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ id: taskId, completed: true, source }),
