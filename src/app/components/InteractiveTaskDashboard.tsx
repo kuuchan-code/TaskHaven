@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import CalendarWrapper from "./CalendarWrapper";
 
 export type Task = {
   completed: boolean;
@@ -12,13 +11,6 @@ export type Task = {
 const ADJUSTMENT_FACTOR = 0.5;
 const HIGH_PRIORITY_THRESHOLD = 2;
 const MEDIUM_PRIORITY_THRESHOLD = 0.5;
-
-const formatDate = (date: Date): string => {
-  const y = date.getFullYear();
-  const m = String(date.getMonth() + 1).padStart(2, "0");
-  const d = String(date.getDate()).padStart(2, "0");
-  return `${y}-${m}-${d}`;
-};
 
 const formatRemainingTime = (hours: number): string => {
   if (hours < 24) {
@@ -200,11 +192,9 @@ interface TaskItemProps {
   setEditingTitle: (title: string) => void;
   setEditingImportance: (importance: number) => void;
   setEditingDeadline: (deadline: string) => void;
-}
-const TaskItem: React.FC<TaskItemProps> = ({
+}const TaskItem: React.FC<TaskItemProps> = ({
   task,
   isEditing,
-  onClick,
   onStartEditing,
   onSaveEditing,
   onCancelEditing,
@@ -218,14 +208,17 @@ const TaskItem: React.FC<TaskItemProps> = ({
   setEditingImportance,
   setEditingDeadline,
 }) => {
+  // タスク項目がクリックされたときの詳細表示状態
+  const [showDetails, setShowDetails] = useState(false);
   const displayDeadline = task.deadline
     ? new Date(task.deadline).toLocaleString()
     : "期限なし";
 
+  // タスクタイトル部分は常に表示し、クリックで詳細表示を切り替え
   return (
     <li
-      onClick={onClick}
       className="cursor-pointer bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+      onClick={() => setShowDetails((prev) => !prev)}
     >
       <div className="flex justify-between items-center">
         <span className={`text-xl font-semibold ${task.completed ? "line-through" : ""} text-gray-900 dark:text-gray-100`}>
@@ -260,77 +253,83 @@ const TaskItem: React.FC<TaskItemProps> = ({
           </div>
         )}
       </div>
-      {isEditing ? (
-        <div className="mt-4" onClick={(e) => e.stopPropagation()}>
-          <TaskEditor
-            editingTitle={editingTitle}
-            editingImportance={editingImportance}
-            editingDeadline={editingDeadline}
-            setEditingTitle={setEditingTitle}
-            setEditingImportance={setEditingImportance}
-            setEditingDeadline={setEditingDeadline}
-            onSave={onSaveEditing}
-            onCancel={onCancelEditing}
-          />
-        </div>
-      ) : (
-        <div className="mt-4 border-t pt-3" onClick={(e) => e.stopPropagation()}>
-          <div className="space-y-2">
-            <div>
-              <strong className="text-sm text-gray-800 dark:text-gray-200">重要度:</strong>{" "}
-              <span className="text-sm text-gray-700 dark:text-gray-300">{task.importance}</span>
+
+      {showDetails && (
+        <>
+          {isEditing ? (
+            <div className="mt-4" onClick={(e) => e.stopPropagation()}>
+              <TaskEditor
+                editingTitle={editingTitle}
+                editingImportance={editingImportance}
+                editingDeadline={editingDeadline}
+                setEditingTitle={setEditingTitle}
+                setEditingImportance={setEditingImportance}
+                setEditingDeadline={setEditingDeadline}
+                onSave={onSaveEditing}
+                onCancel={onCancelEditing}
+              />
             </div>
-            <div>
-              <strong className="text-sm text-gray-800 dark:text-gray-200">締切:</strong>{" "}
-              <span className="text-sm text-gray-700 dark:text-gray-300">{displayDeadline}</span>
+          ) : (
+            <div className="mt-4 border-t pt-3" onClick={(e) => e.stopPropagation()}>
+              <div className="space-y-2">
+                <div>
+                  <strong className="text-sm text-gray-800 dark:text-gray-200">重要度:</strong>{" "}
+                  <span className="text-sm text-gray-700 dark:text-gray-300">{task.importance}</span>
+                </div>
+                <div>
+                  <strong className="text-sm text-gray-800 dark:text-gray-200">締切:</strong>{" "}
+                  <span className="text-sm text-gray-700 dark:text-gray-300">{displayDeadline}</span>
+                </div>
+                <div className="flex gap-3 mt-3">
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onStartEditing();
+                    }}
+                    className="px-4 py-2 bg-green-600 text-white rounded-md shadow hover:bg-green-700 transition-colors text-sm"
+                  >
+                    編集
+                  </button>
+                  {task.completed ? (
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onReopen();
+                      }}
+                      className="px-4 py-2 bg-blue-600 text-white rounded-md shadow hover:bg-blue-700 transition-colors text-sm"
+                    >
+                      再開
+                    </button>
+                  ) : (
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onComplete();
+                      }}
+                      className="px-4 py-2 bg-blue-600 text-white rounded-md shadow hover:bg-blue-700 transition-colors text-sm"
+                    >
+                      完了
+                    </button>
+                  )}
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onDelete();
+                    }}
+                    className="px-4 py-2 bg-red-600 text-white rounded-md shadow hover:bg-red-700 transition-colors text-sm"
+                  >
+                    削除
+                  </button>
+                </div>
+              </div>
             </div>
-            <div className="flex gap-3 mt-3">
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onStartEditing();
-                }}
-                className="px-4 py-2 bg-green-600 text-white rounded-md shadow hover:bg-green-700 transition-colors text-sm"
-              >
-                編集
-              </button>
-              {task.completed ? (
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onReopen();
-                  }}
-                  className="px-4 py-2 bg-blue-600 text-white rounded-md shadow hover:bg-blue-700 transition-colors text-sm"
-                >
-                  再開
-                </button>
-              ) : (
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onComplete();
-                  }}
-                  className="px-4 py-2 bg-blue-600 text-white rounded-md shadow hover:bg-blue-700 transition-colors text-sm"
-                >
-                  完了
-                </button>
-              )}
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onDelete();
-                }}
-                className="px-4 py-2 bg-red-600 text-white rounded-md shadow hover:bg-red-700 transition-colors text-sm"
-              >
-                削除
-              </button>
-            </div>
-          </div>
-        </div>
+          )}
+        </>
       )}
     </li>
   );
 };
+
 
 interface InteractiveTaskDashboardProps {
   tasks: Task[];
@@ -347,8 +346,6 @@ const InteractiveTaskDashboard: React.FC<InteractiveTaskDashboardProps> = ({
   const [showNoDeadlineSection, setShowNoDeadlineSection] = useState(false);
   const [showDeadlineSection, setShowDeadlineSection] = useState(true);
   const [showCompletedSection, setShowCompletedSection] = useState(false);
-  const [showCalendarAndTasks, setShowCalendarAndTasks] = useState(false);
-  const [selectedDate, setSelectedDate] = useState<Date | null>(null);
 
   // 編集状態 (各セクション共通)
   const [editingTaskId, setEditingTaskId] = useState<number | null>(null);
@@ -379,12 +376,6 @@ const InteractiveTaskDashboard: React.FC<InteractiveTaskDashboardProps> = ({
     .sort((a, b) => (b.priority as number) - (a.priority as number));
 
   const completedTasks = tasks.filter((task) => task.completed);
-
-  const tasksForSelectedDate = selectedDate
-    ? tasksWithDeadlineActive.filter(
-        (task) => formatDate(task.deadlineDate as Date) === formatDate(selectedDate)
-      )
-    : [];
 
   const startEditing = (task: Task) => {
     setEditingTaskId(task.id);
@@ -490,7 +481,7 @@ const InteractiveTaskDashboard: React.FC<InteractiveTaskDashboardProps> = ({
             key={task.id}
             task={task}
             isEditing={editingTaskId === task.id}
-            onClick={() => {}}
+            onClick={() => { }}
             onStartEditing={() => startEditing(task)}
             onSaveEditing={() => saveEditing(task.id)}
             onCancelEditing={cancelEditing}
@@ -519,7 +510,7 @@ const InteractiveTaskDashboard: React.FC<InteractiveTaskDashboardProps> = ({
       <section className="bg-white dark:bg-gray-800 rounded-xl shadow p-6">
         <div className="flex justify-between items-center border-b pb-3 mb-4">
           <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-100">
-            期限なしタスク (重要度順)
+            期限なしタスク
           </h2>
           <ToggleButton
             expanded={showNoDeadlineSection}
@@ -534,7 +525,7 @@ const InteractiveTaskDashboard: React.FC<InteractiveTaskDashboardProps> = ({
       <section className="bg-white dark:bg-gray-800 rounded-xl shadow p-6">
         <div className="flex justify-between items-center border-b pb-3 mb-4">
           <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-100">
-            期限付きタスク (優先度順)
+            期限付きタスク
           </h2>
           <ToggleButton
             expanded={showDeadlineSection}
@@ -543,45 +534,6 @@ const InteractiveTaskDashboard: React.FC<InteractiveTaskDashboardProps> = ({
           />
         </div>
         {showDeadlineSection && renderTaskList(tasksWithDeadlineActive)}
-      </section>
-
-      {/* カレンダーと選択日のタスク */}
-      <section className="bg-white dark:bg-gray-800 rounded-xl shadow p-6">
-        <div className="flex justify-between items-center border-b pb-3 mb-4">
-          <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-100">
-            カレンダー
-          </h2>
-          <ToggleButton
-            expanded={showCalendarAndTasks}
-            onClick={() => setShowCalendarAndTasks((prev) => !prev)}
-            label={showCalendarAndTasks ? "折りたたむ" : "展開する"}
-          />
-        </div>
-        {showCalendarAndTasks && (
-          <>
-            <div className="p-4">
-              <CalendarWrapper
-                tasks={tasks.filter((task) => task.deadline !== null)}
-                selectedDate={selectedDate}
-                setSelectedDate={setSelectedDate}
-              />
-            </div>
-            <section className="mt-6">
-              <h3 className="text-xl font-semibold text-gray-800 dark:text-gray-100 border-b pb-2 mb-4">
-                {selectedDate
-                  ? `選択された日のタスク (${formatDate(selectedDate)})`
-                  : "選択された日のタスク"}
-              </h3>
-              {selectedDate ? (
-                renderTaskList(tasksForSelectedDate)
-              ) : (
-                <p className="text-gray-600 dark:text-gray-300">
-                  カレンダーをクリックして日付を選択してください。
-                </p>
-              )}
-            </section>
-          </>
-        )}
       </section>
 
       {/* 完了済みタスク */}
