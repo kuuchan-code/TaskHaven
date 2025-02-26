@@ -14,7 +14,7 @@ export type Task = {
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
 export default function Page() {
-  const { data: tasks, error, mutate } = useSWR<Task[]>('/api/nado-tasks', fetcher, { refreshInterval: 5000 });
+  const { data: tasks, error, mutate } = useSWR<Task[]>('/api/tasks?source=nado', fetcher, { refreshInterval: 5000 });
 
   if (error) return <div>Error loading tasks.</div>;
   if (!tasks) return <div>Loading...</div>;
@@ -25,9 +25,9 @@ export default function Page() {
         <h1 className="text-5xl font-extrabold text-center text-gray-900 dark:text-gray-100 mb-12">
           タスク一覧
         </h1>
-        <TaskForm onTaskAdded={mutate} />
-        <InteractiveTaskDashboard tasks={tasks} refreshTasks={mutate} />
-      </div>
+        <TaskForm onTaskAdded={mutate} source="nado" />
+        <InteractiveTaskDashboard tasks={tasks} refreshTasks={mutate} source="nado" />
+        </div>
     </main>
   );
 }

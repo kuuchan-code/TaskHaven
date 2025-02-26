@@ -63,9 +63,10 @@ const ToggleButton: React.FC<ToggleButtonProps> = ({ expanded, onClick, label })
 interface InteractiveTaskDashboardProps {
   tasks: Task[];
   refreshTasks: () => void;
+  source: string;
 }
 
-const InteractiveTaskDashboard: React.FC<InteractiveTaskDashboardProps> = ({ tasks, refreshTasks }) => {
+const InteractiveTaskDashboard: React.FC<InteractiveTaskDashboardProps> = ({ tasks, refreshTasks, source }) => {
   const [currentTime, setCurrentTime] = useState<Date>(new Date());
   useEffect(() => {
     const timer = setInterval(() => setCurrentTime(new Date()), 60000);
@@ -148,6 +149,7 @@ const InteractiveTaskDashboard: React.FC<InteractiveTaskDashboardProps> = ({ tas
         title: editingTitle,
         importance: editingImportance,
         deadline: editingDeadline ? editingDeadline : null,
+        source,
       }),
     });
     if (res.ok) {
@@ -161,7 +163,7 @@ const InteractiveTaskDashboard: React.FC<InteractiveTaskDashboardProps> = ({ tas
       const res = await fetch("/api/tasks", {
         method: "DELETE",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ id: taskId }),
+        body: JSON.stringify({ id: taskId, source }),
       });
       if (res.ok) {
         refreshTasks();

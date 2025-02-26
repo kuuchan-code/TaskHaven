@@ -1,12 +1,11 @@
-// src/app/components/TaskForm.tsx
-"use client";
 import { useState } from "react";
 
 interface TaskFormProps {
   onTaskAdded: () => void;
+  source: string;
 }
 
-export default function TaskForm({ onTaskAdded }: TaskFormProps) {
+export default function TaskForm({ onTaskAdded, source }: TaskFormProps) {
   const [title, setTitle] = useState("");
   const [importance, setImportance] = useState(1);
   const [deadline, setDeadline] = useState("");
@@ -20,6 +19,7 @@ export default function TaskForm({ onTaskAdded }: TaskFormProps) {
         title,
         importance,
         deadline: deadline ? deadline : null,
+        source, // 親から渡された source を利用
       }),
     });
     if (res.ok) {
