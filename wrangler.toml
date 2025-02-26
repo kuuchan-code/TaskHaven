@@ -1,0 +1,9 @@
+name = "my-tasks-worker"
+type = "javascript"
+account_id = "ku-chan"
+workers_dev = true
+compatibility_date = "2025-02-26"
+main = "cloudflare-worker.js"
+
+[observability]
+enabled = true
