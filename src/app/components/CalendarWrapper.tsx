@@ -2,7 +2,14 @@
 "use client";
 import React from "react";
 import CalendarView from "./CalendarView";
-import { Task } from "../page";
+
+export type Task = {
+  completed: boolean;
+  id: number;
+  title: string;
+  importance: number;
+  deadline: string | null;
+};
 
 interface CalendarWrapperProps {
   tasks: Task[];

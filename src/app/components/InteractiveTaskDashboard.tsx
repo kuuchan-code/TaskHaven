@@ -226,6 +226,18 @@ const InteractiveTaskDashboard: React.FC<InteractiveTaskDashboardProps> = ({ tas
       }
     }
   };
+  const reopenTask = async (taskId: number) => {
+    if (confirm("このタスクを再開しますか？")) {
+      const res = await fetch("/api/tasks", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id: taskId, completed: false, source }),
+      });
+      if (res.ok) {
+        refreshTasks();
+      }
+    }
+  };
 
   return (
     <div className="space-y-8">
@@ -797,6 +809,135 @@ const InteractiveTaskDashboard: React.FC<InteractiveTaskDashboardProps> = ({ tas
                       ) : null}
                     </div>
                   </div>
+                  {expandedTaskId === task.id && (
+                    <div
+                      className="mt-2 text-sm text-gray-500 dark:text-gray-400 border-t pt-2"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      {editingTaskId === task.id ? (
+                        <div className="space-y-2">
+                          <div>
+                            <label className="block text-sm font-medium">タイトル:</label>
+                            <input
+                              type="text"
+                              value={editingTitle}
+                              onChange={(e) => setEditingTitle(e.target.value)}
+                              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm"
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-sm font-medium">重要度: {editingImportance}</label>
+                            <input
+                              type="range"
+                              min={1}
+                              max={10}
+                              value={editingImportance}
+                              onChange={(e) => setEditingImportance(Number(e.target.value))}
+                              className="mt-1 block w-full"
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-sm font-medium">締切:</label>
+                            <input
+                              type="datetime-local"
+                              value={editingDeadline || ""}
+                              onChange={(e) => setEditingDeadline(e.target.value)}
+                              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm"
+                            />
+                          </div>
+                          {/* 既存のショートカットボタン群 */}
+                          <div className="mt-2">
+                            <span className="block text-sm font-medium text-gray-700 dark:text-gray-300">ショートカット締切：</span>
+                            <div className="flex space-x-2 mt-1">
+                              <button
+                                type="button"
+                                onClick={() => setEditingDeadline(getRelativeDeadline(1))}
+                                className="px-2 py-1 bg-gray-200 dark:bg-gray-600 text-sm rounded"
+                              >
+                                1時間後
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => setEditingDeadline(getRelativeDeadline(3))}
+                                className="px-2 py-1 bg-gray-200 dark:bg-gray-600 text-sm rounded"
+                              >
+                                3時間後
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => setEditingDeadline(getRelativeDeadline(24))}
+                                className="px-2 py-1 bg-gray-200 dark:bg-gray-600 text-sm rounded"
+                              >
+                                1日後
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => setEditingDeadline(getRelativeDeadline(72))}
+                                className="px-2 py-1 bg-gray-200 dark:bg-gray-600 text-sm rounded"
+                              >
+                                3日後
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => setEditingDeadline(getRelativeDeadline(168))}
+                                className="px-2 py-1 bg-gray-200 dark:bg-gray-600 text-sm rounded"
+                              >
+                                1週間後
+                              </button>
+                            </div>
+                          </div>
+                          <div className="flex space-x-2">
+                            <button onClick={() => saveEditing(task.id)} className="px-3 py-1 bg-green-500 text-white rounded">
+                              保存
+                            </button>
+                            <button onClick={cancelEditing} className="px-3 py-1 bg-gray-500 text-white rounded">
+                              キャンセル
+                            </button>
+                          </div>
+                        </div>
+                      ) : (
+                        // 既存の表示部分
+                        <div className="space-y-2">
+                          <div>
+                            <strong>重要度:</strong> {task.importance}
+                          </div>
+                          <div>
+                            <strong>締切:</strong>{" "}
+                            {task.deadline ? new Date(task.deadline).toLocaleString() : "期限なし"}
+                          </div>
+                          <div className="flex space-x-2 mt-2">
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                startEditing(task);
+                              }}
+                              className="px-3 py-1 bg-green-500 text-white rounded"
+                            >
+                              編集
+                            </button>
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                reopenTask(task.id);
+                              }}
+                              className="px-3 py-1 bg-blue-500 text-white rounded"
+                            >
+                              再開
+                            </button>
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                deleteTask(task.id);
+                              }}
+                              className="px-3 py-1 bg-red-500 text-white rounded"
+                            >
+                              削除
+                            </button>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  )}
                 </li>
               ))
             ) : (
@@ -805,6 +946,8 @@ const InteractiveTaskDashboard: React.FC<InteractiveTaskDashboardProps> = ({ tas
           </ul>
         )}
       </section>
+
+
     </div>
   );
 };
