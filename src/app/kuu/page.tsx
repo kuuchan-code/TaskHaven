@@ -24,7 +24,7 @@ export default function Page() {
     <main className="min-h-screen bg-gray-100 dark:bg-gray-900 p-8">
       <div className="max-w-5xl mx-auto">
         <h1 className="text-5xl font-extrabold text-center text-gray-900 dark:text-gray-100 mb-12">
-          タスク一覧
+          くータスク
         </h1>
         <TaskForm onTaskAdded={mutate} source="kuu" />
         <InteractiveTaskDashboard tasks={tasks} refreshTasks={mutate} source="kuu" />
