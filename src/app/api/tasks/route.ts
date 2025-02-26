@@ -122,11 +122,13 @@ export async function PUT(request: Request) {
     );
   }
 
+  console.log("test");
+  
   // たとえば、重要度が一定以上の場合に通知を送信する
   const HIGH_PRIORITY_THRESHOLD = 2;
   if (importance >= HIGH_PRIORITY_THRESHOLD && fcmToken) {
     try {
-      await fetch("https://my-tasks-worker.kuuchanxn.workers.dev/", {
+      const notifyRes = await fetch("https://my-tasks-worker.kuuchanxn.workers.dev/", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -135,11 +137,13 @@ export async function PUT(request: Request) {
           priority: importance,
         }),
       });
-      console.log("高優先度タスクの通知を送信しました");
+      const notifyText = await notifyRes.text();
+      console.log("通知送信レスポンス:", notifyRes.status, notifyText);
     } catch (notifyError) {
       console.error("通知送信エラー:", notifyError);
     }
   }
+
 
   return new Response(JSON.stringify(data), {
     status: 200,
