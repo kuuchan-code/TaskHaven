@@ -34,7 +34,7 @@ const PushNotificationSetup: React.FC = () => {
     // 通知許可のリクエストとトークン取得
     Notification.requestPermission().then((permission) => {
       if (permission === "granted") {
-        getToken(messaging, { vapidKey: "_EUSDLC1yGzXSs582ukCmR-dgf0fxUSGaePhtWFRt_Y" })
+        getToken(messaging, { vapidKey: "BMSl6lNwY1vU5sJQegkBAh7ccrYEiTs1J5flIDY8N64yiaeNT_Llb5xpkKD3-TjpDvnZssx5l6fJ779jtNuPQ-4" })
           .then((currentToken) => {
             if (currentToken) {
               console.log("FCM Token:", currentToken);
