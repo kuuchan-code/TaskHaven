@@ -126,7 +126,7 @@ export async function PUT(request: Request) {
   const HIGH_PRIORITY_THRESHOLD = 2;
   if (importance >= HIGH_PRIORITY_THRESHOLD && fcmToken) {
     try {
-      await fetch("https://my-tasks-worker.kuuchanxn.workers.dev /", {
+      await fetch("https://my-tasks-worker.kuuchanxn.workers.dev/", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
