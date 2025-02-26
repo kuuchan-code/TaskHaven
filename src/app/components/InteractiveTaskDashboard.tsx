@@ -224,9 +224,8 @@ const TaskItem: React.FC<TaskItemProps> = ({
     >
       <div className="flex justify-between items-center">
         <span
-          className={`text-xl font-medium ${
-            task.completed ? "line-through" : ""
-          } text-gray-900 dark:text-gray-100`}
+          className={`text-xl font-medium ${task.completed ? "line-through" : ""
+            } text-gray-900 dark:text-gray-100`}
         >
           {task.title}
         </span>
@@ -345,7 +344,6 @@ const InteractiveTaskDashboard: React.FC<InteractiveTaskDashboardProps> = ({
   source,
 }) => {
   const [currentTime, setCurrentTime] = useState<Date>(new Date());
-  const [expandedTaskId, setExpandedTaskId] = useState<number | null>(null);
   const [showNoDeadlineSection, setShowNoDeadlineSection] = useState(false);
   const [showDeadlineSection, setShowDeadlineSection] = useState(true);
   const [showCompletedSection, setShowCompletedSection] = useState(false);
@@ -386,17 +384,9 @@ const InteractiveTaskDashboard: React.FC<InteractiveTaskDashboardProps> = ({
 
   const tasksForSelectedDate = selectedDate
     ? tasksWithDeadlineActive.filter(
-        (task) => formatDate(task.deadlineDate as Date) === formatDate(selectedDate)
-      )
+      (task) => formatDate(task.deadlineDate as Date) === formatDate(selectedDate)
+    )
     : [];
-
-  // Handlers for task item interactions
-  const handleTaskClick = (deadline: string | null, taskId: number) => {
-    if (deadline) {
-      setSelectedDate(new Date(deadline));
-    }
-    setExpandedTaskId((prev) => (prev === taskId ? null : taskId));
-  };
 
   const startEditing = (task: Task) => {
     setEditingTaskId(task.id);
@@ -503,7 +493,7 @@ const InteractiveTaskDashboard: React.FC<InteractiveTaskDashboardProps> = ({
             key={task.id}
             task={task}
             isEditing={editingTaskId === task.id}
-            onClick={() => handleTaskClick(task.deadline, task.id)}
+            onClick={() => { }}
             onStartEditing={() => startEditing(task)}
             onSaveEditing={() => saveEditing(task.id)}
             onCancelEditing={cancelEditing}
