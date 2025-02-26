@@ -68,13 +68,14 @@ export async function POST(request: Request) {
   });
 }
 
-export async function PUT(request: Request) {
-  const { id, title, importance, deadline, source } = await request.json();
+
+export async function DELETE(request: Request) {
+  const { id, source } = await request.json();
   const tableName = getTableName(source);
 
   const { data, error } = await supabase
     .from(tableName)
-    .update({ title, importance, deadline })
+    .delete()
     .eq('id', id);
 
   if (error) {
@@ -90,13 +91,19 @@ export async function PUT(request: Request) {
   });
 }
 
-export async function DELETE(request: Request) {
-  const { id, source } = await request.json();
+export async function PUT(request: Request) {
+  const { id, title, importance, deadline, completed, source } = await request.json();
   const tableName = getTableName(source);
+
+  // 更新するデータオブジェクトを構築（completed が指定されていれば更新対象に含める）
+  const updateData: any = { title, importance, deadline };
+  if (typeof completed !== 'undefined') {
+    updateData.completed = completed;
+  }
 
   const { data, error } = await supabase
     .from(tableName)
-    .delete()
+    .update(updateData)
     .eq('id', id);
 
   if (error) {
