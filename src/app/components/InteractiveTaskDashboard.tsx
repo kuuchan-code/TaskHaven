@@ -1,6 +1,3 @@
-// src/app/components/InteractiveTaskDashboard.tsx
-"use client";
-
 import React, { useEffect, useState } from "react";
 import { Task } from "../page";
 import CalendarWrapper from "./CalendarWrapper";
@@ -138,7 +135,6 @@ const InteractiveTaskDashboard: React.FC<InteractiveTaskDashboardProps> = ({ tas
       setEditingDeadline("");
     }
   };
-  
 
   const cancelEditing = () => {
     setEditingTaskId(null);
@@ -237,14 +233,16 @@ const InteractiveTaskDashboard: React.FC<InteractiveTaskDashboardProps> = ({ tas
                             />
                           </div>
                           <div>
-                            <label className="block text-sm font-medium">重要度:</label>
+                            <label className="block text-sm font-medium">
+                              重要度: {editingImportance}
+                            </label>
                             <input
-                              type="number"
-                              value={editingImportance}
-                              onChange={(e) => setEditingImportance(Number(e.target.value))}
+                              type="range"
                               min={1}
                               max={10}
-                              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm"
+                              value={editingImportance}
+                              onChange={(e) => setEditingImportance(Number(e.target.value))}
+                              className="mt-1 block w-full"
                             />
                           </div>
                           <div>
@@ -353,14 +351,16 @@ const InteractiveTaskDashboard: React.FC<InteractiveTaskDashboardProps> = ({ tas
                               />
                             </div>
                             <div>
-                              <label className="block text-sm font-medium">重要度:</label>
+                              <label className="block text-sm font-medium">
+                                重要度: {editingImportance}
+                              </label>
                               <input
-                                type="number"
-                                value={editingImportance}
-                                onChange={(e) => setEditingImportance(Number(e.target.value))}
+                                type="range"
                                 min={1}
                                 max={10}
-                                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm"
+                                value={editingImportance}
+                                onChange={(e) => setEditingImportance(Number(e.target.value))}
+                                className="mt-1 block w-full"
                               />
                             </div>
                             <div>
@@ -480,14 +480,16 @@ const InteractiveTaskDashboard: React.FC<InteractiveTaskDashboardProps> = ({ tas
                               />
                             </div>
                             <div>
-                              <label className="block text-sm font-medium">重要度:</label>
+                              <label className="block text-sm font-medium">
+                                重要度: {editingImportance}
+                              </label>
                               <input
-                                type="number"
-                                value={editingImportance}
-                                onChange={(e) => setEditingImportance(Number(e.target.value))}
+                                type="range"
                                 min={1}
                                 max={10}
-                                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm"
+                                value={editingImportance}
+                                onChange={(e) => setEditingImportance(Number(e.target.value))}
+                                className="mt-1 block w-full"
                               />
                             </div>
                             <div>
