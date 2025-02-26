@@ -1,3 +1,4 @@
+// src/app/api/tasks/route.ts
 export const runtime = 'edge';
 
 import { createClient, PostgrestError } from '@supabase/supabase-js';
@@ -100,7 +101,7 @@ interface UpdateTask {
 }
 
 export async function PUT(request: Request) {
-  const { id, title, importance, deadline, completed, source } = await request.json();
+  const { id, title, importance, deadline, completed, source, fcmToken } = await request.json();
   const tableName = getTableName(source);
 
   // 更新するデータオブジェクトの型を明示
@@ -119,6 +120,25 @@ export async function PUT(request: Request) {
       JSON.stringify({ error: error.message }),
       { status: 500, headers: { 'Content-Type': 'application/json' } }
     );
+  }
+
+  // たとえば、重要度が一定以上の場合に通知を送信する
+  const HIGH_PRIORITY_THRESHOLD = 2;
+  if (importance >= HIGH_PRIORITY_THRESHOLD && fcmToken) {
+    try {
+      await fetch("https://my-tasks-app.kuuchanxn.workers.dev/", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          fcmToken,  // ユーザーごとの FCM トークン
+          title,     // タスクタイトル
+          priority: importance,
+        }),
+      });
+      console.log("高優先度タスクの通知を送信しました");
+    } catch (notifyError) {
+      console.error("通知送信エラー:", notifyError);
+    }
   }
 
   return new Response(JSON.stringify(data), {
