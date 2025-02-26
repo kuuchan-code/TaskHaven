@@ -65,6 +65,15 @@ const formatForDatetimeLocal = (isoString: string): string => {
   return localDate.toISOString().slice(0, 16);
 };
 
+// 現在時刻から hours 時間後の日時を、datetime-local形式の文字列で返す関数
+const getRelativeDeadline = (hours: number): string => {
+  const date = new Date();
+  date.setHours(date.getHours() + hours);
+  const offset = date.getTimezoneOffset() * 60000;
+  const localDate = new Date(date.getTime() - offset);
+  return localDate.toISOString().slice(0, 16);
+};
+
 interface InteractiveTaskDashboardProps {
   tasks: Task[];
   refreshTasks: () => void;
@@ -85,11 +94,11 @@ const InteractiveTaskDashboard: React.FC<InteractiveTaskDashboardProps> = ({ tas
   const [showCompletedSection, setShowCompletedSection] = useState(false);
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
 
-  // 編集用ステート
+  // 編集用ステート（editingDeadlineはstring|null）
   const [editingTaskId, setEditingTaskId] = useState<number | null>(null);
   const [editingTitle, setEditingTitle] = useState("");
   const [editingImportance, setEditingImportance] = useState(1);
-  const [editingDeadline, setEditingDeadline] = useState("");
+  const [editingDeadline, setEditingDeadline] = useState<string | null>(null);
 
   // 未完了タスク（active）
   const tasksWithNoDeadlineActive = tasks
@@ -133,7 +142,7 @@ const InteractiveTaskDashboard: React.FC<InteractiveTaskDashboardProps> = ({ tas
       // ISO文字列からローカル日時形式に変換してセット
       setEditingDeadline(formatForDatetimeLocal(task.deadline));
     } else {
-      setEditingDeadline("");
+      setEditingDeadline(null);
     }
   };
 
@@ -141,10 +150,10 @@ const InteractiveTaskDashboard: React.FC<InteractiveTaskDashboardProps> = ({ tas
     setEditingTaskId(null);
     setEditingTitle("");
     setEditingImportance(1);
-    setEditingDeadline("");
+    setEditingDeadline(null);
   };
 
-  // ユーザーの入力値（"YYYY-MM-DDTHH:mm"）をタイムゾーンオフセット付きのISO文字列に変換
+  // ユーザーの入力値（"YYYY-MM-DDTHH:mm"）をタイムゾーンオフセット付きのISO文字列に変換する関数
   const convertLocalToIsoWithOffset = (localDateString: string): string => {
     const localDate = new Date(localDateString);
     const pad = (num: number) => String(num).padStart(2, "0");
@@ -154,7 +163,6 @@ const InteractiveTaskDashboard: React.FC<InteractiveTaskDashboardProps> = ({ tas
     const hours = pad(localDate.getHours());
     const minutes = pad(localDate.getMinutes());
     const seconds = pad(localDate.getSeconds());
-    // getTimezoneOffset は分単位。正の値の場合、UTCより西（例：日本は -540）
     const timezoneOffset = localDate.getTimezoneOffset();
     const offsetSign = timezoneOffset > 0 ? "-" : "+";
     const offsetHours = pad(Math.floor(Math.abs(timezoneOffset) / 60));
@@ -163,10 +171,13 @@ const InteractiveTaskDashboard: React.FC<InteractiveTaskDashboardProps> = ({ tas
   };
 
   const saveEditing = async (taskId: number) => {
-    let deadlineToSave = editingDeadline;
-    if (deadlineToSave) {
+    let deadlineToSave: string | null = editingDeadline;
+    if (deadlineToSave && deadlineToSave !== "") {
       // ユーザー入力（ローカルタイム）をタイムゾーンオフセット付きのISO文字列に変換
       deadlineToSave = convertLocalToIsoWithOffset(deadlineToSave);
+    } else {
+      // 締切が空の場合は null として送信
+      deadlineToSave = null;
     }
     const res = await fetch("/api/tasks", {
       method: "PUT",
@@ -198,7 +209,6 @@ const InteractiveTaskDashboard: React.FC<InteractiveTaskDashboardProps> = ({ tas
     }
   };
 
-  // タスクを完了状態に更新する関数
   const completeTask = async (taskId: number) => {
     if (confirm("このタスクを完了にしますか？")) {
       const res = await fetch("/api/tasks", {
@@ -286,10 +296,51 @@ const InteractiveTaskDashboard: React.FC<InteractiveTaskDashboardProps> = ({ tas
                             <label className="block text-sm font-medium">締切:</label>
                             <input
                               type="datetime-local"
-                              value={editingDeadline}
+                              value={editingDeadline || ""}
                               onChange={(e) => setEditingDeadline(e.target.value)}
                               className="mt-1 block w-full rounded-md border-gray-300 shadow-sm"
                             />
+                            {/* ショートカット締切ボタン */}
+                            <div className="mt-2">
+                              <span className="block text-sm font-medium text-gray-700 dark:text-gray-300">ショートカット締切：</span>
+                              <div className="flex space-x-2 mt-1">
+                                <button
+                                  type="button"
+                                  onClick={() => setEditingDeadline(getRelativeDeadline(1))}
+                                  className="px-2 py-1 bg-gray-200 dark:bg-gray-600 text-sm rounded"
+                                >
+                                  1時間後
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => setEditingDeadline(getRelativeDeadline(3))}
+                                  className="px-2 py-1 bg-gray-200 dark:bg-gray-600 text-sm rounded"
+                                >
+                                  3時間後
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => setEditingDeadline(getRelativeDeadline(24))}
+                                  className="px-2 py-1 bg-gray-200 dark:bg-gray-600 text-sm rounded"
+                                >
+                                  1日後
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => setEditingDeadline(getRelativeDeadline(72))}
+                                  className="px-2 py-1 bg-gray-200 dark:bg-gray-600 text-sm rounded"
+                                >
+                                  3日後
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => setEditingDeadline(getRelativeDeadline(168))}
+                                  className="px-2 py-1 bg-gray-200 dark:bg-gray-600 text-sm rounded"
+                                >
+                                  1週間後
+                                </button>
+                              </div>
+                            </div>
                           </div>
                           <div className="flex space-x-2">
                             <button onClick={() => saveEditing(task.id)} className="px-3 py-1 bg-green-500 text-white rounded">
@@ -413,10 +464,50 @@ const InteractiveTaskDashboard: React.FC<InteractiveTaskDashboardProps> = ({ tas
                               <label className="block text-sm font-medium">締切:</label>
                               <input
                                 type="datetime-local"
-                                value={editingDeadline}
+                                value={editingDeadline || ""}
                                 onChange={(e) => setEditingDeadline(e.target.value)}
                                 className="mt-1 block w-full rounded-md border-gray-300 shadow-sm"
                               />
+                              <div className="mt-2">
+                                <span className="block text-sm font-medium text-gray-700 dark:text-gray-300">ショートカット締切：</span>
+                                <div className="flex space-x-2 mt-1">
+                                  <button
+                                    type="button"
+                                    onClick={() => setEditingDeadline(getRelativeDeadline(1))}
+                                    className="px-2 py-1 bg-gray-200 dark:bg-gray-600 text-sm rounded"
+                                  >
+                                    1時間後
+                                  </button>
+                                  <button
+                                    type="button"
+                                    onClick={() => setEditingDeadline(getRelativeDeadline(3))}
+                                    className="px-2 py-1 bg-gray-200 dark:bg-gray-600 text-sm rounded"
+                                  >
+                                    3時間後
+                                  </button>
+                                  <button
+                                    type="button"
+                                    onClick={() => setEditingDeadline(getRelativeDeadline(24))}
+                                    className="px-2 py-1 bg-gray-200 dark:bg-gray-600 text-sm rounded"
+                                  >
+                                    1日後
+                                  </button>
+                                  <button
+                                    type="button"
+                                    onClick={() => setEditingDeadline(getRelativeDeadline(72))}
+                                    className="px-2 py-1 bg-gray-200 dark:bg-gray-600 text-sm rounded"
+                                  >
+                                    3日後
+                                  </button>
+                                  <button
+                                    type="button"
+                                    onClick={() => setEditingDeadline(getRelativeDeadline(168))}
+                                    className="px-2 py-1 bg-gray-200 dark:bg-gray-600 text-sm rounded"
+                                  >
+                                    1週間後
+                                  </button>
+                                </div>
+                              </div>
                             </div>
                             <div className="flex space-x-2">
                               <button onClick={() => saveEditing(task.id)} className="px-3 py-1 bg-green-500 text-white rounded">
@@ -604,10 +695,50 @@ const InteractiveTaskDashboard: React.FC<InteractiveTaskDashboardProps> = ({ tas
                             <label className="block text-sm font-medium">締切:</label>
                             <input
                               type="datetime-local"
-                              value={editingDeadline}
+                              value={editingDeadline || ""}
                               onChange={(e) => setEditingDeadline(e.target.value)}
                               className="mt-1 block w-full rounded-md border-gray-300 shadow-sm"
                             />
+                            <div className="mt-2">
+                              <span className="block text-sm font-medium text-gray-700 dark:text-gray-300">ショートカット締切：</span>
+                              <div className="flex space-x-2 mt-1">
+                                <button
+                                  type="button"
+                                  onClick={() => setEditingDeadline(getRelativeDeadline(1))}
+                                  className="px-2 py-1 bg-gray-200 dark:bg-gray-600 text-sm rounded"
+                                >
+                                  1時間後
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => setEditingDeadline(getRelativeDeadline(3))}
+                                  className="px-2 py-1 bg-gray-200 dark:bg-gray-600 text-sm rounded"
+                                >
+                                  3時間後
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => setEditingDeadline(getRelativeDeadline(24))}
+                                  className="px-2 py-1 bg-gray-200 dark:bg-gray-600 text-sm rounded"
+                                >
+                                  1日後
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => setEditingDeadline(getRelativeDeadline(72))}
+                                  className="px-2 py-1 bg-gray-200 dark:bg-gray-600 text-sm rounded"
+                                >
+                                  3日後
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => setEditingDeadline(getRelativeDeadline(168))}
+                                  className="px-2 py-1 bg-gray-200 dark:bg-gray-600 text-sm rounded"
+                                >
+                                  1週間後
+                                </button>
+                              </div>
+                            </div>
                           </div>
                           <div className="flex space-x-2">
                             <button onClick={() => saveEditing(task.id)} className="px-3 py-1 bg-green-500 text-white rounded">
