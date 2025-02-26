@@ -9,6 +9,7 @@ export default function TaskForm({ onTaskAdded, source }: TaskFormProps) {
   const [title, setTitle] = useState("");
   const [importance, setImportance] = useState(1);
   const [deadline, setDeadline] = useState("");
+  const [successMessage, setSuccessMessage] = useState("");
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -27,11 +28,19 @@ export default function TaskForm({ onTaskAdded, source }: TaskFormProps) {
       setTitle("");
       setImportance(1);
       setDeadline("");
+      setSuccessMessage("タスクが追加されました！");
+      // 数秒後にメッセージを消す
+      setTimeout(() => setSuccessMessage(""), 3000);
     }
   };
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4 p-4 bg-white dark:bg-gray-800 rounded-lg shadow mb-8">
+      {successMessage && (
+        <div className="p-2 bg-green-100 text-green-700 rounded">
+          {successMessage}
+        </div>
+      )}
       <div>
         <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">タイトル：</label>
         <input
@@ -48,7 +57,7 @@ export default function TaskForm({ onTaskAdded, source }: TaskFormProps) {
           type="number"
           value={importance}
           onChange={(e) => setImportance(Number(e.target.value))}
-          min={1}
+          min={0}
           max={10}
           required
           className="mt-1 block w-full rounded-md border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200 shadow-sm focus:ring-blue-500 focus:border-blue-500"

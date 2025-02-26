@@ -14,7 +14,7 @@ export type Task = {
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
 export default function Page() {
-  const { data: tasks, error, mutate } = useSWR<Task[]>('/api/tasks?source=nado', fetcher, { refreshInterval: 5000 });
+  const { data: tasks, error, mutate } = useSWR<Task[]>('/api/tasks?source=nado', fetcher);
 
   if (error) return <div>Error loading tasks.</div>;
   if (!tasks) return <div>Loading...</div>;
