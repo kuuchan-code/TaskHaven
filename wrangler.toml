@@ -1,6 +1,8 @@
 name = "my-tasks-worker"
 type = "javascript"
 main = "worker.ts"
+compatibility_date = "2025-02-27"
 
 [triggers]
 crons = ["*/1 * * * *"]
+
