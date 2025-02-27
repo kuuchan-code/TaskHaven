@@ -66,7 +66,8 @@ export default {
       }
     }
   };
-  import { importPKCS8, SignJWT } from 'jose';
+  
+  import { importPKCS8, SignJWT } from "jose";
   
   async function getAccessToken(serviceAccount) {
     const iat = Math.floor(Date.now() / 1000);
@@ -80,15 +81,12 @@ export default {
       iat,
     };
   
-    // 改行のエスケープを元に戻す
-    const privateKeyPEM = serviceAccount.private_key.replace(/\\n/g, "\n");
-  
     try {
-      // PEM形式の秘密鍵を CryptoKey に変換する
-      const cryptoKey = await importPKCS8(privateKeyPEM, 'RS256');
+      // サービスアカウントに設定された秘密鍵をそのまま使用
+      const cryptoKey = await importPKCS8(serviceAccount.private_key, "RS256");
   
       const jwt = await new SignJWT(payload)
-        .setProtectedHeader({ alg: 'RS256', typ: 'JWT' })
+        .setProtectedHeader({ alg: "RS256", typ: "JWT" })
         .setIssuedAt(iat)
         .setExpirationTime(exp)
         .sign(cryptoKey);
@@ -111,3 +109,4 @@ export default {
       throw error;
     }
   }
+  
