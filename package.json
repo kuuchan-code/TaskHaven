@@ -13,6 +13,7 @@
     "@wojtekmaj/react-hooks": "^1.22.0",
     "csv-parse": "^5.6.0",
     "firebase": "^11.3.1",
+    "firebase-auth-cloudflare-workers": "^2.0.6",
     "googleapis": "^144.0.0",
     "jose": "^6.0.7",
     "next": "15.1.7",
@@ -23,6 +24,7 @@
     "swr": "^2.3.2"
   },
   "devDependencies": {
+    "@cloudflare/workers-types": "^4.20250224.0",
     "@eslint/eslintrc": "^3",
     "@types/node": "^20",
     "@types/react": "^19",

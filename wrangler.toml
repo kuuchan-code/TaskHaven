@@ -2,7 +2,7 @@ name = "my-tasks-worker"
 account_id = "9f7e28a5d1679ec0d1a019bd6344f8ca"
 workers_dev = true
 compatibility_date = "2025-02-26"
-main = "cloudflare-worker.js"
+main = "cloudflare-worker.ts"
 
 [observability]
 enabled = true
