@@ -22,7 +22,7 @@ export async function scheduled(event: ScheduledEvent, env: any, ctx: ExecutionC
 
   // 優先度 2 以上かつ未完了のタスクを Supabase から取得
   const { data: tasks, error } = await supabase
-    .from('tasks')
+    .from('task-with-priority')
     .select('*')
     .gte('priority', 2)
     .eq('completed', false);
