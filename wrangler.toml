@@ -1,0 +1,6 @@
+name = "my-tasks-worker"
+type = "javascript"
+main = "worker.ts"
+
+[triggers]
+crons = ["*/1 * * * *"]
