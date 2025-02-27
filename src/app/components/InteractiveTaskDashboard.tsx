@@ -1,4 +1,4 @@
-// 例：InteractiveTaskDashboard.tsx
+// src/app/components/InteractiveTaskDashboard.tsx
 import React, { useEffect, useState } from "react";
 
 export type Task = {
@@ -332,13 +332,13 @@ const TaskItem: React.FC<TaskItemProps> = ({
 interface InteractiveTaskDashboardProps {
   tasks: Task[];
   refreshTasks: () => void;
-  source: string;
+  username: string;
 }
 
 const InteractiveTaskDashboard: React.FC<InteractiveTaskDashboardProps> = ({
   tasks,
   refreshTasks,
-  source,
+  username,
 }) => {
   const [currentTime, setCurrentTime] = useState<Date>(new Date());
   const [showNoDeadlineSection, setShowNoDeadlineSection] = useState(false);
@@ -412,6 +412,7 @@ const InteractiveTaskDashboard: React.FC<InteractiveTaskDashboardProps> = ({
     } else {
       deadlineToSave = null;
     }
+    const fcmToken = localStorage.getItem("fcmToken");
     const res = await fetch("/api/tasks", {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
@@ -420,7 +421,8 @@ const InteractiveTaskDashboard: React.FC<InteractiveTaskDashboardProps> = ({
         title: editingTitle,
         importance: editingImportance,
         deadline: deadlineToSave,
-        source,
+        username,
+        fcmToken,
       }),
     });
     if (res.ok) {
@@ -434,7 +436,7 @@ const InteractiveTaskDashboard: React.FC<InteractiveTaskDashboardProps> = ({
       const res = await fetch("/api/tasks", {
         method: "DELETE",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ id: taskId, source }),
+        body: JSON.stringify({ id: taskId, username }),
       });
       if (res.ok) {
         refreshTasks();
@@ -447,7 +449,7 @@ const InteractiveTaskDashboard: React.FC<InteractiveTaskDashboardProps> = ({
       const res = await fetch("/api/tasks", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ id: taskId, completed: true, source }),
+        body: JSON.stringify({ id: taskId, completed: true, username }),
       });
       if (res.ok) {
         refreshTasks();
@@ -460,7 +462,7 @@ const InteractiveTaskDashboard: React.FC<InteractiveTaskDashboardProps> = ({
       const res = await fetch("/api/tasks", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ id: taskId, completed: false, source }),
+        body: JSON.stringify({ id: taskId, completed: false, username }),
       });
       if (res.ok) {
         refreshTasks();

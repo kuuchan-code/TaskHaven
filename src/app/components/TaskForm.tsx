@@ -2,7 +2,7 @@ import { useState } from "react";
 
 interface TaskFormProps {
   onTaskAdded: () => void;
-  source: string;
+  username: string;
 }
 
 // ローカル日時をタイムゾーン付きISO形式に変換する関数
@@ -22,7 +22,7 @@ const convertLocalToIsoWithOffset = (localDateString: string): string => {
   return `${year}-${month}-${day}T${hours}:${minutes}:${seconds}${offsetSign}${offsetHours}:${offsetMinutes}`;
 };
 
-export default function TaskForm({ onTaskAdded, source }: TaskFormProps) {
+export default function TaskForm({ onTaskAdded, username }: TaskFormProps) {
   const [title, setTitle] = useState("");
   const [importance, setImportance] = useState(1);
   const [deadline, setDeadline] = useState("");
@@ -53,7 +53,7 @@ export default function TaskForm({ onTaskAdded, source }: TaskFormProps) {
         title,
         importance,
         deadline: deadlineToSend,
-        source,
+        username,
       }),
     });
     if (res.ok) {

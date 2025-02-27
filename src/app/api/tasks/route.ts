@@ -17,19 +17,19 @@ export type Task = {
 };
 
 
-// クライアントから渡された source に応じたテーブル名の決定
-const getTableName = (source: string | null) => {
-  if (!source) {
-    throw new Error("source is required");
+// クライアントから渡された username に応じたテーブル名の決定
+const getTableName = (username: string | null) => {
+  if (!username) {
+    throw new Error("username is required");
   }
-  return source;
+  return username;
 };
 
 
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
-  const source = searchParams.get('source');
-  const tableName = getTableName(source);
+  const username = searchParams.get('username');
+  const tableName = getTableName(username);
 
   const { data, error } = await supabase
     .from(tableName)
@@ -49,8 +49,8 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: Request) {
-  const { title, importance, deadline, source } = await request.json();
-  const tableName = getTableName(source);
+  const { title, importance, deadline, username } = await request.json();
+  const tableName = getTableName(username);
 
   const { data, error } = await supabase
     .from(tableName)
@@ -71,8 +71,8 @@ export async function POST(request: Request) {
 
 
 export async function DELETE(request: Request) {
-  const { id, source } = await request.json();
-  const tableName = getTableName(source);
+  const { id, username } = await request.json();
+  const tableName = getTableName(username);
 
   const { data, error } = await supabase
     .from(tableName)
@@ -100,8 +100,8 @@ interface UpdateTask {
 }
 
 export async function PUT(request: Request) {
-  const { id, title, importance, deadline, completed, source } = await request.json();
-  const tableName = getTableName(source);
+  const { id, title, importance, deadline, completed, username } = await request.json();
+  const tableName = getTableName(username);
 
   // 更新するデータオブジェクトの型を明示
   const updateData: UpdateTask = { title, importance, deadline };
