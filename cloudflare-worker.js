@@ -28,7 +28,11 @@ export default {
       };
 
       // FCM API へリクエスト送信
-      const notifyRes = await fetch("https://fcm.googleapis.com/v1/projects/YOUR_PROJECT_ID/messages:send", {
+      const projectId = serviceAccount.project_id;
+      const fcmUrl = `https://fcm.googleapis.com/v1/projects/${projectId}/messages:send`;
+
+      // FCM API へリクエスト送信
+      const notifyRes = await fetch(fcmUrl, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
