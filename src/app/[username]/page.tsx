@@ -1,7 +1,8 @@
 // src/app/[username]/page.tsx
+"use client";
+
 export const runtime = 'edge';
 
-"use client";
 
 import { useParams } from 'next/navigation';
 import TaskPage from '../components/TaskPage';
