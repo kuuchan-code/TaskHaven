@@ -18,13 +18,19 @@ export default {
       // FCMメッセージのペイロード作成
       const fcmMessage = {
         message: {
-          token: fcmToken, // 受信デバイスのトークン
-          notification: {
-            title: title,
-            body: "これはテストメッセージです。"  // 必要に応じて本文もパラメータ化可
-          },
+          token: fcmToken,
+          webpush: {
+            headers: {
+              Urgency: "high"
+            },
+            notification: {
+              title: title,
+              body: "これはテストメッセージです。"
+            }
+          }
         }
       };
+      
 
       // サービスアカウントからプロジェクトIDを取得
       const projectId = serviceAccount.project_id;
@@ -60,7 +66,7 @@ async function getAccessToken(serviceAccount) {
 
   const payload = {
     iss: serviceAccount.client_email,
-    scope: "https://www.googleapis.com/auth/cloud-platform",
+    scope: "https://www.googleapis.com/auth/firebase.messaging",
     aud: "https://oauth2.googleapis.com/token",
     exp,
     iat,
