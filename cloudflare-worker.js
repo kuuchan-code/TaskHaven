@@ -23,11 +23,6 @@ export default {
             title: title,
             body: "これはテストメッセージです。"  // 必要に応じて本文もパラメータ化可
           },
-          // Android固有のオプション設定（priorityなど）
-          android: {
-            priority: priority || "normal"  // priority が指定されない場合は "normal"
-          }
-          // 他のプラットフォーム向けの設定を追加することも可能
         }
       };
 
