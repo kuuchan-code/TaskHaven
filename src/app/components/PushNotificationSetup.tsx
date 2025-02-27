@@ -3,7 +3,7 @@ import React, { useEffect, useState } from "react";
 import { initializeApp } from "firebase/app";
 import { getMessaging, getToken, onMessage } from "firebase/messaging";
 
-// Firebase の設定情報 (Service Worker と同じもの)
+// Firebase の設定情報
 const firebaseConfig = {
   apiKey: "AIzaSyC54PbL4kpTeKIrY3jXQMJ5335pWz1BbzM",
   authDomain: "my-tasks-af26d.firebaseapp.com",
@@ -59,11 +59,18 @@ const PushNotificationSetup: React.FC = () => {
       }
     });
 
-    // フォアグラウンドでの通知受信
+    // フォアグラウンドでの通知受信時に、ブラウザの Notification API を使って表示する
     onMessage(messaging, (payload) => {
       console.log("フォアグラウンドメッセージ受信:", payload);
-      // 必要に応じて UI の更新などをここで行う
+      if (Notification.permission === "granted" && payload.notification) {
+        const title = payload.notification.title || "通知";
+        new Notification(title, {
+          body: payload.notification.body || "",
+          // icon やその他オプションを必要に応じて追加
+        });
+      }
     });
+    
   }, []);
 
   return <div>{status}</div>;
