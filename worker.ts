@@ -1,5 +1,12 @@
 import { createClient } from '@supabase/supabase-js';
 
+// Cloudflare Workers の scheduled イベント用ハンドラー
+export default {
+  async scheduled(event: ScheduledEvent, env: any, ctx: ExecutionContext) {
+    await scheduled(event, env, ctx);
+  },
+};
+
 /**
  * Cloudflare Workers の scheduled イベントで実行されるエントリポイント。
  * env には NEXT_PUBLIC_SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, FIREBASE_SERVICE_ACCOUNT (JSON文字列) を設定してください。
