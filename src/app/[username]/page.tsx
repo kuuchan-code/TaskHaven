@@ -1,4 +1,6 @@
 // src/app/[username]/page.tsx
+export const runtime = 'edge';
+
 "use client";
 
 import { useParams } from 'next/navigation';

@@ -14,26 +14,40 @@ export type Task = {
   title: string;
   importance: number;
   deadline: string | null;
+  username: string;
+  // priority はビュー側で計算された値
+  // CREATE OR REPLACE VIEW task_with_priority AS
+  // SELECT
+  //   id,
+  //   username,
+  //   title,
+  //   importance,
+  //   deadline,
+  //   completed,
+  //   CASE
+  //     WHEN EXTRACT(EPOCH FROM (deadline - CURRENT_TIMESTAMP)) / 3600 >= 0 THEN
+  //       importance / POWER((EXTRACT(EPOCH FROM (deadline - CURRENT_TIMESTAMP)) / 3600 + 1), 0.5)
+  //     ELSE
+  //       importance
+  //   END AS priority
+  // FROM tasks;
+  priority?: number;
 };
-
-
-// クライアントから渡された username に応じたテーブル名の決定
-const getTableName = (username: string | null) => {
-  if (!username) {
-    throw new Error("username is required");
-  }
-  return username;
-};
-
 
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
   const username = searchParams.get('username');
-  const tableName = getTableName(username);
+  if (!username) {
+    return new Response(
+      JSON.stringify({ error: "username is required" }),
+      { status: 400, headers: { 'Content-Type': 'application/json' } }
+    );
+  }
 
   const { data, error } = await supabase
-    .from(tableName)
-    .select('*') as { data: Task[] | null; error: PostgrestError | null };
+    .from("task_with_priority")
+    .select('*')
+    .eq('username', username) as { data: Task[] | null; error: PostgrestError | null };
 
   if (error) {
     return new Response(
@@ -50,11 +64,16 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: Request) {
   const { title, importance, deadline, username } = await request.json();
-  const tableName = getTableName(username);
+  if (!username) {
+    return new Response(
+      JSON.stringify({ error: "username is required" }),
+      { status: 400, headers: { 'Content-Type': 'application/json' } }
+    );
+  }
 
   const { data, error } = await supabase
-    .from(tableName)
-    .insert([{ title, importance, deadline }]);
+    .from("task_with_priority")
+    .insert([{ title, importance, deadline, username }]);
 
   if (error) {
     return new Response(
@@ -69,15 +88,20 @@ export async function POST(request: Request) {
   });
 }
 
-
 export async function DELETE(request: Request) {
   const { id, username } = await request.json();
-  const tableName = getTableName(username);
+  if (!username) {
+    return new Response(
+      JSON.stringify({ error: "username is required" }),
+      { status: 400, headers: { 'Content-Type': 'application/json' } }
+    );
+  }
 
   const { data, error } = await supabase
-    .from(tableName)
+    .from("task_with_priority")
     .delete()
-    .eq('id', id);
+    .eq('id', id)
+    .eq('username', username);
 
   if (error) {
     return new Response(
@@ -101,7 +125,12 @@ interface UpdateTask {
 
 export async function PUT(request: Request) {
   const { id, title, importance, deadline, completed, username } = await request.json();
-  const tableName = getTableName(username);
+  if (!username) {
+    return new Response(
+      JSON.stringify({ error: "username is required" }),
+      { status: 400, headers: { 'Content-Type': 'application/json' } }
+    );
+  }
 
   // 更新するデータオブジェクトの型を明示
   const updateData: UpdateTask = { title, importance, deadline };
@@ -110,9 +139,10 @@ export async function PUT(request: Request) {
   }
 
   const { data, error } = await supabase
-    .from(tableName)
+    .from("task_with_priority")
     .update(updateData)
-    .eq('id', id);
+    .eq('id', id)
+    .eq('username', username);
 
   if (error) {
     return new Response(

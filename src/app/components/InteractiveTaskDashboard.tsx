@@ -1,4 +1,3 @@
-// src/app/components/InteractiveTaskDashboard.tsx
 import React, { useEffect, useState } from "react";
 
 export type Task = {
@@ -7,11 +6,12 @@ export type Task = {
   title: string;
   importance: number;
   deadline: string | null;
+  // APIから渡された priority カラム
+  priority?: number;
 };
 
-const ADJUSTMENT_FACTOR = 0.5;
 const HIGH_PRIORITY_THRESHOLD = 2;
-const MEDIUM_PRIORITY_THRESHOLD = 0.5;
+const MEDIUM_PRIORITY_THRESHOLD = 0.64;
 
 const formatRemainingTime = (hours: number): string => {
   if (hours < 24) {
@@ -175,7 +175,6 @@ const TaskEditor: React.FC<TaskEditorProps> = ({
 interface TaskItemProps {
   task: Task & {
     timeDiff?: number;
-    priority?: number;
     deadlineDate?: Date;
   };
   isEditing: boolean;
@@ -223,17 +222,23 @@ const TaskItem: React.FC<TaskItemProps> = ({
         <span className={`text-xl font-semibold ${task.completed ? "line-through" : ""} text-gray-900 dark:text-gray-100`}>
           {task.title}
         </span>
-        {typeof task.timeDiff === "number" && typeof task.priority === "number" ? (
+        {typeof task.priority === "number" ? (
           <div className="flex flex-col sm:flex-row items-end sm:items-center gap-2">
             <span className="text-sm text-gray-700 dark:text-gray-300">
               優先度: {task.priority.toFixed(2)}
             </span>
             <PriorityLabel priority={task.priority} />
-            <span className="text-sm text-gray-600 dark:text-gray-400">
-              {task.timeDiff >= 0
-                ? `残り: ${formatRemainingTime(task.timeDiff)}`
-                : `超過: ${formatRemainingTime(-task.timeDiff)}`}
-            </span>
+            {task.deadline && (
+              <span className="text-sm text-gray-600 dark:text-gray-400">
+                {(() => {
+                  const deadlineDate = new Date(task.deadline);
+                  const diffTime = (deadlineDate.getTime() - new Date().getTime()) / (1000 * 60 * 60);
+                  return diffTime >= 0
+                    ? `残り: ${formatRemainingTime(diffTime)}`
+                    : `超過: ${formatRemainingTime(-diffTime)}`;
+                })()}
+              </span>
+            )}
           </div>
         ) : (
           <div className="flex items-center gap-3">
@@ -360,18 +365,15 @@ const InteractiveTaskDashboard: React.FC<InteractiveTaskDashboardProps> = ({
     .filter((task) => task.deadline === null && !task.completed)
     .sort((a, b) => b.importance - a.importance);
 
+  // 期限付きタスクは、APIから受け取った priority を利用してソートします。
   const tasksWithDeadlineActive = tasks
     .filter((task) => task.deadline !== null && !task.completed)
     .map((task) => {
       const deadlineDate = new Date(task.deadline as string);
       const diffTime = (deadlineDate.getTime() - currentTime.getTime()) / (1000 * 60 * 60);
-      const priority =
-        diffTime >= 0
-          ? task.importance / Math.pow(diffTime + 1, ADJUSTMENT_FACTOR)
-          : task.importance * (1 + Math.abs(diffTime) / 10);
-      return { ...task, timeDiff: diffTime, priority, deadlineDate };
+      return { ...task, timeDiff: diffTime, deadlineDate };
     })
-    .sort((a, b) => (b.priority as number) - (a.priority as number));
+    .sort((a, b) => (b.priority ?? 0) - (a.priority ?? 0));
 
   const completedTasks = tasks.filter((task) => task.completed);
 
@@ -471,7 +473,7 @@ const InteractiveTaskDashboard: React.FC<InteractiveTaskDashboardProps> = ({
   };
 
   const renderTaskList = (
-    taskList: (Task & { timeDiff?: number; priority?: number; deadlineDate?: Date })[],
+    taskList: (Task & { timeDiff?: number; deadlineDate?: Date })[],
     completedSection: boolean = false
   ) => (
     <ul className="space-y-4">
@@ -555,3 +557,4 @@ const InteractiveTaskDashboard: React.FC<InteractiveTaskDashboardProps> = ({
 };
 
 export default InteractiveTaskDashboard;
+export const runtime = 'edge';
