@@ -1,11 +1,19 @@
 import { createClient } from '@supabase/supabase-js';
 
-// Cloudflare Workers の scheduled イベント用ハンドラー
+// Cloudflare Workers の scheduled イベント用ハンドラーと fetch ハンドラー
 export default {
   async scheduled(event: ScheduledEvent, env: any, ctx: ExecutionContext) {
     await scheduled(event, env, ctx);
   },
+  async fetch(request: Request, env: any, ctx: ExecutionContext) {
+    // HTTP リクエストが来た場合の処理（例えば 200 OK を返す）
+    return new Response("This is a scheduled worker; no fetch endpoint is implemented.", {
+      status: 200,
+      headers: { "Content-Type": "text/plain" },
+    });
+  },
 };
+
 
 /**
  * Cloudflare Workers の scheduled イベントで実行されるエントリポイント。
