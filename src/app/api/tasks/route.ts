@@ -15,7 +15,6 @@ export type Task = {
   importance: number;
   deadline: string | null;
   username: string;
-  // priority はビュー側で計算された値
   // CREATE OR REPLACE VIEW task_with_priority AS
   // SELECT
   //   id,
@@ -25,6 +24,7 @@ export type Task = {
   //   deadline,
   //   completed,
   //   CASE
+  //     WHEN deadline IS NULL THEN NULL
   //     WHEN EXTRACT(EPOCH FROM (deadline - CURRENT_TIMESTAMP)) / 3600 >= 0 THEN
   //       importance / POWER((EXTRACT(EPOCH FROM (deadline - CURRENT_TIMESTAMP)) / 3600 + 1), 0.5)
   //     ELSE
