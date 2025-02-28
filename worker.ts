@@ -1,10 +1,30 @@
 // worker.ts
 import { createClient } from '@supabase/supabase-js';
+import { SchedulerLock } from './durable-objects';
+export { SchedulerLock };  // Durable Object のエクスポートを追加
 
 // Cloudflare Workers の scheduled イベント用ハンドラーと fetch ハンドラー
 export default {
   async scheduled(event: ScheduledEvent, env: any, ctx: ExecutionContext) {
-    await scheduled(event, env, ctx);
+    // Durable Object を利用して排他制御
+    const id = env.SCHEDULER_LOCK.idFromName("singletonLock");
+    const lockObject = env.SCHEDULER_LOCK.get(id);
+
+    // ロック取得を試みる
+    let acquireResponse = await lockObject.fetch("https://dummy/?action=acquire");
+    if (acquireResponse.status === 200) {
+      try {
+        console.log("ロック取得成功。タスク処理を開始します。");
+        await scheduled(event, env, ctx);  // 実際のタスク処理を呼び出す
+      } catch (err) {
+        console.error("タスク処理中にエラーが発生しました:", err);
+      } finally {
+        await lockObject.fetch("https://dummy/?action=release");
+        console.log("ロック解放しました。");
+      }
+    } else {
+      console.log("他のインスタンスが既に処理中のため、処理をスキップします。");
+    }
   },
   async fetch(request: Request, env: any, ctx: ExecutionContext) {
     // HTTP リクエストが来た場合の処理（例えば 200 OK を返す）
@@ -80,6 +100,7 @@ export async function scheduled(event: ScheduledEvent, env: any, ctx: ExecutionC
     await sendFCMNotification(task, deviceToken, firebaseAccessToken);
   }
 }
+
 
 /**
  * firebase の serviceAccountKey を用いてアクセストークンを取得する処理。

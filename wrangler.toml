@@ -1,5 +1,5 @@
 name = "my-tasks-worker"
-type = "javascript"
+# type は自動で処理されるため、明示しなくても問題ありません
 main = "worker.ts"
 compatibility_date = "2025-02-27"
 
@@ -10,3 +10,7 @@ crons = ["*/1 * * * *"]
 bindings = [
   { name = "SCHEDULER_LOCK", class_name = "SchedulerLock" }
 ]
+
+[[migrations]]
+tag = "v1"
+new_classes = [ "SchedulerLock" ]
