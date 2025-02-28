@@ -15,7 +15,6 @@ export default {
   },
 };
 
-
 /**
  * Cloudflare Workers の scheduled イベントで実行されるエントリポイント。
  * env には NEXT_PUBLIC_SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, FIREBASE_SERVICE_ACCOUNT (JSON文字列) を設定してください。
@@ -51,17 +50,32 @@ export async function scheduled(event: ScheduledEvent, env: any, ctx: ExecutionC
       console.warn(`タスク ${task.id} には username が設定されていないため通知をスキップします。`);
       continue;
     }
-    // ユーザーの fcm_token を users テーブルから取得
+
+    // ユーザーの fcm_token と notifications_enabled を users テーブルから取得
     const { data: userData, error: userError } = await supabase
       .from('users')
-      .select('fcm_token')
+      .select('fcm_token, notifications_enabled')
       .eq('username', task.username)
       .single();
 
-    if (userError || !userData?.fcm_token) {
-      console.warn(`タスク ${task.id} に対応するユーザー ${task.username} のデバイストークンが存在しません。`);
+    if (userError || !userData) {
+      console.warn(`タスク ${task.id} に対応するユーザー ${task.username} の情報が取得できません。`);
       continue;
     }
+
+    // ユーザーが通知オフの場合は通知をスキップ
+    if (!userData.notifications_enabled) {
+      console.log(`通知が無効のため、ユーザー ${task.username} に対する通知をスキップします。`);
+      continue;
+    }
+
+    // fcm_token が存在しない場合もスキップ
+    if (!userData.fcm_token) {
+      console.warn(`ユーザー ${task.username} の fcm_token が存在しません。`);
+      continue;
+    }
+
+    // 通知がオンかつトークンありの場合のみ送信
     const deviceToken = userData.fcm_token;
     await sendFCMNotification(task, deviceToken, firebaseAccessToken);
   }
@@ -123,7 +137,6 @@ async function getFirebaseAccessToken(serviceAccount: any): Promise<string> {
  * PEM 形式の private_key を Web Crypto API で利用可能な CryptoKey に変換する関数。
  */
 async function importPrivateKey(pem: string): Promise<CryptoKey> {
-  // ヘッダー、フッター、改行を除去
   const pemHeader = "-----BEGIN PRIVATE KEY-----";
   const pemFooter = "-----END PRIVATE KEY-----";
   const pemContents = pem
@@ -156,7 +169,6 @@ function base64UrlEncode(input: string | Uint8Array): string {
   if (typeof input === "string") {
     str = input;
   } else {
-    // Uint8Array を文字列に変換
     let result = "";
     input.forEach((byte) => (result += String.fromCharCode(byte)));
     str = result;
@@ -167,10 +179,9 @@ function base64UrlEncode(input: string | Uint8Array): string {
 
 /**
  * FCM の v1 API を利用して、指定タスクのプッシュ通知を送信する関数。
- * Firebase プロジェクトの ID は URL 内の your-project-id を実際のものに置換してください。
+ * Firebase プロジェクトの ID は URL 内の my-tasks-af26d を実際のプロジェクト ID に置換してください。
  */
 async function sendFCMNotification(task: any, deviceToken: string, firebaseAccessToken: string) {
-  // FCM 用ペイロード（v1 API 用）
   const payload = {
     message: {
       token: deviceToken,
@@ -184,7 +195,6 @@ async function sendFCMNotification(task: any, deviceToken: string, firebaseAcces
     },
   };
 
-  // FCM の送信エンドポイント（my-tasks-af26d を実際のプロジェクト ID に置換）
   const res = await fetch('https://fcm.googleapis.com/v1/projects/my-tasks-af26d/messages:send', {
     method: 'POST',
     headers: {
