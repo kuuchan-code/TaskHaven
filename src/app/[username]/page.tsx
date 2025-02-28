@@ -1,12 +1,9 @@
-// src/app/[username]/page.tsx
 "use client";
 
 import { useParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import TaskPage from '../components/TaskPage';
 import { createClient } from '@supabase/supabase-js';
-
-// Firebase 関連のインポート
 import { initializeApp, getApps } from "firebase/app";
 import { getMessaging, getToken } from "firebase/messaging";
 
@@ -20,7 +17,6 @@ const firebaseConfig = {
   appId: "1:529762432667:web:3e57bcc886100d801b383e"
 };
 
-// Firebase App の初期化（既に初期化済みの場合はスキップ）
 if (typeof window !== 'undefined' && !getApps().length) {
   initializeApp(firebaseConfig);
 }
@@ -32,11 +28,25 @@ const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 );
 
+// 通知設定を更新する関数
+async function updateNotificationSetting(username: string, enabled: boolean) {
+  const { error } = await supabase
+    .from('users')
+    .update({ notifications_enabled: enabled })
+    .eq('username', username);
+  if (error) {
+    console.error('通知設定更新エラー:', error);
+  } else {
+    console.log('通知設定更新成功:', enabled);
+  }
+}
+
 export default function Page() {
   const { username } = useParams<{ username: string }>();
   const [notificationAllowed, setNotificationAllowed] = useState(false);
+  const [notificationsEnabled, setNotificationsEnabled] = useState<boolean | null>(null);
 
-  // 通知許可を促す UI
+  // ブラウザの通知許可を促す UI
   const requestNotificationPermission = async () => {
     if (typeof window !== 'undefined' && Notification.permission !== "granted") {
       try {
@@ -52,7 +62,7 @@ export default function Page() {
     }
   };
 
-  // username が存在する場合、Notification.permission を確認してフラグを更新
+  // 初期化時にブラウザの通知許可状態とユーザーごとの通知設定を取得
   useEffect(() => {
     if (!username) return;
     if (typeof window === 'undefined') return;
@@ -60,9 +70,22 @@ export default function Page() {
     if (Notification.permission === "granted") {
       setNotificationAllowed(true);
     }
+    
+    async function fetchNotificationSetting() {
+      const { data, error } = await supabase
+        .from('users')
+        .select('notifications_enabled')
+        .eq('username', username)
+        .single();
+      if (error) {
+        console.error("通知設定の取得エラー:", JSON.stringify(error));      } else {
+        setNotificationsEnabled(data.notifications_enabled);
+      }
+    }
+    fetchNotificationSetting();
   }, [username]);
 
-  // サービスワーカーの重複登録を防止するための処理
+  // サービスワーカーの重複登録を防ぐ
   useEffect(() => {
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.getRegistrations().then((registrations) => {
@@ -84,11 +107,15 @@ export default function Page() {
     }
   }, []);
 
-  // 通知が許可されている場合に FCM トークンの更新を実施
+  // 通知が許可されている場合に FCM トークンの更新を実施（ユーザー設定も確認）
   useEffect(() => {
     if (!username) return;
     if (!notificationAllowed) {
-      console.warn("通知が許可されていないため、FCM トークン更新をスキップします。");
+      console.warn("ブラウザで通知が許可されていないため、FCM トークン更新をスキップします。");
+      return;
+    }
+    if (notificationsEnabled === false) {
+      console.log("ユーザー設定で通知が無効のため、FCM トークン更新をスキップします。");
       return;
     }
 
@@ -115,7 +142,14 @@ export default function Page() {
       }
     }
     updateFcmToken();
-  }, [username, notificationAllowed]);
+  }, [username, notificationAllowed, notificationsEnabled]);
+
+  // ユーザーごとの通知設定トグル
+  const toggleNotifications = async () => {
+    const newSetting = !notificationsEnabled;
+    setNotificationsEnabled(newSetting);
+    await updateNotificationSetting(username!, newSetting);
+  };
 
   if (!username) return <div>Loading...</div>;
 
@@ -123,8 +157,16 @@ export default function Page() {
     <>
       {!notificationAllowed && (
         <button onClick={requestNotificationPermission}>
-          通知を許可する
+          ブラウザ通知を許可する
         </button>
+      )}
+      {notificationAllowed && notificationsEnabled !== null && (
+        <div>
+          <p>通知設定: {notificationsEnabled ? "有効" : "無効"}</p>
+          <button onClick={toggleNotifications}>
+            {notificationsEnabled ? "通知を無効にする" : "通知を有効にする"}
+          </button>
+        </div>
       )}
       <TaskPage username={username} />
     </>
