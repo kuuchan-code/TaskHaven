@@ -1,10 +1,10 @@
 import os
 
 files = [
-    "src/app/components/CalendarView.tsx",
-    "src/app/components/CalendarWrapper.tsx",
-    "src/app/components/InteractiveTaskDashboard.tsx",
-    "src/app/page.tsx",
+    "public/firebase-messaging-sw.js",
+    "src/app/[username]/page.tsx",
+    "worker.ts",
+    "src/app/api/tasks/route.ts",
 ]
 
 # 出力するプロンプトファイルの名前

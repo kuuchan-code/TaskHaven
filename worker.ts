@@ -1,3 +1,4 @@
+// worker.ts
 import { createClient } from '@supabase/supabase-js';
 
 // Cloudflare Workers の scheduled イベント用ハンドラーと fetch ハンドラー

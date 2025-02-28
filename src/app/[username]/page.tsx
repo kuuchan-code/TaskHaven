@@ -1,3 +1,4 @@
+// src/app/[username]/page.tsx
 "use client";
 
 import { useParams } from 'next/navigation';
@@ -19,7 +20,7 @@ const firebaseConfig = {
   appId: "1:529762432667:web:3e57bcc886100d801b383e"
 };
 
-// Firebase App の初期化（すでに初期化済みの場合はスキップ）
+// Firebase App の初期化（既に初期化済みの場合はスキップ）
 if (typeof window !== 'undefined' && !getApps().length) {
   initializeApp(firebaseConfig);
 }
@@ -35,7 +36,7 @@ export default function Page() {
   const { username } = useParams<{ username: string }>();
   const [notificationAllowed, setNotificationAllowed] = useState(false);
 
-  // 通知許可を促すUI（例：シンプルなボタン）
+  // 通知許可を促す UI
   const requestNotificationPermission = async () => {
     if (typeof window !== 'undefined' && Notification.permission !== "granted") {
       try {
@@ -51,18 +52,39 @@ export default function Page() {
     }
   };
 
+  // username が存在する場合、Notification.permission を確認してフラグを更新
   useEffect(() => {
-    if (!username) return; // username が存在しない場合は何もしない
-
-    // クライアント側でのみ実行するために window チェック
+    if (!username) return;
     if (typeof window === 'undefined') return;
 
-    // ユーザーが通知を既に許可していればフラグをセット
     if (Notification.permission === "granted") {
       setNotificationAllowed(true);
     }
   }, [username]);
 
+  // サービスワーカーの重複登録を防止するための処理
+  useEffect(() => {
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.getRegistrations().then((registrations) => {
+        const alreadyRegistered = registrations.some((registration) =>
+          registration.active && registration.active.scriptURL.includes('firebase-messaging-sw.js')
+        );
+        if (!alreadyRegistered) {
+          navigator.serviceWorker.register('/firebase-messaging-sw.js')
+            .then((reg) => {
+              console.log('Service Worker registered:', reg);
+            })
+            .catch((err) => {
+              console.error('Service Worker registration failed:', err);
+            });
+        } else {
+          console.log('Service Worker already registered');
+        }
+      });
+    }
+  }, []);
+
+  // 通知が許可されている場合に FCM トークンの更新を実施
   useEffect(() => {
     if (!username) return;
     if (!notificationAllowed) {
