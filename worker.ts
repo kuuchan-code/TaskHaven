@@ -37,7 +37,19 @@ export async function scheduled(event: ScheduledEvent, env: any, ctx: ExecutionC
 
   // 各タスクに対して通知を送信
   for (const task of tasks) {
-    await sendFCMNotification(task, firebaseAccessToken);
+    // ユーザーの fcm_token を users テーブルから取得
+    const { data: userData, error: userError } = await supabase
+      .from('users')
+      .select('fcm_token')
+      .eq('username', task.username)
+      .single();
+
+    if (userError || !userData?.fcm_token) {
+      console.warn(`タスク ${task.id} に対応するユーザー ${task.username} のデバイストークンが存在しません。`);
+      continue;
+    }
+    const deviceToken = userData.fcm_token;
+    await sendFCMNotification(task, deviceToken, firebaseAccessToken);
   }
 }
 
@@ -139,19 +151,11 @@ function base64UrlEncode(input: string | Uint8Array): string {
   return base64.replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
 }
 
-
 /**
  * FCM の v1 API を利用して、指定タスクのプッシュ通知を送信する関数。
  * Firebase プロジェクトの ID は URL 内の your-project-id を実際のものに置き換えてください。
  */
-async function sendFCMNotification(task: any, firebaseAccessToken: string) {
-  // タスクに紐付くデバイストークン（または FCM トークン）の取得
-  const deviceToken = task.deviceToken;
-  if (!deviceToken) {
-    console.warn(`タスク ${task.id} にデバイストークンが存在しません。`);
-    return;
-  }
-
+async function sendFCMNotification(task: any, deviceToken: string, firebaseAccessToken: string) {
   // FCM 用ペイロード（v1 API 用）
   const payload = {
     message: {

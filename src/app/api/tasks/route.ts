@@ -63,7 +63,16 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: Request) {
-  const { title, importance, deadline, username } = await request.json();
+  // 型定義を追加して request.json() の戻り値をキャスト
+  type PostBody = {
+    title: string;
+    importance: number;
+    deadline: string | null;
+    username: string;
+  };
+
+  const { title, importance, deadline, username } = await request.json() as PostBody;
+
   if (!username) {
     return new Response(
       JSON.stringify({ error: "username is required" }),
@@ -89,7 +98,14 @@ export async function POST(request: Request) {
 }
 
 export async function DELETE(request: Request) {
-  const { id, username } = await request.json();
+  // 型定義を追加して request.json() の戻り値をキャスト
+  type DeleteBody = {
+    id: number;
+    username: string;
+  };
+
+  const { id, username } = await request.json() as DeleteBody;
+
   if (!username) {
     return new Response(
       JSON.stringify({ error: "username is required" }),
@@ -124,7 +140,14 @@ interface UpdateTask {
 }
 
 export async function PUT(request: Request) {
-  const { id, title, importance, deadline, completed, username } = await request.json();
+  // 型定義を追加して request.json() の戻り値をキャスト
+  type PutBody = UpdateTask & {
+    id: number;
+    username: string;
+  };
+
+  const { id, title, importance, deadline, completed, username } = await request.json() as PutBody;
+
   if (!username) {
     return new Response(
       JSON.stringify({ error: "username is required" }),
@@ -132,7 +155,6 @@ export async function PUT(request: Request) {
     );
   }
 
-  // 更新するデータオブジェクトの型を明示
   const updateData: UpdateTask = { title, importance, deadline };
   if (typeof completed !== 'undefined') {
     updateData.completed = completed;
