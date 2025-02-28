@@ -37,6 +37,11 @@ export async function scheduled(event: ScheduledEvent, env: any, ctx: ExecutionC
 
   // 各タスクに対して通知を送信
   for (const task of tasks) {
+    // タスクに username が設定されているか確認
+    if (!task.username) {
+      console.warn(`タスク ${task.id} には username が設定されていないため通知をスキップします。`);
+      continue;
+    }
     // ユーザーの fcm_token を users テーブルから取得
     const { data: userData, error: userError } = await supabase
       .from('users')
@@ -153,7 +158,7 @@ function base64UrlEncode(input: string | Uint8Array): string {
 
 /**
  * FCM の v1 API を利用して、指定タスクのプッシュ通知を送信する関数。
- * Firebase プロジェクトの ID は URL 内の your-project-id を実際のものに置き換えてください。
+ * Firebase プロジェクトの ID は URL 内の your-project-id を実際のものに置換してください。
  */
 async function sendFCMNotification(task: any, deviceToken: string, firebaseAccessToken: string) {
   // FCM 用ペイロード（v1 API 用）
@@ -170,7 +175,7 @@ async function sendFCMNotification(task: any, deviceToken: string, firebaseAcces
     },
   };
 
-  // FCM の送信エンドポイント（your-project-id を実際のプロジェクト ID に置換）
+  // FCM の送信エンドポイント（my-tasks-af26d を実際のプロジェクト ID に置換）
   const res = await fetch('https://fcm.googleapis.com/v1/projects/my-tasks-af26d/messages:send', {
     method: 'POST',
     headers: {
