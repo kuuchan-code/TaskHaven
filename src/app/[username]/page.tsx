@@ -1,8 +1,7 @@
-// src/app/[username]/page.tsx
 "use client";
 
 import { useParams } from 'next/navigation';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import TaskPage from '../components/TaskPage';
 import { createClient } from '@supabase/supabase-js';
 
@@ -21,11 +20,9 @@ const firebaseConfig = {
 };
 
 // Firebase App の初期化（すでに初期化済みの場合はスキップ）
-if (!getApps().length) {
+if (typeof window !== 'undefined' && !getApps().length) {
   initializeApp(firebaseConfig);
 }
-
-const messaging = getMessaging();
 
 export const runtime = 'edge';
 
@@ -36,13 +33,46 @@ const supabase = createClient(
 
 export default function Page() {
   const { username } = useParams<{ username: string }>();
+  const [notificationAllowed, setNotificationAllowed] = useState(false);
+
+  // 通知許可を促すUI（例：シンプルなボタン）
+  const requestNotificationPermission = async () => {
+    if (typeof window !== 'undefined' && Notification.permission !== "granted") {
+      try {
+        const permission = await Notification.requestPermission();
+        if (permission === "granted") {
+          setNotificationAllowed(true);
+        } else {
+          console.warn("ユーザーは通知を拒否しました。");
+        }
+      } catch (err) {
+        console.error("通知許可リクエストエラー:", err);
+      }
+    }
+  };
 
   useEffect(() => {
     if (!username) return; // username が存在しない場合は何もしない
 
+    // クライアント側でのみ実行するために window チェック
+    if (typeof window === 'undefined') return;
+
+    // ユーザーが通知を既に許可していればフラグをセット
+    if (Notification.permission === "granted") {
+      setNotificationAllowed(true);
+    }
+  }, [username]);
+
+  useEffect(() => {
+    if (!username) return;
+    if (!notificationAllowed) {
+      console.warn("通知が許可されていないため、FCM トークン更新をスキップします。");
+      return;
+    }
+
     async function updateFcmToken() {
       try {
-        // Firebase Messaging から FCM トークンを取得する
+        const messaging = getMessaging();
         const fcmToken = await getToken(messaging, {
           vapidKey: process.env.NEXT_PUBLIC_FIREBASE_VAPID_KEY!,
         });
@@ -50,7 +80,6 @@ export default function Page() {
           console.warn("FCM registration token が取得できませんでした。");
           return;
         }
-        // Supabase の users テーブルに対して upsert
         const { error } = await supabase
           .from('users')
           .upsert({ username: username, fcm_token: fcmToken }, { onConflict: 'username' });
@@ -64,9 +93,18 @@ export default function Page() {
       }
     }
     updateFcmToken();
-  }, [username]);
+  }, [username, notificationAllowed]);
 
   if (!username) return <div>Loading...</div>;
 
-  return <TaskPage username={username} />;
+  return (
+    <>
+      {!notificationAllowed && (
+        <button onClick={requestNotificationPermission}>
+          通知を許可する
+        </button>
+      )}
+      <TaskPage username={username} />
+    </>
+  );
 }
