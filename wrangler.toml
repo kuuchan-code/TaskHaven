@@ -6,3 +6,7 @@ compatibility_date = "2025-02-27"
 [triggers]
 crons = ["*/1 * * * *"]
 
+[durable_objects]
+bindings = [
+  { name = "SCHEDULER_LOCK", class_name = "SchedulerLock" }
+]
