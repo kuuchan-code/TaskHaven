@@ -1,7 +1,4 @@
-// src/app/components/TaskPage.tsx
-"use client";
-
-import useSWR from 'swr';
+import useSWR, { BareFetcher } from 'swr';
 import InteractiveTaskDashboard from './InteractiveTaskDashboard';
 import TaskForm from './TaskForm';
 
@@ -17,10 +14,15 @@ type TaskPageProps = {
   username: string;
 };
 
-const fetcher = (url: string) => fetch(url).then((res) => res.json());
+// fetcher 関数に型を付与（返り値が Promise<Task[]> であることを明示）
+const fetcher: BareFetcher<Task[]> = (url: string) =>
+  fetch(url).then((res) => res.json());
 
 export default function TaskPage({ username }: TaskPageProps) {
-  const { data: tasks, error, mutate } = useSWR<Task[]>(`/api/tasks?username=${username}`, fetcher);
+  const { data: tasks, error, mutate } = useSWR<Task[]>(
+    `/api/tasks?username=${username}`,
+    fetcher
+  );
 
   if (error) return <div>Error loading tasks.</div>;
   if (!tasks) return <div>Loading...</div>;
