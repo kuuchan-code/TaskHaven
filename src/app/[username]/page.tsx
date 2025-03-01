@@ -4,6 +4,8 @@ import { cookies } from "next/headers";
 import LogoutButton from "../components/LogoutButton";
 import TaskPage from "../components/TaskPage";
 
+export const runtime = 'edge';
+
 export default async function UserPage({ params }: { params: Promise<{ username: string }> }) {
   // Await params before accessing its properties
   const { username } = await params;
