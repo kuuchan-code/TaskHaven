@@ -237,9 +237,6 @@ export default function HomePage() {
                 required
                 className="mt-1 w-full p-2 border rounded"
               />
-              <p className="mt-1 text-sm text-gray-500">
-                メールアドレスの場合はそのまま、ユーザー名の場合は登録済みのアカウント名を入力
-              </p>
             </div>
             <div>
               <label htmlFor="login-password" className="block text-sm font-medium text-gray-700">
