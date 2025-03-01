@@ -41,6 +41,8 @@ export default function HomePage() {
   const [loginPassword, setLoginPassword] = useState("");
 
   const [error, setError] = useState<string | null>(null);
+
+  // ユーザー名の重複チェック関数
   const checkUsernameExists = async (username: string) => {
     const { data, error } = await supabase
       .from("users")
@@ -53,7 +55,7 @@ export default function HomePage() {
     return { exists: !!data };
   };
 
-  // ユーザー登録処理内
+  // ユーザー登録処理（入力値のサニタイジング・バリデーションを実施）
   const handleSignUp = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const username = signUpUsername.trim();
@@ -80,7 +82,7 @@ export default function HomePage() {
       return;
     }
 
-    // 重複していなければサインアップ処理へ
+    // サインアップ処理
     const { data, error } = await supabase.auth.signUp({
       email,
       password: signUpPassword,
@@ -102,19 +104,16 @@ export default function HomePage() {
     }
   };
 
-
   // ログイン処理（入力値のサニタイジング・バリデーションを実施）
   const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-
-    // 前後の空白を除去し、メールの場合は小文字に統一
     const identifier = loginIdentifier.trim();
     let email = identifier;
 
-    // 入力値に "@" が含まれていなければ、ユーザー名とみなしバリデーションを実施
+    // 入力値に "@" が含まれていなければ、ユーザー名とみなす
     if (!identifier.includes("@")) {
       if (!validateUsername(identifier)) {
-        setError("ユーザー名は3～20文字の半角英数字またはアンダースコアのみが使用可能です。");
+        setError("ユーザー名は3～20文字の半角英数字またはアンダースコアのみ使用可能です。");
         return;
       }
       const { data: userData, error: fetchError } = await supabase
@@ -132,14 +131,13 @@ export default function HomePage() {
       }
       email = userData.email;
     } else {
-      // メールの場合は形式チェック
       if (!validateEmail(identifier)) {
         setError("有効なメールアドレスを入力してください。");
         return;
       }
     }
 
-    // 取得した email とパスワードでログイン
+    // ログイン処理
     const { data, error } = await supabase.auth.signInWithPassword({
       email,
       password: loginPassword,
@@ -167,49 +165,55 @@ export default function HomePage() {
           <h2 className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-4">
             ユーザー登録
           </h2>
-          <form onSubmit={handleSignUp} className="space-y-4">
+          <form onSubmit={handleSignUp} className="space-y-6">
             <div>
+              <label htmlFor="signup-username" className="block text-sm font-medium text-gray-700">
+                ユーザー名
+              </label>
               <input
+                id="signup-username"
                 type="text"
-                placeholder="Username"
+                placeholder="例: john_doe"
                 value={signUpUsername}
                 onChange={(e) => setSignUpUsername(e.target.value)}
                 required
-                className="w-full p-2 border rounded"
+                className="mt-1 w-full p-2 border rounded"
               />
-              <p className="text-sm text-gray-500">
+              <p className="mt-1 text-sm text-gray-500">
                 3～20文字の半角英数字またはアンダースコアのみ使用可能
               </p>
             </div>
             <div>
+              <label htmlFor="signup-email" className="block text-sm font-medium text-gray-700">
+                メールアドレス
+              </label>
               <input
+                id="signup-email"
                 type="email"
-                placeholder="Email"
+                placeholder="例: john@example.com"
                 value={signUpEmail}
                 onChange={(e) => setSignUpEmail(e.target.value)}
                 required
-                className="w-full p-2 border rounded"
+                className="mt-1 w-full p-2 border rounded"
               />
-              <p className="text-sm text-gray-500">
-                有効なメールアドレスを入力してください
-              </p>
             </div>
             <div>
+              <label htmlFor="signup-password" className="block text-sm font-medium text-gray-700">
+                パスワード
+              </label>
               <input
+                id="signup-password"
                 type="password"
-                placeholder="Password"
+                placeholder="パスワードを入力"
                 value={signUpPassword}
                 onChange={(e) => setSignUpPassword(e.target.value)}
                 required
-                className="w-full p-2 border rounded"
+                className="mt-1 w-full p-2 border rounded"
               />
-              <p className="text-sm text-gray-500">
-                8文字以上など、必要に応じたパスワードポリシーを記載可能
-              </p>
             </div>
             <button
               type="submit"
-              className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+              className="w-full px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
             >
               登録する
             </button>
@@ -219,33 +223,41 @@ export default function HomePage() {
           <h2 className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-4">
             ログイン
           </h2>
-          <form onSubmit={handleLogin} className="space-y-4">
+          <form onSubmit={handleLogin} className="space-y-6">
             <div>
+              <label htmlFor="login-identifier" className="block text-sm font-medium text-gray-700">
+                メールアドレスまたはユーザー名
+              </label>
               <input
+                id="login-identifier"
                 type="text"
-                placeholder="Email または Username"
+                placeholder="例: john@example.com または john_doe"
                 value={loginIdentifier}
                 onChange={(e) => setLoginIdentifier(e.target.value)}
                 required
-                className="w-full p-2 border rounded"
+                className="mt-1 w-full p-2 border rounded"
               />
-              <p className="text-sm text-gray-500">
+              <p className="mt-1 text-sm text-gray-500">
                 メールアドレスの場合はそのまま、ユーザー名の場合は登録済みのアカウント名を入力
               </p>
             </div>
             <div>
+              <label htmlFor="login-password" className="block text-sm font-medium text-gray-700">
+                パスワード
+              </label>
               <input
+                id="login-password"
                 type="password"
-                placeholder="Password"
+                placeholder="パスワードを入力"
                 value={loginPassword}
                 onChange={(e) => setLoginPassword(e.target.value)}
                 required
-                className="w-full p-2 border rounded"
+                className="mt-1 w-full p-2 border rounded"
               />
             </div>
             <button
               type="submit"
-              className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
+              className="w-full px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
             >
               ログイン
             </button>
