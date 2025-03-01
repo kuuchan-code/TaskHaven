@@ -20,18 +20,18 @@ const supabase = createPagesBrowserClient({
 export default function HomePage() {
   const router = useRouter();
 
-  // ユーザー登録用の状態
+  // サインアップ用の状態
   const [signUpUsername, setSignUpUsername] = useState("");
   const [signUpEmail, setSignUpEmail] = useState("");
   const [signUpPassword, setSignUpPassword] = useState("");
 
-  // ログイン用の状態
-  const [loginEmail, setLoginEmail] = useState("");
+  // ログイン用の状態（メールではなくユーザー名）
+  const [loginUsername, setLoginUsername] = useState("");
   const [loginPassword, setLoginPassword] = useState("");
 
   const [error, setError] = useState<string | null>(null);
 
-  // ユーザー登録処理
+  // ユーザー登録処理（users テーブルに email も挿入）
   const handleSignUp = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const { data, error } = await supabase.auth.signUp({
@@ -46,7 +46,7 @@ export default function HomePage() {
     if (data.user) {
       const { error: insertError } = await supabase
         .from("users")
-        .insert([{ id: data.user.id, username: signUpUsername }]);
+        .insert([{ id: data.user.id, username: signUpUsername, email: signUpEmail }]);
       if (insertError) {
         setError(insertError.message);
         return;
@@ -55,11 +55,31 @@ export default function HomePage() {
     }
   };
 
-  // ログイン処理
+  // ログイン処理（username から email を取得してサインイン）
   const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    // users テーブルから username に該当する email を取得
+    const { data: userData, error: fetchError } = await supabase
+      .from("users")
+      .select("email")
+      .eq("username", loginUsername)
+      .maybeSingle();
+    if (fetchError) {
+      setError(fetchError.message);
+      return;
+    }
+    if (!userData || !userData.email) {
+      setError("このユーザー名に対応するメールアドレスが見つかりません。");
+      return;
+    }
+    const email = userData.email;
+
+    if (!email) {
+      setError("このユーザー名に対応するメールアドレスが見つかりません。");
+      return;
+    }
     const { data, error } = await supabase.auth.signInWithPassword({
-      email: loginEmail,
+      email,
       password: loginPassword,
     });
     if (error) {
@@ -124,10 +144,10 @@ export default function HomePage() {
           </h2>
           <form onSubmit={handleLogin} className="space-y-4">
             <input
-              type="email"
-              placeholder="Email"
-              value={loginEmail}
-              onChange={(e) => setLoginEmail(e.target.value)}
+              type="text"
+              placeholder="Username"
+              value={loginUsername}
+              onChange={(e) => setLoginUsername(e.target.value)}
               required
               className="w-full p-2 border rounded"
             />
