@@ -1,16 +1,20 @@
-// src/app/[username]/page.tsx
 import { redirect } from "next/navigation";
 import { createServerComponentClient } from "@supabase/auth-helpers-nextjs";
 import { cookies } from "next/headers";
-import LogoutButton from "../components/LogoutButton"; // 後述のクライアントコンポーネント
+import LogoutButton from "../components/LogoutButton";
 import TaskPage from "../components/TaskPage";
 
-export default async function UserPage({ params }: { params: { username: string } }) {
+export default async function UserPage({ params }: { params: Promise<{ username: string }> }) {
+  // Await params before accessing its properties
+  const { username } = await params;
+
+  // Ensure Supabase gets the correct format
   const supabase = createServerComponentClient({ cookies });
+
   const { data: { user } } = await supabase.auth.getUser();
 
-  // ログインしていない場合、またはログインユーザーの username が URL と一致しない場合はリダイレクト
-  if (!user || user.user_metadata.username !== params.username) {
+  // If not logged in or the URL username doesn't match the logged-in user, redirect
+  if (!user || user.user_metadata.username !== username) {
     redirect("/");
   }
 
