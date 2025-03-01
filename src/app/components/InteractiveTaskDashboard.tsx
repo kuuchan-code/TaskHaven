@@ -10,7 +10,7 @@ export type Task = {
   priority?: number;
 };
 
-const HIGH_PRIORITY_THRESHOLD = 2;
+const HIGH_PRIORITY_THRESHOLD = 1;
 const MEDIUM_PRIORITY_THRESHOLD = 0.64;
 
 const formatRemainingTime = (hours: number): string => {
