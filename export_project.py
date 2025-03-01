@@ -3,6 +3,7 @@ import os
 files = [
     "src/app/api/updateWebhook/route.ts",
     "src/app/components/WebhookForm.tsx",
+    "supabase/functions/notify-tasks/index.ts"
 ]
 
 # 出力するプロンプトファイルの名前
