@@ -7,7 +7,7 @@ async function notifyHighPriorityTasks() {
     return;
   }
   
-  // タスクにユーザー情報（username）が含まれていると仮定して、ユーザー毎にグループ化
+  // ユーザーごとにタスクをグループ化
   const tasksByUser = new Map<string, any[]>();
   for (const task of tasks) {
     const username = task.username;
@@ -21,20 +21,61 @@ async function notifyHighPriorityTasks() {
     tasksByUser.get(username)!.push(task);
   }
   
-  // 各ユーザーについて、Webhook URL を取得して通知を送信
+  // 各ユーザーについて通知実行の条件を確認
   for (const [username, userTasks] of tasksByUser.entries()) {
-    const webhookUrl = await fetchWebhookUrl(username);
-    if (!webhookUrl) {
+    // ユーザーの設定を取得（notification_interval と last_notification）
+    const { notification_interval, last_notification, webhook_url } = await fetchUserSettings(username);
+    if (!webhook_url) {
       console.error(`No webhook URL for user ${username}`);
       continue;
     }
-    let message = `Tasks for ${username}:\n`;
-    for (const task of userTasks) {
-      const remainingTime = calculateRemainingTime(task.deadline);
-      message += `Task: ${task.title} | Priority: ${task.priority} | Remaining: ${remainingTime}\n`;
+    
+    const now = new Date();
+    const lastNotificationTime = last_notification ? new Date(last_notification) : null;
+    
+    // last_notification が存在しない、または経過時間が設定値以上の場合のみ通知を送信
+    if (!lastNotificationTime || (now.getTime() - lastNotificationTime.getTime()) >= notification_interval * 60 * 1000) {
+      let message = `Tasks for ${username}:\n`;
+      for (const task of userTasks) {
+        const remainingTime = calculateRemainingTime(task.deadline);
+        message += `Task: ${task.title} | Priority: ${task.priority} | Remaining: ${remainingTime}\n`;
+      }
+      await sendDiscordNotification(webhook_url, message);
+      
+      // 通知送信後、last_notification を更新する
+      await updateLastNotification(username, now.toISOString());
+    } else {
+      console.log(`Skipping notification for ${username} (interval not reached)`);
     }
-    await sendDiscordNotification(webhookUrl, message);
   }
+}
+
+// ユーザー設定を取得する関数の例
+async function fetchUserSettings(username: string) {
+  const response = await fetch(`https://<YOUR_SUPABASE_URL>/rest/v1/users?username=eq.${username}`, {
+    method: "GET",
+    headers: {
+      "Authorization": `Bearer ${Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")}`,
+      "apikey": Deno.env.get("SUPABASE_SERVICE_ROLE_KEY"),
+      "Content-Type": "application/json"
+    }
+  });
+  const data = await response.json();
+  return data[0] || {};
+}
+
+// 通知送信後に最終通知時刻を更新する関数の例
+async function updateLastNotification(username: string, timestamp: string) {
+  await fetch(`https://<YOUR_SUPABASE_URL>/rest/v1/users`, {
+    method: "PATCH", // または upsert を利用
+    headers: {
+      "Authorization": `Bearer ${Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")}`,
+      "apikey": Deno.env.get("SUPABASE_SERVICE_ROLE_KEY"),
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({ last_notification: timestamp }),
+    // onConflict 等のオプションを必要に応じて設定
+  });
 }
 
 async function fetchTasksWithHighPriority() {

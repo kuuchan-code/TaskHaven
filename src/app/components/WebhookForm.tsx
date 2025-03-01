@@ -1,4 +1,3 @@
-// src/app/components/WebhookForm.tsx
 "use client";
 
 import { useState } from 'react';
@@ -10,6 +9,7 @@ type WebhookFormProps = {
 
 export default function WebhookForm({ username, currentWebhook }: WebhookFormProps) {
   const [webhook, setWebhook] = useState(currentWebhook || "");
+  const [notificationInterval, setNotificationInterval] = useState(5); // 初期値は5分
   const [message, setMessage] = useState("");
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -17,10 +17,10 @@ export default function WebhookForm({ username, currentWebhook }: WebhookFormPro
     const res = await fetch("/api/updateWebhook", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ username, webhook_url: webhook }),
+      body: JSON.stringify({ username, webhook_url: webhook, notification_interval: notificationInterval }),
     });
     if (res.ok) {
-      setMessage("Webhook URL が更新されました");
+      setMessage("Webhook URL と通知間隔が更新されました");
     } else {
       setMessage("更新に失敗しました");
     }
@@ -39,6 +39,20 @@ export default function WebhookForm({ username, currentWebhook }: WebhookFormPro
             value={webhook}
             onChange={(e) => setWebhook(e.target.value)}
             placeholder="https://discord.com/api/webhooks/..."
+            required
+            className="w-full p-2 border border-gray-300 dark:border-gray-700 rounded-md bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-blue-500 focus:border-blue-500"
+          />
+        </div>
+        {/* 追加: 通知間隔の入力フィールド */}
+        <div className="mb-4">
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+            通知間隔（分）
+          </label>
+          <input
+            type="number"
+            value={notificationInterval}
+            onChange={(e) => setNotificationInterval(Number(e.target.value))}
+            placeholder="例: 5"
             required
             className="w-full p-2 border border-gray-300 dark:border-gray-700 rounded-md bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-blue-500 focus:border-blue-500"
           />

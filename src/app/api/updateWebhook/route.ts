@@ -10,11 +10,11 @@ const supabase = createClient(supabaseUrl, supabaseServiceRoleKey);
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { username, webhook_url } = body;
+    const { username, webhook_url, notification_interval } = body;
 
-    if (!username || !webhook_url) {
+    if (!username || !webhook_url || notification_interval === undefined) {
       return NextResponse.json(
-        { message: 'username と webhook_url は必須です' },
+        { message: 'username, webhook_url と notification_interval は必須です' },
         { status: 400 }
       );
     }
@@ -22,9 +22,8 @@ export async function POST(request: Request) {
     // upsert を利用して、ユーザーが存在しない場合は新規作成、存在する場合は更新する
     const { data, error } = await supabase
       .from('users')
-      .upsert({ username, webhook_url }, { onConflict: 'username' })
+      .upsert({ username, webhook_url, notification_interval }, { onConflict: 'username' })
       .select();
-
 
     if (error) {
       console.error("更新エラー", error);
@@ -36,7 +35,7 @@ export async function POST(request: Request) {
 
     console.log("更新成功:", data);
     return NextResponse.json(
-      { message: 'Webhook URL が更新されました', data },
+      { message: 'Webhook URL と通知間隔が更新されました', data },
       { status: 200 }
     );
   } catch (error) {
