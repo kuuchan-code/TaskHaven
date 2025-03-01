@@ -4,14 +4,17 @@ import { useState } from 'react';
 
 type WebhookFormProps = {
   username: string;
+  // データベースから取得した既存の設定値
   currentWebhook?: string;
+  currentNotificationInterval?: number;
 };
 
-export default function WebhookForm({ username, currentWebhook }: WebhookFormProps) {
+export default function WebhookForm({ username, currentWebhook, currentNotificationInterval }: WebhookFormProps) {
+  // 初期状態は、データベースから取得した値があればそれを、なければ空文字または5を利用
   const [webhook, setWebhook] = useState(currentWebhook || "");
-  const [notificationInterval, setNotificationInterval] = useState(5); // 初期値は5分
+  const [notificationInterval, setNotificationInterval] = useState(currentNotificationInterval ?? 5);
   const [message, setMessage] = useState("");
-  // 折りたたみ状態を管理
+  // 折りたたみ状態
   const [expanded, setExpanded] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -42,6 +45,9 @@ export default function WebhookForm({ username, currentWebhook }: WebhookFormPro
       </div>
       {expanded && (
         <form onSubmit={handleSubmit} className="space-y-4">
+          <p className="text-sm text-gray-600 dark:text-gray-400">
+            ※DiscordのWebhook URLを設定してください。Webhook URLが空の場合は通知を無効化します。
+          </p>
           <div>
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
               Discord Webhook URL
@@ -50,10 +56,12 @@ export default function WebhookForm({ username, currentWebhook }: WebhookFormPro
               type="url"
               value={webhook}
               onChange={(e) => setWebhook(e.target.value)}
-              placeholder="https://discord.com/api/webhooks/..."
-              required
+              placeholder={currentWebhook || "https://discord.com/api/webhooks/XXXXXXXX/XXXXXXXX"}
               className="w-full p-2 border border-gray-300 dark:border-gray-700 rounded-md bg-white dark:bg-gray-800 dark:text-gray-100 focus:ring-blue-500 focus:border-blue-500"
             />
+            <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+              ※空欄にすると通知が無効化されます。
+            </p>
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
@@ -63,10 +71,13 @@ export default function WebhookForm({ username, currentWebhook }: WebhookFormPro
               type="number"
               value={notificationInterval}
               onChange={(e) => setNotificationInterval(Number(e.target.value))}
-              placeholder="例: 5"
+              placeholder={String(currentNotificationInterval ?? 5)}
               required
               className="w-full p-2 border border-gray-300 dark:border-gray-700 rounded-md bg-white dark:bg-gray-800 dark:text-gray-100 focus:ring-blue-500 focus:border-blue-500"
             />
+            <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+              ※通知を受け取る間隔（例：5分ごと）。
+            </p>
           </div>
           <button
             type="submit"

@@ -1,4 +1,3 @@
-// app/api/updateWebhook/route.ts
 export const runtime = 'edge';
 import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
@@ -13,14 +12,36 @@ export async function POST(request: Request) {
     const body = await request.json();
     const { username, webhook_url, notification_interval } = body;
 
-    if (!username || !webhook_url || notification_interval === undefined) {
+    if (!username || webhook_url === undefined || notification_interval === undefined) {
       return NextResponse.json(
         { message: 'username, webhook_url と notification_interval は必須です' },
         { status: 400 }
       );
     }
 
-    // upsert を利用して、ユーザーが存在しない場合は新規作成、存在する場合は更新する
+    // webhook_url が空文字の場合は通知を無効化（レコードを削除）
+    if (webhook_url === "") {
+      const { data, error } = await supabase
+        .from('users')
+        .delete()
+        .eq('username', username);
+
+      if (error) {
+        console.error("削除エラー", error);
+        return NextResponse.json(
+          { message: '通知無効化中にエラーが発生しました', error },
+          { status: 500 }
+        );
+      }
+
+      console.log("通知無効化成功:", data);
+      return NextResponse.json(
+        { message: '通知が無効化されました', data },
+        { status: 200 }
+      );
+    }
+
+    // webhook_url に値がある場合は upsert により更新または作成
     const { data, error } = await supabase
       .from('users')
       .upsert({ username, webhook_url, notification_interval }, { onConflict: 'username' })

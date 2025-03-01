@@ -1,4 +1,3 @@
-// src/app/components/TaskPage.tsx
 "use client";
 
 import useSWR from 'swr';
@@ -14,6 +13,12 @@ export type Task = {
   deadline: string | null;
 };
 
+type User = {
+  username: string;
+  webhook_url?: string;
+  notification_interval?: number;
+};
+
 type TaskPageProps = {
   username: string;
 };
@@ -21,15 +26,13 @@ type TaskPageProps = {
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
 export default function TaskPage({ username }: TaskPageProps) {
-  // ユーザーのタスクとユーザー情報の SWR フックをそれぞれ用意するか、
-  // まとめた API を作ってユーザー情報（例: webhook_url）も返す方法もあります。
-  // ここではタスク取得例のみ掲載します。
+  // タスクを取得
+  const { data: tasks, error: tasksError, mutate: mutateTasks } = useSWR<Task[]>(`/api/tasks?username=${username}`, fetcher);
+  // ユーザー情報（設定値）を取得
+  const { data: user, error: userError } = useSWR<User>(`/api/user?username=${username}`, fetcher);
 
-  const { data: tasks, error, mutate } = useSWR<Task[]>(`/api/tasks?username=${username}`, fetcher);
-  // ※ユーザー情報を取得する SWR も用意すると、currentWebhook としてフォームに渡せます
-
-  if (error) return <div>Error loading tasks.</div>;
-  if (!tasks) return <div>Loading...</div>;
+  if (tasksError || userError) return <div>Error loading data.</div>;
+  if (!tasks || !user) return <div>Loading...</div>;
 
   return (
     <main className="min-h-screen bg-gray-100 dark:bg-gray-900 p-8">
@@ -37,10 +40,14 @@ export default function TaskPage({ username }: TaskPageProps) {
         <h1 className="text-5xl font-extrabold text-center text-gray-900 dark:text-gray-100 mb-12">
           {username}のタスク
         </h1>
-        {/* ユーザー情報から取得した webhook_url を渡す（ここでは仮に空文字） */}
-        <WebhookForm username={username} currentWebhook={""} />
-        <TaskForm onTaskAdded={mutate} username={username} />
-        <InteractiveTaskDashboard tasks={tasks} refreshTasks={mutate} username={username} />
+        {/* 取得したユーザー情報から currentWebhook と currentNotificationInterval をフォームに渡す */}
+        <WebhookForm
+          username={username}
+          currentWebhook={user.webhook_url || ""}
+          currentNotificationInterval={user.notification_interval}
+        />
+        <TaskForm onTaskAdded={mutateTasks} username={username} />
+        <InteractiveTaskDashboard tasks={tasks} refreshTasks={mutateTasks} username={username} />
       </div>
     </main>
   );
