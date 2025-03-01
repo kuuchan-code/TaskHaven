@@ -3,8 +3,8 @@ name: Notify Tasks
 
 on:
   schedule:
-    # 毎分実行
     - cron: '*/1 * * * *'
+  workflow_dispatch:
 
 jobs:
   notify:
