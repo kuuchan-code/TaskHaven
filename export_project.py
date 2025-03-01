@@ -1,8 +1,14 @@
 import os
 
 files = [
+    "src/app/[username]/page.tsx",
+    "src/app/api/tasks/route.ts",
     "src/app/api/updateWebhook/route.ts",
+    "src/app/components/InteractiveTaskDashboard.tsx",
+    "src/app/components/TaskForm.tsx",
+    "src/app/components/TaskPage.tsx",
     "src/app/components/WebhookForm.tsx",
+    "src/app/page.tsx",
     "supabase/functions/notify-tasks/index.ts"
 ]
 
