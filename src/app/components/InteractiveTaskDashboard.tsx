@@ -356,10 +356,22 @@ const InteractiveTaskDashboard: React.FC<InteractiveTaskDashboardProps> = ({
   const [editingImportance, setEditingImportance] = useState(1);
   const [editingDeadline, setEditingDeadline] = useState<string | null>(null);
 
+  // 現在時刻を毎分更新する useEffect
   useEffect(() => {
     const timer = setInterval(() => setCurrentTime(new Date()), 60000);
     return () => clearInterval(timer);
   }, []);
+
+  // URLのハッシュをチェックしてスクロールする useEffect
+  useEffect(() => {
+    if (window.location.hash === "#deadline-tasks") {
+      const element = document.getElementById("deadline-tasks");
+      if (element) {
+        element.scrollIntoView({ behavior: "smooth" });
+      }
+    }
+  }, []);
+
 
   const tasksWithNoDeadlineActive = tasks
     .filter((task) => task.deadline === null && !task.completed)
