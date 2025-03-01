@@ -10,13 +10,12 @@ const supabase = createPagesBrowserClient({
   supabaseKey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
   cookieOptions: {
     name: 'sb:token',
-    domain: process.env.NEXT_PUBLIC_COOKIE_DOMAIN || '', // 必要に応じて設定
+    domain: process.env.NEXT_PUBLIC_COOKIE_DOMAIN || '',
     path: '/',
     secure: process.env.NODE_ENV === 'production',
     sameSite: 'lax',
   },
 });
-
 
 export default function HomePage() {
   const router = useRouter();
@@ -44,7 +43,6 @@ export default function HomePage() {
       setError(error.message);
       return;
     }
-    // 登録成功時、supabase.auth.users に加えて独自の users テーブルにも username を挿入
     if (data.user) {
       const { error: insertError } = await supabase
         .from("users")
@@ -77,63 +75,79 @@ export default function HomePage() {
   };
 
   return (
-    <div style={{ padding: "2rem" }}>
-      <h1>Auth App へようこそ</h1>
-      {error && <p style={{ color: "red" }}>{error}</p>}
-
-      <section style={{ marginBottom: "2rem" }}>
-        <h2>ユーザー登録</h2>
-        <form onSubmit={handleSignUp}>
-          <input
-            type="text"
-            placeholder="Username"
-            value={signUpUsername}
-            onChange={(e) => setSignUpUsername(e.target.value)}
-            required
-          />
-          <br />
-          <input
-            type="email"
-            placeholder="Email"
-            value={signUpEmail}
-            onChange={(e) => setSignUpEmail(e.target.value)}
-            required
-          />
-          <br />
-          <input
-            type="password"
-            placeholder="Password"
-            value={signUpPassword}
-            onChange={(e) => setSignUpPassword(e.target.value)}
-            required
-          />
-          <br />
-          <button type="submit">登録する</button>
-        </form>
-      </section>
-
-      <section>
-        <h2>ログイン</h2>
-        <form onSubmit={handleLogin}>
-          <input
-            type="email"
-            placeholder="Email"
-            value={loginEmail}
-            onChange={(e) => setLoginEmail(e.target.value)}
-            required
-          />
-          <br />
-          <input
-            type="password"
-            placeholder="Password"
-            value={loginPassword}
-            onChange={(e) => setLoginPassword(e.target.value)}
-            required
-          />
-          <br />
-          <button type="submit">ログイン</button>
-        </form>
-      </section>
-    </div>
+    <main className="min-h-screen bg-gray-100 dark:bg-gray-900 p-8">
+      <div className="max-w-5xl mx-auto">
+        <h1 className="text-5xl font-extrabold text-center text-gray-900 dark:text-gray-100 mb-12">
+          Task Haven へようこそ
+        </h1>
+        {error && <p className="text-red-500 mb-4">{error}</p>}
+        <section className="mb-12">
+          <h2 className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-4">
+            ユーザー登録
+          </h2>
+          <form onSubmit={handleSignUp} className="space-y-4">
+            <input
+              type="text"
+              placeholder="Username"
+              value={signUpUsername}
+              onChange={(e) => setSignUpUsername(e.target.value)}
+              required
+              className="w-full p-2 border rounded"
+            />
+            <input
+              type="email"
+              placeholder="Email"
+              value={signUpEmail}
+              onChange={(e) => setSignUpEmail(e.target.value)}
+              required
+              className="w-full p-2 border rounded"
+            />
+            <input
+              type="password"
+              placeholder="Password"
+              value={signUpPassword}
+              onChange={(e) => setSignUpPassword(e.target.value)}
+              required
+              className="w-full p-2 border rounded"
+            />
+            <button
+              type="submit"
+              className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+            >
+              登録する
+            </button>
+          </form>
+        </section>
+        <section>
+          <h2 className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-4">
+            ログイン
+          </h2>
+          <form onSubmit={handleLogin} className="space-y-4">
+            <input
+              type="email"
+              placeholder="Email"
+              value={loginEmail}
+              onChange={(e) => setLoginEmail(e.target.value)}
+              required
+              className="w-full p-2 border rounded"
+            />
+            <input
+              type="password"
+              placeholder="Password"
+              value={loginPassword}
+              onChange={(e) => setLoginPassword(e.target.value)}
+              required
+              className="w-full p-2 border rounded"
+            />
+            <button
+              type="submit"
+              className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
+            >
+              ログイン
+            </button>
+          </form>
+        </section>
+      </div>
+    </main>
   );
 }

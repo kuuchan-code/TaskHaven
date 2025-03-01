@@ -1,9 +1,10 @@
 import os
 
 files = [
-    "src/app/components/InteractiveTaskDashboard.tsx",
-    "src/app/components/TaskForm.tsx",
-    "src/app/components/WebhookForm.tsx",
+    "src/app/[username]/page.tsx",
+    "src/app/components/LogoutButton.tsx",
+    "src/app/components/TaskPage.tsx",
+    "src/app/page.tsx",
 ]
 
 # 出力するプロンプトファイルの名前
