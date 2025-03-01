@@ -27,6 +27,8 @@ export default function TaskForm({ onTaskAdded, username }: TaskFormProps) {
   const [importance, setImportance] = useState(1);
   const [deadline, setDeadline] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
+  // 折りたたみ状態を管理
+  const [expanded, setExpanded] = useState(true);
 
   // 相対的な締切日時を datetime-local 用フォーマットで取得するヘルパー関数
   const getRelativeDeadline = (hoursOffset: number): string => {
@@ -67,75 +69,89 @@ export default function TaskForm({ onTaskAdded, username }: TaskFormProps) {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4 p-6 bg-white dark:bg-gray-800 rounded-xl shadow mb-8">
-      {successMessage && (
-        <div className="p-2 bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-100 rounded">
-          {successMessage}
-        </div>
-      )}
-      <div>
-        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">タイトル：</label>
-        <input
-          type="text"
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-          required
-          className="mt-1 block w-full rounded-md border border-gray-300 dark:border-gray-700 shadow-sm p-2 bg-white dark:bg-gray-800 dark:text-gray-100 focus:ring-blue-500 focus:border-blue-500"
-        />
+    <div className="bg-white dark:bg-gray-800 rounded-xl shadow p-6 mb-8">
+      {/* ヘッダー */}
+      <div className="flex justify-between items-center mb-4">
+        <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-100">タスク追加フォーム</h2>
+        <button
+          onClick={() => setExpanded((prev) => !prev)}
+          className="flex items-center justify-center text-sm font-semibold text-blue-600 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-800 rounded-md px-4 py-2 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
+        >
+          {expanded ? "▲ 折りたたむ" : "▼ 展開する"}
+        </button>
       </div>
-      <div>
-        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">重要度：</label>
-        <div className="mt-1">
-          <input
-            type="range"
-            min={1}
-            max={10}
-            value={importance}
-            onChange={(e) => setImportance(Number(e.target.value))}
-            className="w-full"
-          />
-          <div className="text-sm text-gray-600 dark:text-gray-400">
-            {importance}
+      {expanded && (
+        <form onSubmit={handleSubmit} className="space-y-4">
+          {successMessage && (
+            <div className="p-2 bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-100 rounded">
+              {successMessage}
+            </div>
+          )}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">タイトル：</label>
+            <input
+              type="text"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              required
+              className="mt-1 block w-full rounded-md border border-gray-300 dark:border-gray-700 shadow-sm p-2 bg-white dark:bg-gray-800 dark:text-gray-100 focus:ring-blue-500 focus:border-blue-500"
+            />
           </div>
-        </div>
-      </div>
-      <div>
-        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">締切（任意）：</label>
-        <input
-          type="datetime-local"
-          value={deadline}
-          onChange={(e) => setDeadline(e.target.value)}
-          className="mt-1 block w-full rounded-md border border-gray-300 dark:border-gray-700 shadow-sm p-2 bg-white dark:bg-gray-800 dark:text-gray-100 focus:ring-blue-500 focus:border-blue-500"
-        />
-      </div>
-      {/* ショートカットボタン */}
-      <div>
-        <span className="block text-sm font-medium text-gray-700 dark:text-gray-300">ショートカット締切：</span>
-        <div className="flex space-x-2 mt-1">
-          {[
-            { label: "1時間後", offset: 1 },
-            { label: "3時間後", offset: 3 },
-            { label: "1日後", offset: 24 },
-            { label: "3日後", offset: 72 },
-            { label: "1週間後", offset: 168 },
-          ].map(({ label, offset }) => (
-            <button
-              key={offset}
-              type="button"
-              onClick={() => setDeadline(getRelativeDeadline(offset))}
-              className="px-2 py-1 bg-gray-200 dark:bg-gray-700 text-sm rounded hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors"
-            >
-              {label}
-            </button>
-          ))}
-        </div>
-      </div>
-      <button
-        type="submit"
-        className="px-4 py-2 bg-blue-500 dark:bg-blue-600 text-white rounded-md shadow hover:bg-blue-600 dark:hover:bg-blue-700 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500"
-      >
-        追加
-      </button>
-    </form>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">重要度：</label>
+            <div className="mt-1">
+              <input
+                type="range"
+                min={1}
+                max={10}
+                value={importance}
+                onChange={(e) => setImportance(Number(e.target.value))}
+                className="w-full"
+              />
+              <div className="text-sm text-gray-600 dark:text-gray-400">
+                {importance}
+              </div>
+            </div>
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">締切（任意）：</label>
+            <input
+              type="datetime-local"
+              value={deadline}
+              onChange={(e) => setDeadline(e.target.value)}
+              className="mt-1 block w-full rounded-md border border-gray-300 dark:border-gray-700 shadow-sm p-2 bg-white dark:bg-gray-800 dark:text-gray-100 focus:ring-blue-500 focus:border-blue-500"
+            />
+          </div>
+          {/* ショートカットボタン */}
+          <div>
+            <span className="block text-sm font-medium text-gray-700 dark:text-gray-300">ショートカット締切：</span>
+            <div className="flex space-x-2 mt-1">
+              {[
+                { label: "1時間後", offset: 1 },
+                { label: "3時間後", offset: 3 },
+                { label: "1日後", offset: 24 },
+                { label: "3日後", offset: 72 },
+                { label: "1週間後", offset: 168 },
+              ].map(({ label, offset }) => (
+                <button
+                  key={offset}
+                  type="button"
+                  onClick={() => setDeadline(getRelativeDeadline(offset))}
+                  className="px-2 py-1 bg-gray-300 dark:bg-gray-700 text-sm rounded hover:bg-gray-400 dark:hover:bg-gray-600 transition-colors"
+                >
+                  {label}
+                </button>
+              ))}
+            </div>
+          </div>
+          <button
+            type="submit"
+            className="w-full px-4 py-2 bg-blue-500 dark:bg-blue-600 text-white rounded-md shadow hover:bg-blue-600 dark:hover:bg-blue-700 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500"
+          >
+            追加
+          </button>
+        </form>
+      )}
+    </div>
   );
 }
