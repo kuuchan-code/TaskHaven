@@ -1,10 +1,8 @@
 import os
 
 files = [
-    "src/app/components/CalendarView.tsx",
-    "src/app/components/CalendarWrapper.tsx",
-    "src/app/components/InteractiveTaskDashboard.tsx",
-    "src/app/page.tsx",
+    "src/app/api/updateWebhook/route.ts",
+    "src/app/components/WebhookForm.tsx",
 ]
 
 # 出力するプロンプトファイルの名前

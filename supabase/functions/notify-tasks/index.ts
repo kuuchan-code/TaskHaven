@@ -1,5 +1,4 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
-const DISCORD_WEBHOOK_URL = Deno.env.get("DISCORD_WEBHOOK_URL");
 
 async function notifyHighPriorityTasks() {
   const tasks = await fetchTasksWithHighPriority();
@@ -7,16 +6,41 @@ async function notifyHighPriorityTasks() {
     console.error("Unexpected response format", tasks);
     return;
   }
+  
+  // タスクにユーザー情報（username）が含まれていると仮定して、ユーザー毎にグループ化
+  const tasksByUser = new Map<string, any[]>();
   for (const task of tasks) {
-    const remainingTime = calculateRemainingTime(task.deadline);
-    const message = `Task: ${task.title} | Priority: ${task.priority} | Remaining Time: ${remainingTime}`;
-    await sendDiscordNotification(message);
+    const username = task.username;
+    if (!username) {
+      console.error("No username in task", task);
+      continue;
+    }
+    if (!tasksByUser.has(username)) {
+      tasksByUser.set(username, []);
+    }
+    tasksByUser.get(username)!.push(task);
+  }
+  
+  // 各ユーザーについて、Webhook URL を取得して通知を送信
+  for (const [username, userTasks] of tasksByUser.entries()) {
+    const webhookUrl = await fetchWebhookUrl(username);
+    if (!webhookUrl) {
+      console.error(`No webhook URL for user ${username}`);
+      continue;
+    }
+    let message = `Tasks for ${username}:\n`;
+    for (const task of userTasks) {
+      const remainingTime = calculateRemainingTime(task.deadline);
+      message += `Task: ${task.title} | Priority: ${task.priority} | Remaining: ${remainingTime}\n`;
+    }
+    await sendDiscordNotification(webhookUrl, message);
   }
 }
 
 async function fetchTasksWithHighPriority() {
-  // 条件: completed が false かつ priority が 1 以上、さらに priority 順にソート（降順）
-  const response = await fetch("https://gmzfuhrzoexumlterark.supabase.co/rest/v1/task_with_priority?completed=eq.false&priority=gte.1&order=priority.desc", {
+  // conditions: completed が false, priority が 1 以上,
+  // 並び順: username 昇順, priority 降順
+  const response = await fetch("https://gmzfuhrzoexumlterark.supabase.co/rest/v1/task_with_priority?completed=eq.false&priority=gte.1&order=username.asc,priority.desc", {
     method: "GET",
     headers: {
       "Authorization": `Bearer ${Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")}`,
@@ -27,6 +51,23 @@ async function fetchTasksWithHighPriority() {
   return response.json();
 }
 
+async function fetchWebhookUrl(username: string) {
+  // users テーブルから該当 username のレコードを取得し、webhook_url を返す
+  const response = await fetch(`https://gmzfuhrzoexumlterark.supabase.co/rest/v1/users?username=eq.${username}`, {
+    method: "GET",
+    headers: {
+      "Authorization": `Bearer ${Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")}`,
+      "apikey": Deno.env.get("SUPABASE_SERVICE_ROLE_KEY"),
+      "Content-Type": "application/json"
+    }
+  });
+  const data = await response.json();
+  if (Array.isArray(data) && data.length > 0) {
+    return data[0].webhook_url;
+  }
+  return null;
+}
+
 function calculateRemainingTime(deadline: string) {
   const deadlineDate = new Date(deadline);
   const now = new Date();
@@ -34,26 +75,21 @@ function calculateRemainingTime(deadline: string) {
   return remainingTime > 0 ? `${Math.ceil(remainingTime / (1000 * 60 * 60))} hours` : "Time's up!";
 }
 
-async function sendDiscordNotification(message: string) {
-  await fetch(DISCORD_WEBHOOK_URL, {
+async function sendDiscordNotification(webhookUrl: string, message: string) {
+  await fetch(webhookUrl, {
     method: "POST",
     headers: {
       "Content-Type": "application/json"
     },
-    body: JSON.stringify({
-      content: message
-    })
+    body: JSON.stringify({ content: message })
   });
 }
 
 Deno.serve(async (req) => {
   if (req.method === "POST") {
     await notifyHighPriorityTasks();
-    return new Response("Notifications sent", {
-      status: 200
-    });
+    return new Response("Notifications sent", { status: 200 });
   }
-  return new Response("Method not allowed", {
-    status: 405
-  });
+  return new Response("Method not allowed", { status: 405 });
 });
+
