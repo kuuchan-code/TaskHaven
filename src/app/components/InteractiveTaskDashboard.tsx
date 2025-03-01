@@ -483,7 +483,7 @@ const InteractiveTaskDashboard: React.FC<InteractiveTaskDashboardProps> = ({
             key={task.id}
             task={task}
             isEditing={editingTaskId === task.id}
-            onClick={() => {}}
+            onClick={() => { }}
             onStartEditing={() => startEditing(task)}
             onSaveEditing={() => saveEditing(task.id)}
             onCancelEditing={cancelEditing}
@@ -508,6 +508,23 @@ const InteractiveTaskDashboard: React.FC<InteractiveTaskDashboardProps> = ({
 
   return (
     <div className="space-y-12">
+
+
+      {/* 期限付きタスク */}
+      <section id="deadline-tasks" className="bg-white dark:bg-gray-800 rounded-xl shadow p-6">
+        <div className="flex justify-between items-center border-b border-gray-300 dark:border-gray-700 pb-3 mb-4">
+          <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-100">
+            期限付きタスク
+          </h2>
+          <ToggleButton
+            expanded={showDeadlineSection}
+            onClick={() => setShowDeadlineSection((prev) => !prev)}
+            label={showDeadlineSection ? "折りたたむ" : "展開する"}
+          />
+        </div>
+        {showDeadlineSection && renderTaskList(tasksWithDeadlineActive)}
+      </section>
+
       {/* 期限なしタスク */}
       <section className="bg-white dark:bg-gray-800 rounded-xl shadow p-6">
         <div className="flex justify-between items-center border-b border-gray-300 dark:border-gray-700 pb-3 mb-4">
@@ -522,22 +539,6 @@ const InteractiveTaskDashboard: React.FC<InteractiveTaskDashboardProps> = ({
         </div>
         {showNoDeadlineSection && renderTaskList(tasksWithNoDeadlineActive)}
       </section>
-
-      {/* 期限付きタスク */}
-      <section className="bg-white dark:bg-gray-800 rounded-xl shadow p-6">
-        <div className="flex justify-between items-center border-b border-gray-300 dark:border-gray-700 pb-3 mb-4">
-          <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-100">
-            期限付きタスク
-          </h2>
-          <ToggleButton
-            expanded={showDeadlineSection}
-            onClick={() => setShowDeadlineSection((prev) => !prev)}
-            label={showDeadlineSection ? "折りたたむ" : "展開する"}
-          />
-        </div>
-        {showDeadlineSection && renderTaskList(tasksWithDeadlineActive)}
-      </section>
-
       {/* 完了済みタスク */}
       <section className="bg-white dark:bg-gray-800 rounded-xl shadow p-6">
         <div className="flex justify-between items-center border-b border-gray-300 dark:border-gray-700 pb-3 mb-4">
