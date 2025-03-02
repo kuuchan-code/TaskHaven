@@ -3,27 +3,12 @@
 
 import { useState } from "react";
 import { useTranslations } from "next-intl";
+import { convertLocalToIsoWithOffset, getRelativeDeadline } from "../utils/dateUtils";
 
 interface TaskFormProps {
   onTaskAdded: () => void;
   username: string;
 }
-
-const convertLocalToIsoWithOffset = (localDateString: string): string => {
-  const localDate = new Date(localDateString);
-  const pad = (num: number) => String(num).padStart(2, "0");
-  const year = localDate.getFullYear();
-  const month = pad(localDate.getMonth() + 1);
-  const day = pad(localDate.getDate());
-  const hours = pad(localDate.getHours());
-  const minutes = pad(localDate.getMinutes());
-  const seconds = pad(localDate.getSeconds());
-  const timezoneOffset = -localDate.getTimezoneOffset();
-  const offsetSign = timezoneOffset >= 0 ? "+" : "-";
-  const offsetHours = pad(Math.floor(Math.abs(timezoneOffset) / 60));
-  const offsetMinutes = pad(Math.abs(timezoneOffset) % 60);
-  return `${year}-${month}-${day}T${hours}:${minutes}:${seconds}${offsetSign}${offsetHours}:${offsetMinutes}`;
-};
 
 export default function TaskForm({ onTaskAdded, username }: TaskFormProps) {
   const t = useTranslations("TaskForm");
@@ -32,18 +17,6 @@ export default function TaskForm({ onTaskAdded, username }: TaskFormProps) {
   const [deadline, setDeadline] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
   const [expanded, setExpanded] = useState(true);
-
-  const getRelativeDeadline = (hoursOffset: number): string => {
-    const date = new Date();
-    date.setHours(date.getHours() + hoursOffset);
-    const pad = (num: number) => String(num).padStart(2, "0");
-    const year = date.getFullYear();
-    const month = pad(date.getMonth() + 1);
-    const day = pad(date.getDate());
-    const hours = pad(date.getHours());
-    const minutes = pad(date.getMinutes());
-    return `${year}-${month}-${day}T${hours}:${minutes}`;
-  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

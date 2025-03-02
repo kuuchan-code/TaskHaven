@@ -1,6 +1,7 @@
 // src/app/components/InteractiveTaskDashboard.tsx
 import React, { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
+import { formatForDatetimeLocal, convertLocalToIsoWithOffset, getRelativeDeadline } from "../utils/dateUtils";
 
 export type Task = {
   completed: boolean;
@@ -58,21 +59,6 @@ const ToggleButton: React.FC<ToggleButtonProps> = ({ expanded, onClick, label })
     {expanded ? "▲" : "▼"} {label}
   </button>
 );
-
-const formatForDatetimeLocal = (isoString: string): string => {
-  const date = new Date(isoString);
-  const offset = date.getTimezoneOffset() * 60000;
-  const localDate = new Date(date.getTime() - offset);
-  return localDate.toISOString().slice(0, 16);
-};
-
-const getRelativeDeadline = (hours: number): string => {
-  const date = new Date();
-  date.setHours(date.getHours() + hours);
-  const offset = date.getTimezoneOffset() * 60000;
-  const localDate = new Date(date.getTime() - offset);
-  return localDate.toISOString().slice(0, 16);
-};
 
 interface DeadlineShortcutsProps {
   setDeadline: (deadline: string) => void;
@@ -179,7 +165,7 @@ const TaskEditor: React.FC<TaskEditorProps> = ({
 };
 
 interface TaskItemProps {
-  task: Task & { timeDiff?: number; deadlineDate?: Date };
+  task: Task & { timeDiff?: number };
   isEditing: boolean;
   onStartEditing: () => void;
   onSaveEditing: () => void;
@@ -347,7 +333,7 @@ const InteractiveTaskDashboard: React.FC<InteractiveTaskDashboardProps> = ({ tas
   const [showDeadlineSection, setShowDeadlineSection] = useState(true);
   const [showCompletedSection, setShowCompletedSection] = useState(false);
 
-  // 編集状態
+  // 編集状態の管理
   const [editingTaskId, setEditingTaskId] = useState<number | null>(null);
   const [editingTitle, setEditingTitle] = useState("");
   const [editingImportance, setEditingImportance] = useState(1);
@@ -374,7 +360,7 @@ const InteractiveTaskDashboard: React.FC<InteractiveTaskDashboardProps> = ({ tas
     .map(task => {
       const deadlineDate = new Date(task.deadline as string);
       const diffTime = (deadlineDate.getTime() - currentTime.getTime()) / (1000 * 60 * 60);
-      return { ...task, timeDiff: diffTime, deadlineDate };
+      return { ...task, timeDiff: diffTime };
     })
     .sort((a, b) => (b.priority ?? 0) - (a.priority ?? 0));
 
@@ -392,22 +378,6 @@ const InteractiveTaskDashboard: React.FC<InteractiveTaskDashboardProps> = ({ tas
     setEditingTitle("");
     setEditingImportance(1);
     setEditingDeadline(null);
-  };
-
-  const convertLocalToIsoWithOffset = (localDateString: string): string => {
-    const localDate = new Date(localDateString);
-    const pad = (num: number) => String(num).padStart(2, "0");
-    const year = localDate.getFullYear();
-    const month = pad(localDate.getMonth() + 1);
-    const day = pad(localDate.getDate());
-    const hours = pad(localDate.getHours());
-    const minutes = pad(localDate.getMinutes());
-    const seconds = pad(localDate.getSeconds());
-    const timezoneOffset = localDate.getTimezoneOffset();
-    const offsetSign = timezoneOffset > 0 ? "-" : "+";
-    const offsetHours = pad(Math.floor(Math.abs(timezoneOffset) / 60));
-    const offsetMinutes = pad(Math.abs(timezoneOffset) % 60);
-    return `${year}-${month}-${day}T${hours}:${minutes}:${seconds}${offsetSign}${offsetHours}:${offsetMinutes}`;
   };
 
   const saveEditing = async (taskId: number) => {
@@ -469,7 +439,7 @@ const InteractiveTaskDashboard: React.FC<InteractiveTaskDashboardProps> = ({ tas
     }
   };
 
-  const renderTaskList = (taskList: (Task & { timeDiff?: number; deadlineDate?: Date })[], completedSection: boolean = false) => (
+  const renderTaskList = (taskList: (Task & { timeDiff?: number })[], completedSection: boolean = false) => (
     <ul className="space-y-4">
       {taskList.length > 0 ? (
         taskList.map(task => (

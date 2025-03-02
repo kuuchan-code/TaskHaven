@@ -4,7 +4,7 @@ import os
 output_filename = "chatgpt_prompt.txt"
 
 # `src` ディレクトリ以下のすべてのファイルを取得
-src_directory = "src"
+src_directory = "src/app/components"
 files = []
 
 for root, _, filenames in os.walk(src_directory):
