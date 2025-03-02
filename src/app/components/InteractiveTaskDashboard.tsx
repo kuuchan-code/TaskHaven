@@ -2,7 +2,11 @@
 
 import React, { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
-import { formatForDatetimeLocal, convertLocalToIsoWithOffset, getRelativeDeadline } from "../utils/dateUtils";
+import {
+  formatForDatetimeLocal,
+  convertLocalToIsoWithOffset,
+  getRelativeDeadline
+} from "../utils/dateUtils";
 import { buttonClasses, sectionHeaderClasses } from "../utils/designUtils";
 
 export type Task = {
@@ -222,12 +226,13 @@ const TaskItem: React.FC<TaskItemProps> = ({
         <span className={`text-xl font-semibold ${task.completed ? "line-through" : ""} text-gray-900 dark:text-gray-100`}>
           {task.title}
         </span>
-        {typeof task.priority === "number" ? (
+        {task.deadline ? (
+          // 締め切りがあるタスク: importance と締め切りから計算した「優先度」を表示
           <div className="flex flex-col sm:flex-row items-end sm:items-center gap-2">
             <span className="text-sm text-gray-700 dark:text-gray-300">
-              {t("priorityText", { value: task.priority.toFixed(2) })}
+              {t("priorityText", { value: task.priority?.toFixed(2) })}
             </span>
-            <PriorityLabel priority={task.priority} />
+            <PriorityLabel priority={task.priority!} />
             {task.deadline && (
               <span className="text-sm text-gray-600 dark:text-gray-400">
                 {(() => {
@@ -241,6 +246,7 @@ const TaskItem: React.FC<TaskItemProps> = ({
             )}
           </div>
         ) : (
+          // 締め切りがないタスク: 単に importance（重要度）を表示
           <div className="flex items-center gap-3">
             <span className="text-sm text-gray-700 dark:text-gray-300">
               {t("importanceText", { value: task.importance })}
@@ -276,8 +282,12 @@ const TaskItem: React.FC<TaskItemProps> = ({
             <div className="mt-4 border-t border-gray-300 dark:border-gray-700 pt-3" onClick={(e) => e.stopPropagation()}>
               <div className="space-y-2">
                 <div>
-                  <strong className="text-sm text-gray-800 dark:text-gray-200">{t("importanceLabel")}:</strong>{" "}
-                  <span className="text-sm text-gray-700 dark:text-gray-300">{task.importance}</span>
+                  <strong className="text-sm text-gray-800 dark:text-gray-200">
+                    {task.deadline ? t("priorityLabel") : t("importanceLabel")}:
+                  </strong>{" "}
+                  <span className="text-sm text-gray-700 dark:text-gray-300">
+                    {task.deadline ? task.priority?.toFixed(2) : task.importance}
+                  </span>
                 </div>
                 <div>
                   <strong className="text-sm text-gray-800 dark:text-gray-200">{t("deadlineLabel")}:</strong>{" "}
@@ -364,13 +374,12 @@ const InteractiveTaskDashboard: React.FC<InteractiveTaskDashboardProps> = ({ tas
     }
   }, []);
 
-  // 期限なしタスクは importance をそのまま優先度として扱う
+  // 期限なしタスクは重要度（importance）のみで管理（優先度プロパティは付与しない）
   const tasksWithNoDeadlineActive = tasks
     .filter(task => task.deadline === null && !task.completed)
-    .map(task => ({ ...task, priority: task.importance }))
-    .sort((a, b) => b.priority - a.priority);
+    .sort((a, b) => b.importance - a.importance);
 
-  // 期限付きタスクは deadline と importance から priority を計算する
+  // 期限付きタスクは importance と deadline から優先度（priority）を計算する
   const tasksWithDeadlineActive = tasks
     .filter(task => task.deadline !== null && !task.completed)
     .map(task => ({

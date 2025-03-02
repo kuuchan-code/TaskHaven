@@ -16,10 +16,10 @@
     "errorEmailExists": "This email is already registered. Please use a different email.",
     "messageSignUpSuccess": "Registration successful. Please check your email for confirmation.",
     "errorUserNotFound": "Username not found."
-  },
-  "TaskDashboard": {
+  }, "TaskDashboard": {
     "highPriorityLabel": "High Priority",
     "mediumPriorityLabel": "Medium Priority",
+    "priorityLabel": "Priority",
     "deadlineShortcutsLabel": "Deadline Shortcuts:",
     "shortcut1Hour": "1 Hour Later",
     "shortcut3Hours": "3 Hours Later",
@@ -94,7 +94,8 @@
     "invalidUrl": "Invalid URL format.",
     "webhookRequirement": "Note: Discord webhook settings can only be configured using Discord's web or desktop application.",
     "testMessageContent": "This is a test message",
-    "minutes": "minutes"
+    "minutes": "minutes",
+    "updating": "Updating..."
   },
   "TaskStreak": {
     "todayStreak": "Today's Task Completion Count"

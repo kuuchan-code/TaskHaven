@@ -21,6 +21,7 @@ export default function WebhookForm({
   const [message, setMessage] = useState("");
   const [testMessage, setTestMessage] = useState("");
   const [urlError, setUrlError] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   // シンプルなURLバリデーション
   const validateUrl = (url: string) => {
@@ -44,12 +45,18 @@ export default function WebhookForm({
       setMessage(t("invalidUrl"));
       return;
     }
-    const res = await fetch("/api/updateWebhook", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ username, webhook_url: webhook, notification_interval: notificationInterval }),
-    });
-    setMessage(res.ok ? t("updateSuccess") : t("updateFail"));
+    setIsSubmitting(true);
+    try {
+      const res = await fetch("/api/updateWebhook", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username, webhook_url: webhook, notification_interval: notificationInterval }),
+      });
+      setMessage(res.ok ? t("updateSuccess") : t("updateFail"));
+    } catch {
+      setMessage(t("updateFail"));
+    }
+    setIsSubmitting(false);
   };
 
   const handleTestWebhook = async () => {
@@ -84,14 +91,23 @@ export default function WebhookForm({
             value={webhook}
             onChange={handleWebhookChange}
             placeholder="https://discord.com/api/webhooks/XXXXXXXX/XXXXXXXX"
-            className={inputClasses}
+            className={`${inputClasses} ${urlError ? "border-red-500" : ""}`}
           />
           {urlError && <p className="mt-1 text-xs text-red-500">{urlError}</p>}
           <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">{t("webhookPlaceholderText")}</p>
-          <button type="button" onClick={handleTestWebhook} className={`${buttonClasses} mt-2`}>
+          <button
+            type="button"
+            onClick={handleTestWebhook}
+            className={`${buttonClasses} mt-2 ${!webhook || urlError ? "opacity-50 cursor-not-allowed" : ""}`}
+            disabled={!webhook || !!urlError}
+          >
             {t("testButton")}
           </button>
-          {testMessage && <p className="mt-1 text-xs text-blue-600">{testMessage}</p>}
+          {testMessage && (
+            <p className={`mt-1 text-xs ${testMessage === t("testSuccess") ? "text-green-500" : "text-red-500"}`}>
+              {testMessage}
+            </p>
+          )}
         </div>
         <div>
           <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
@@ -111,8 +127,8 @@ export default function WebhookForm({
           <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">{t("notificationIntervalInfo")}</p>
         </div>
         <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">{t("notificationCondition")}</p>
-        <button type="submit" className={buttonClasses}>
-          {t("submitButton")}
+        <button type="submit" className={`${buttonClasses} w-full`} disabled={isSubmitting}>
+          {isSubmitting ? t("updating") : t("submitButton")}
         </button>
         {message && <p className="mt-4 text-center text-sm text-green-600 dark:text-green-400">{message}</p>}
       </form>

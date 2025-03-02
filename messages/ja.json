@@ -20,6 +20,7 @@
   "TaskDashboard": {
     "highPriorityLabel": "高優先度",
     "mediumPriorityLabel": "中優先度",
+    "priorityLabel": "優先度",
     "deadlineShortcutsLabel": "ショートカット締切：",
     "shortcut1Hour": "1時間後",
     "shortcut3Hours": "3時間後",
@@ -94,7 +95,8 @@
     "invalidUrl": "無効な URL 形式です。",
     "webhookRequirement": "注意: Discord の Webhook 設定は、Web版またはデスクトップ版のみで利用可能です。",
     "testMessageContent": "これはテストメッセージです",
-    "minutes": "分"
+    "minutes": "分",
+    "updating": "更新中..."
   },
   "TaskStreak": {
     "todayStreak": "今日のタスク達成数"
