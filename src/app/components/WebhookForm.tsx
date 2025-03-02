@@ -3,6 +3,7 @@
 
 import { useState } from "react";
 import { useTranslations } from "next-intl";
+import { buttonClasses, inputClasses } from "../utils/designUtils";
 
 type WebhookFormProps = {
   username: string;
@@ -54,7 +55,7 @@ export default function WebhookForm({ username, currentWebhook, currentNotificat
               value={webhook}
               onChange={(e) => setWebhook(e.target.value)}
               placeholder={currentWebhook || "https://discord.com/api/webhooks/XXXXXXXX/XXXXXXXX"}
-              className="w-full p-2 border border-gray-300 dark:border-gray-700 rounded-md bg-white dark:bg-gray-800 dark:text-gray-100 focus:ring-blue-500 focus:border-blue-500"
+              className={inputClasses}
             />
             <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">{t("webhookPlaceholderText")}</p>
           </div>
@@ -68,15 +69,12 @@ export default function WebhookForm({ username, currentWebhook, currentNotificat
               onChange={(e) => setNotificationInterval(Number(e.target.value))}
               placeholder={String(currentNotificationInterval ?? 5)}
               required
-              className="w-full p-2 border border-gray-300 dark:border-gray-700 rounded-md bg-white dark:bg-gray-800 dark:text-gray-100 focus:ring-blue-500 focus:border-blue-500"
+              className={inputClasses}
             />
             <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">{t("notificationIntervalInfo")}</p>
           </div>
           <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">{t("notificationCondition")}</p>
-          <button
-            type="submit"
-            className="w-full px-4 py-2 bg-blue-500 dark:bg-blue-600 text-white rounded-md shadow hover:bg-blue-700 dark:hover:bg-blue-800 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500"
-          >
+          <button type="submit" className={buttonClasses}>
             {t("submitButton")}
           </button>
           {message && <p className="mt-4 text-center text-sm text-green-600 dark:text-green-400">{message}</p>}

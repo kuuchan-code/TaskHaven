@@ -5,6 +5,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "../utils/supabase/client";
 import { useTranslations } from "next-intl";
+import { buttonClasses } from "../utils/designUtils";
 
 export default function LogoutButton() {
   const t = useTranslations("LogoutButton");
@@ -23,8 +24,10 @@ export default function LogoutButton() {
 
   return (
     <div>
-      {error && <p style={{ color: "red" }}>{error}</p>}
-      <button onClick={handleLogout}>{t("logoutButton")}</button>
+      {error && <p className="text-red-500">{error}</p>}
+      <button className={buttonClasses} onClick={handleLogout}>
+        {t("logoutButton")}
+      </button>
     </div>
   );
 }

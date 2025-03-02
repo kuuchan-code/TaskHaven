@@ -4,6 +4,7 @@
 import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { convertLocalToIsoWithOffset, getRelativeDeadline } from "../utils/dateUtils";
+import { buttonClasses, inputClasses } from "../utils/designUtils";
 
 interface TaskFormProps {
   onTaskAdded: () => void;
@@ -63,7 +64,7 @@ export default function TaskForm({ onTaskAdded, username }: TaskFormProps) {
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               required
-              className="mt-1 block w-full rounded-md border border-gray-300 dark:border-gray-700 shadow-sm p-2 bg-white dark:bg-gray-800 dark:text-gray-100 focus:ring-blue-500 focus:border-blue-500"
+              className={inputClasses}
             />
           </div>
           <div>
@@ -90,7 +91,7 @@ export default function TaskForm({ onTaskAdded, username }: TaskFormProps) {
               type="datetime-local"
               value={deadline}
               onChange={(e) => setDeadline(e.target.value)}
-              className="mt-1 block w-full rounded-md border border-gray-300 dark:border-gray-700 shadow-sm p-2 bg-white dark:bg-gray-800 dark:text-gray-100 focus:ring-blue-500 focus:border-blue-500"
+              className={inputClasses}
             />
           </div>
           <div>
@@ -116,7 +117,7 @@ export default function TaskForm({ onTaskAdded, username }: TaskFormProps) {
               ))}
             </div>
           </div>
-          <button type="submit" className="w-full px-4 py-2 bg-blue-500 dark:bg-blue-600 text-white rounded-md shadow hover:bg-blue-600 dark:hover:bg-blue-700 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500">
+          <button type="submit" className={buttonClasses}>
             {t("addButton")}
           </button>
         </form>
