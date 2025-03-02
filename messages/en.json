@@ -1,14 +1,21 @@
 {
     "HomePage": {
-        "welcomeMessage": "Welcome to Task Haven",
-        "signup": "Sign Up",
-        "login": "Login",
-        "email": "Email",
-        "username": "Username",
-        "password": "Password",
-        "task": "Task",
-        "logout": "Logout",
-        "taskList": "Task List",
-        "updateWebhook": "Update Webhook"
+      "welcomeMessage": "Welcome to Task Haven",
+      "signup": "Sign Up",
+      "login": "Login",
+      "email": "Email",
+      "username": "Username",
+      "password": "Password",
+      "usernamePlaceholder": "e.g. john_doe",
+      "emailPlaceholder": "e.g. john@example.com",
+      "passwordPlaceholder": "Enter your password",
+      "usernameHelp": "3 to 20 alphanumeric characters or underscores",
+      "errorUsernameValidation": "Username must be 3-20 alphanumeric characters or underscores only.",
+      "errorEmailValidation": "Please enter a valid email address.",
+      "errorUsernameExists": "This username is already in use. Please choose another.",
+      "errorEmailExists": "This email is already registered. Please use a different email.",
+      "messageSignUpSuccess": "Registration successful. Please check your email for confirmation.",
+      "errorUserNotFound": "Username not found."
     }
-}
+  }
+  

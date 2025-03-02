@@ -1,10 +1,9 @@
 import os
 
 files = [
-    "src/app/[username]/page.tsx",
     "src/app/page.tsx",
-    "src/app/utils/supabase/client.ts",
-    "src/app/utils/supabase/server.ts",
+    "messages/en.json",
+    "messages/ja.json",
 ]
 
 # 出力するプロンプトファイルの名前

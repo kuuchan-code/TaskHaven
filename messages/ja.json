@@ -1,14 +1,21 @@
 {
     "HomePage": {
-        "welcomeMessage": "Task Haven へようこそ",
-        "signup": "ユーザー登録",
-        "login": "ログイン",
-        "email": "メールアドレス",
-        "username": "ユーザー名",
-        "password": "パスワード",
-        "task": "タスク",
-        "logout": "ログアウト",
-        "taskList": "タスクリスト",
-        "updateWebhook": "Webhook 更新"
+      "welcomeMessage": "Task Haven へようこそ",
+      "signup": "ユーザー登録",
+      "login": "ログイン",
+      "email": "メールアドレス",
+      "username": "ユーザー名",
+      "password": "パスワード",
+      "usernamePlaceholder": "例: john_doe",
+      "emailPlaceholder": "例: john@example.com",
+      "passwordPlaceholder": "パスワードを入力",
+      "usernameHelp": "3～20文字の半角英数字またはアンダースコアのみ使用可能",
+      "errorUsernameValidation": "ユーザー名は3～20文字の半角英数字またはアンダースコアのみ使用可能です。",
+      "errorEmailValidation": "有効なメールアドレスを入力してください。",
+      "errorUsernameExists": "このユーザー名はすでに使用されています。別のユーザー名を選んでください。",
+      "errorEmailExists": "このメールアドレスはすでに登録されています。別のメールアドレスを使用してください。",
+      "messageSignUpSuccess": "登録完了しました。確認メールを送信しましたので、メールをご確認ください。",
+      "errorUserNotFound": "ユーザー名が見つかりません。"
     }
-}
+  }
+  
