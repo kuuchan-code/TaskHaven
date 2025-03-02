@@ -3,7 +3,6 @@ export const runtime = 'edge';
 import { createClient, PostgrestError } from '@supabase/supabase-js';
 import type { NextRequest } from 'next/server';
 
-// Supabase クライアントの初期化
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
 const supabase = createClient(supabaseUrl, supabaseKey);
@@ -15,22 +14,6 @@ export type Task = {
   importance: number;
   deadline: string | null;
   username: string;
-  // priority はビュー側で計算された値
-  // CREATE OR REPLACE VIEW task_with_priority AS
-  // SELECT
-  //   id,
-  //   username,
-  //   title,
-  //   importance,
-  //   deadline,
-  //   completed,
-  //   CASE
-  //     WHEN EXTRACT(EPOCH FROM (deadline - CURRENT_TIMESTAMP)) / 3600 >= 0 THEN
-  //       importance / POWER((EXTRACT(EPOCH FROM (deadline - CURRENT_TIMESTAMP)) / 3600 + 1), 0.5)
-  //     ELSE
-  //       importance
-  //   END AS priority
-  // FROM tasks;
   priority?: number;
 };
 
@@ -44,6 +27,7 @@ export async function GET(request: NextRequest) {
     );
   }
 
+  // GET は計算済み priority を含むビューから取得する
   const { data, error } = await supabase
     .from("task_with_priority")
     .select('*')
@@ -71,8 +55,9 @@ export async function POST(request: Request) {
     );
   }
 
+  // 登録は元テーブル "tasks" に対して行う
   const { data, error } = await supabase
-    .from("task_with_priority")
+    .from("tasks")
     .insert([{ title, importance, deadline, username }]);
 
   if (error) {
@@ -97,8 +82,9 @@ export async function DELETE(request: Request) {
     );
   }
 
+  // 削除も元テーブル "tasks" に対して行う
   const { data, error } = await supabase
-    .from("task_with_priority")
+    .from("tasks")
     .delete()
     .eq('id', id)
     .eq('username', username);
@@ -132,14 +118,14 @@ export async function PUT(request: Request) {
     );
   }
 
-  // 更新するデータオブジェクトの型を明示
   const updateData: UpdateTask = { title, importance, deadline };
   if (typeof completed !== 'undefined') {
     updateData.completed = completed;
   }
 
+  // 更新も元テーブル "tasks" に対して行う
   const { data, error } = await supabase
-    .from("task_with_priority")
+    .from("tasks")
     .update(updateData)
     .eq('id', id)
     .eq('username', username);

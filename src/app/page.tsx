@@ -35,10 +35,9 @@ export default function HomePage() {
   const [message, setMessage] = useState<string | null>(null);
 
   useEffect(() => {
+    // ログイン時に保存しておく場合、メールアドレスのみ保存する（パスワードは保存しない）
     const savedEmail = localStorage.getItem("loginEmail");
-    const savedPassword = localStorage.getItem("loginPassword");
     if (savedEmail) setLoginEmail(savedEmail);
-    if (savedPassword) setLoginPassword(savedPassword);
   }, []);
 
   const checkUsernameExists = async (username: string) => {
@@ -147,8 +146,8 @@ export default function HomePage() {
     }
     const user = data.user;
     if (user && user.user_metadata && user.user_metadata.username) {
+      // メールアドレスのみ保存（パスワードは保存しない）
       localStorage.setItem("loginEmail", email);
-      localStorage.setItem("loginPassword", loginPassword);
       router.push(`/${user.user_metadata.username}`);
     } else {
       setError(t('errorUserNotFound'));

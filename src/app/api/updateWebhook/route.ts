@@ -19,15 +19,15 @@ export async function POST(request: Request) {
       );
     }
 
-    // webhook_url が空文字の場合は通知を無効化（レコードを削除）
+    // webhook_url が空文字の場合は通知を無効化するため、該当フィールドを null に更新する
     if (webhook_url === "") {
       const { data, error } = await supabase
         .from('users')
-        .delete()
+        .update({ webhook_url: null, notification_interval: null })
         .eq('username', username);
 
       if (error) {
-        console.error("削除エラー", error);
+        console.error("更新エラー", error);
         return NextResponse.json(
           { message: '通知無効化中にエラーが発生しました', error },
           { status: 500 }
