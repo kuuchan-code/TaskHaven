@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { createPagesBrowserClient } from "@supabase/auth-helpers-nextjs";
+import { createClient } from "./utils/supabase/client";
 
 // サニタイジング・バリデーション関数
 const validateUsername = (username: string): boolean => {
@@ -15,17 +15,8 @@ const validateEmail = (email: string): boolean => {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 };
 
-const supabase = createPagesBrowserClient({
-  supabaseUrl: process.env.NEXT_PUBLIC_SUPABASE_URL,
-  supabaseKey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
-  cookieOptions: {
-    name: "sb:token",
-    domain: process.env.NEXT_PUBLIC_COOKIE_DOMAIN || "",
-    path: "/",
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "lax",
-  },
-});
+// utils/supabase/client.ts を利用して Supabase クライアントを作成
+const supabase = createClient();
 
 export default function HomePage() {
   const router = useRouter();
@@ -80,7 +71,9 @@ export default function HomePage() {
 
     // ユーザー名検証
     if (!validateUsername(username)) {
-      setError("ユーザー名は3～20文字の半角英数字またはアンダースコアのみ使用可能です。");
+      setError(
+        "ユーザー名は3～20文字の半角英数字またはアンダースコアのみ使用可能です。"
+      );
       return;
     }
     // メールアドレス検証
@@ -90,7 +83,8 @@ export default function HomePage() {
     }
 
     // ユーザー名の重複チェック
-    const { exists: usernameExists, error: usernameCheckError } = await checkUsernameExists(username);
+    const { exists: usernameExists, error: usernameCheckError } =
+      await checkUsernameExists(username);
     if (usernameCheckError) {
       setError(usernameCheckError.message);
       return;
@@ -101,7 +95,8 @@ export default function HomePage() {
     }
 
     // メールアドレスの重複チェック
-    const { exists: emailExists, error: emailCheckError } = await checkEmailExists(email);
+    const { exists: emailExists, error: emailCheckError } =
+      await checkEmailExists(email);
     if (emailCheckError) {
       setError(emailCheckError.message);
       return;
@@ -131,27 +126,30 @@ export default function HomePage() {
         setError(insertError.message);
         return;
       }
-      // 登録完了後は、確認メール送信の旨を表示（本来はメール認証待ち状態）
+      // 登録完了後は、確認メール送信の旨を表示
       setMessage("登録完了しました。確認メールを送信しましたので、メールをご確認ください。");
       // ※自動リダイレクトする場合は下記のように
       // router.push(`/${username}`);
     }
   };
+
   const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError(null);
     setMessage(null);
-  
+
     const identifier = loginIdentifier.trim();
     let email = identifier;
-  
-    // まず、入力値が有効なメールアドレスかチェック
+
+    // 入力値が有効なメールアドレスかチェック
     if (validateEmail(identifier)) {
       email = identifier;
     } else {
-      // メールアドレスとしての形式でなければ、ユーザー名として検証する
+      // メールアドレスとしての形式でなければ、ユーザー名として検証
       if (!validateUsername(identifier)) {
-        setError("入力されたユーザー名が無効です。3～20文字の半角英数字またはアンダースコアのみ使用可能です。");
+        setError(
+          "入力されたユーザー名が無効です。3～20文字の半角英数字またはアンダースコアのみ使用可能です。"
+        );
         return;
       }
       // ユーザー名から対応するメールアドレスを取得
@@ -170,7 +168,7 @@ export default function HomePage() {
       }
       email = userData.email;
     }
-  
+
     // ログイン処理
     const { data, error } = await supabase.auth.signInWithPassword({
       email,
@@ -187,7 +185,7 @@ export default function HomePage() {
       setError("ユーザー名が見つかりません。");
     }
   };
-  
+
   return (
     <main className="min-h-screen bg-gray-100 dark:bg-gray-900 p-8">
       <div className="max-w-5xl mx-auto">
@@ -202,7 +200,10 @@ export default function HomePage() {
           </h2>
           <form onSubmit={handleSignUp} className="space-y-6">
             <div>
-              <label htmlFor="signup-username" className="block text-sm font-medium text-gray-700">
+              <label
+                htmlFor="signup-username"
+                className="block text-sm font-medium text-gray-700"
+              >
                 ユーザー名
               </label>
               <input
@@ -219,7 +220,10 @@ export default function HomePage() {
               </p>
             </div>
             <div>
-              <label htmlFor="signup-email" className="block text-sm font-medium text-gray-700">
+              <label
+                htmlFor="signup-email"
+                className="block text-sm font-medium text-gray-700"
+              >
                 メールアドレス
               </label>
               <input
@@ -233,7 +237,10 @@ export default function HomePage() {
               />
             </div>
             <div>
-              <label htmlFor="signup-password" className="block text-sm font-medium text-gray-700">
+              <label
+                htmlFor="signup-password"
+                className="block text-sm font-medium text-gray-700"
+              >
                 パスワード
               </label>
               <input
@@ -260,7 +267,10 @@ export default function HomePage() {
           </h2>
           <form onSubmit={handleLogin} className="space-y-6">
             <div>
-              <label htmlFor="login-identifier" className="block text-sm font-medium text-gray-700">
+              <label
+                htmlFor="login-identifier"
+                className="block text-sm font-medium text-gray-700"
+              >
                 メールアドレスまたはユーザー名
               </label>
               <input
@@ -274,7 +284,10 @@ export default function HomePage() {
               />
             </div>
             <div>
-              <label htmlFor="login-password" className="block text-sm font-medium text-gray-700">
+              <label
+                htmlFor="login-password"
+                className="block text-sm font-medium text-gray-700"
+              >
                 パスワード
               </label>
               <input

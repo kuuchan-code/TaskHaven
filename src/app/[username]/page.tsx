@@ -1,21 +1,26 @@
 import { redirect } from "next/navigation";
-import { createServerComponentClient } from "@supabase/auth-helpers-nextjs";
-import { cookies } from "next/headers";
+import { createClient } from "../utils/supabase/server";
 import LogoutButton from "../components/LogoutButton";
 import TaskPage from "../components/TaskPage";
 
-export const runtime = 'edge';
+export const runtime = "edge";
 
-export default async function UserPage({ params }: { params: Promise<{ username: string }> }) {
-  // Await params before accessing its properties
+export default async function UserPage({
+  params,
+}: {
+  params: Promise<{ username: string }>;
+}) {
+  // params を await してから username を取得
   const { username } = await params;
 
-  // Ensure Supabase gets the correct format
-  const supabase = createServerComponentClient({ cookies });
+  // utils/supabase/server.ts を利用して Supabase クライアントを作成
+  const supabase = await createClient();
 
-  const { data: { user } } = await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
 
-  // If not logged in or the URL username doesn't match the logged-in user, redirect
+  // ログインしていない、または URL の username とログインユーザーの username が異なる場合はリダイレクト
   if (!user || user.user_metadata.username !== username) {
     redirect("/");
   }
