@@ -1,4 +1,5 @@
-// src/app/components/InteractiveTaskDashboard.tsx
+"use client";
+
 import React, { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
 import { formatForDatetimeLocal, convertLocalToIsoWithOffset, getRelativeDeadline } from "../utils/dateUtils";
@@ -14,8 +15,18 @@ export type Task = {
   completed_at?: string;
 };
 
-const HIGH_PRIORITY_THRESHOLD = 2;
-const MEDIUM_PRIORITY_THRESHOLD = 0.64;
+// importance と deadline から優先度を計算する関数
+const calculatePriority = (importance: number, deadline: string | null): number => {
+  if (!deadline) return importance;
+
+  const deadlineDate = new Date(deadline);
+  // 現在時刻との差を時間単位で計算
+  const diffTime = (deadlineDate.getTime() - Date.now()) / (1000 * 60 * 60);
+
+  // 期限がまだ先の場合は、importance を (diffTime + 1) の平方根で割る
+  // 期限が過ぎている場合は importance をそのまま返す
+  return diffTime >= 0 ? importance / Math.pow(diffTime + 1, 0.5) : importance;
+};
 
 const formatRemainingTime = (hours: number): string => {
   if (hours < 24) {
@@ -31,14 +42,14 @@ interface PriorityLabelProps {
 }
 const PriorityLabel: React.FC<PriorityLabelProps> = ({ priority }) => {
   const t = useTranslations("TaskDashboard");
-  if (priority >= HIGH_PRIORITY_THRESHOLD) {
+  if (priority >= 2) {
     return (
       <span className="bg-red-600 dark:bg-red-800 text-white text-xs font-bold rounded-full px-2 py-0.5">
         {t("highPriorityLabel")}
       </span>
     );
   }
-  if (priority > MEDIUM_PRIORITY_THRESHOLD && priority < HIGH_PRIORITY_THRESHOLD) {
+  if (priority > 0.64 && priority < 2) {
     return (
       <span className="bg-yellow-500 dark:bg-yellow-700 text-white text-xs font-bold rounded-full px-2 py-0.5">
         {t("mediumPriorityLabel")}
@@ -353,17 +364,20 @@ const InteractiveTaskDashboard: React.FC<InteractiveTaskDashboardProps> = ({ tas
     }
   }, []);
 
+  // 期限なしタスクは importance をそのまま優先度として扱う
   const tasksWithNoDeadlineActive = tasks
     .filter(task => task.deadline === null && !task.completed)
-    .sort((a, b) => b.importance - a.importance);
+    .map(task => ({ ...task, priority: task.importance }))
+    .sort((a, b) => b.priority - a.priority);
 
+  // 期限付きタスクは deadline と importance から priority を計算する
   const tasksWithDeadlineActive = tasks
     .filter(task => task.deadline !== null && !task.completed)
-    .map(task => {
-      const deadlineDate = new Date(task.deadline as string);
-      const diffTime = (deadlineDate.getTime() - currentTime.getTime()) / (1000 * 60 * 60);
-      return { ...task, timeDiff: diffTime };
-    })
+    .map(task => ({
+      ...task,
+      timeDiff: (new Date(task.deadline!).getTime() - currentTime.getTime()) / (1000 * 60 * 60),
+      priority: calculatePriority(task.importance, task.deadline),
+    }))
     .sort((a, b) => (b.priority ?? 0) - (a.priority ?? 0));
 
   const completedTasks = tasks.filter(task => task.completed);
@@ -494,7 +508,7 @@ const InteractiveTaskDashboard: React.FC<InteractiveTaskDashboardProps> = ({ tas
             label={showNoDeadlineSection ? t("collapse") : t("expand")}
           />
         </div>
-        {showNoDeadlineSection && renderTaskList(tasks.filter(task => task.deadline === null && !task.completed))}
+        {showNoDeadlineSection && renderTaskList(tasksWithNoDeadlineActive)}
       </section>
 
       <section className="bg-white dark:bg-gray-800 rounded-xl shadow p-6">
