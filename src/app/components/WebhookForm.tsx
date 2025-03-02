@@ -72,6 +72,7 @@ export default function WebhookForm({ username, currentWebhook, currentNotificat
             />
             <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">{t("notificationIntervalInfo")}</p>
           </div>
+          <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">{t("notificationCondition")}</p>
           <button
             type="submit"
             className="w-full px-4 py-2 bg-blue-500 dark:bg-blue-600 text-white rounded-md shadow hover:bg-blue-700 dark:hover:bg-blue-800 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500"

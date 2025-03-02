@@ -73,12 +73,11 @@
   "TaskPage": {
     "errorLoadingData": "Error loading data.",
     "loading": "Loading...",
-    "pageTitle": "Tasks for {username}"
+    "pageTitle": "{username}'s Dashboard"
   },
   "LogoutButton": {
     "logoutButton": "Logout"
-  },
-  "WebhookForm": {
+  },  "WebhookForm": {
     "formHeader": "Webhook Settings",
     "collapse": "Collapse",
     "expand": "Expand",
@@ -89,6 +88,7 @@
     "notificationIntervalInfo": "※The interval for receiving notifications (e.g., every 5 minutes).",
     "submitButton": "Update",
     "updateSuccess": "Webhook URL and notification interval have been updated.",
-    "updateFail": "Failed to update."
+    "updateFail": "Failed to update.",
+    "notificationCondition": "※Only tasks with a high priority score of 2 or higher (calculated based on remaining time and importance) will trigger a notification."
   }
 }
