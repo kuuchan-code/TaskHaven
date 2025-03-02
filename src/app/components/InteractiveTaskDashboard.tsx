@@ -227,13 +227,20 @@ const TaskItem: React.FC<TaskItemProps> = ({
           {task.title}
         </span>
         {task.deadline ? (
-          // 締め切りがあるタスク: importance と締め切りから計算した「優先度」を表示
-          <div className="flex flex-col sm:flex-row items-end sm:items-center gap-2">
-            <span className="text-sm text-gray-700 dark:text-gray-300">
-              {t("priorityText", { value: task.priority?.toFixed(2) })}
-            </span>
-            <PriorityLabel priority={task.priority!} />
-            {task.deadline && (
+          task.completed ? (
+            // 完了済みの場合：締切日時のみ静的に表示
+            <div className="flex flex-col sm:flex-row items-end sm:items-center gap-2">
+              <span className="text-sm text-gray-700 dark:text-gray-300">
+                {displayDeadline}
+              </span>
+            </div>
+          ) : (
+            // 未完了で締切がある場合：優先度と残り／超過時間を表示
+            <div className="flex flex-col sm:flex-row items-end sm:items-center gap-2">
+              <span className="text-sm text-gray-700 dark:text-gray-300">
+                {t("priorityText", { value: task.priority?.toFixed(2) })}
+              </span>
+              <PriorityLabel priority={task.priority!} />
               <span className="text-sm text-gray-600 dark:text-gray-400">
                 {(() => {
                   const deadlineDate = new Date(task.deadline);
@@ -243,10 +250,10 @@ const TaskItem: React.FC<TaskItemProps> = ({
                     : `${t("overdue")} ${formatRemainingTime(-diffTime)}`;
                 })()}
               </span>
-            )}
-          </div>
+            </div>
+          )
         ) : (
-          // 締め切りがないタスク: 単に importance（重要度）を表示
+          // 締切がない場合は重要度を表示
           <div className="flex items-center gap-3">
             <span className="text-sm text-gray-700 dark:text-gray-300">
               {t("importanceText", { value: task.importance })}
