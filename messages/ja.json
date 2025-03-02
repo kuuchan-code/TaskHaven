@@ -60,7 +60,7 @@
     "expand": "展開する",
     "titleLabel": "タイトル：",
     "importanceLabel": "重要度：",
-    "deadlineOptionalLabel": "締切（任意）：",
+    "deadlineLabelOptional": "締切（任意）：",
     "deadlineShortcutsLabel": "ショートカット締切：",
     "shortcut1Hour": "1時間後",
     "shortcut3Hours": "3時間後",

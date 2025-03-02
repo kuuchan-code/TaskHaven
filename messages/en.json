@@ -60,7 +60,6 @@
     "expand": "Expand",
     "titleLabel": "Title:",
     "importanceLabel": "Importance:",
-    "deadlineOptionalLabel": "Deadline (Optional):",
     "deadlineLabelOptional": "Deadline (Optional):",
     "deadlineShortcutsLabel": "Deadline Shortcuts:",
     "shortcut1Hour": "1 Hour Later",
