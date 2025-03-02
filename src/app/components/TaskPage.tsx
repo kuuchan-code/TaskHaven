@@ -1,11 +1,12 @@
-// src/app/components/TaskPage.tsx
 "use client";
 
 import useSWR from "swr";
 import InteractiveTaskDashboard from "./InteractiveTaskDashboard";
 import TaskForm from "./TaskForm";
 import WebhookForm from "./WebhookForm";
+import TaskStreak from "./TaskStreak"; // 新規追加
 import { useTranslations } from "next-intl";
+import { useState } from "react";
 
 export type Task = {
   completed: boolean;
@@ -13,6 +14,8 @@ export type Task = {
   title: string;
   importance: number;
   deadline: string | null;
+  // 完了日時を追加（タスク完了時に設定するなど）
+  completed_at?: string;
 };
 
 type User = {
@@ -38,21 +41,35 @@ export default function TaskPage({ username }: TaskPageProps) {
     fetcher
   );
 
+  // 簡易的なトースト通知（例としてメッセージを一定時間表示）
+  const [toastMessage, setToastMessage] = useState<string | null>(null);
+  const showToast = (message: string) => {
+    setToastMessage(message);
+    setTimeout(() => setToastMessage(null), 3000);
+  };
+
   if (tasksError || userError) return <div>{t("errorLoadingData")}</div>;
   if (!tasks || !user) return <div>{t("loading")}</div>;
 
   return (
-    <main className="min-h-screen bg-gray-100 dark:bg-gray-900 p-8">
+    <main className="min-h-screen bg-gray-100 dark:bg-gray-900 p-8 relative">
+      {toastMessage && (
+        <div className="absolute top-4 left-1/2 transform -translate-x-1/2 bg-green-500 text-white px-4 py-2 rounded shadow-md">
+          {toastMessage}
+        </div>
+      )}
       <div className="max-w-5xl mx-auto space-y-8">
         <h1 className="text-5xl font-extrabold text-center text-gray-900 dark:text-gray-100">
           {t("pageTitle", { username })}
         </h1>
+        {/* タスク達成ストリークを表示 */}
+        <TaskStreak tasks={tasks} />
         <WebhookForm
           username={username}
           currentWebhook={user.webhook_url || ""}
           currentNotificationInterval={user.notification_interval}
         />
-        <TaskForm onTaskAdded={mutateTasks} username={username} />
+        <TaskForm onTaskAdded={() => { mutateTasks(); showToast(t("taskAddedSuccess", { defaultValue: "タスクが追加されました！" })); }} username={username} />
         <InteractiveTaskDashboard tasks={tasks} refreshTasks={mutateTasks} username={username} />
       </div>
     </main>

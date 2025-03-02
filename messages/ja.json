@@ -90,5 +90,8 @@
       "updateSuccess": "Webhook URL と通知間隔が更新されました。",
       "updateFail": "更新に失敗しました。",
       "notificationCondition": "※通知は、残り時間と重要度から算出された優先度スコアが2以上のタスクのみ対象となります。"
+    },
+    "TaskStreak": {
+      "todayStreak": "今日のタスク達成数"
     }
 }

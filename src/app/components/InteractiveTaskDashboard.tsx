@@ -11,6 +11,7 @@ export type Task = {
   importance: number;
   deadline: string | null;
   priority?: number;
+  completed_at?: string;
 };
 
 const HIGH_PRIORITY_THRESHOLD = 2;

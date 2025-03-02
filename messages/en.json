@@ -76,7 +76,8 @@
   },
   "LogoutButton": {
     "logoutButton": "Logout"
-  },  "WebhookForm": {
+  },
+  "WebhookForm": {
     "formHeader": "Webhook Settings",
     "collapse": "Collapse",
     "expand": "Expand",
@@ -89,5 +90,8 @@
     "updateSuccess": "Webhook URL and notification interval have been updated.",
     "updateFail": "Failed to update.",
     "notificationCondition": "※Only tasks with a high priority score of 2 or higher (calculated based on remaining time and importance) will trigger a notification."
+  },
+  "TaskStreak": {
+    "todayStreak": "Today's Task Completion Count"
   }
 }
