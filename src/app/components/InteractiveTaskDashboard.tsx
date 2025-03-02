@@ -22,13 +22,8 @@ export type Task = {
 // importance と deadline から優先度を計算する関数
 const calculatePriority = (importance: number, deadline: string | null): number => {
   if (!deadline) return importance;
-
   const deadlineDate = new Date(deadline);
-  // 現在時刻との差を時間単位で計算
   const diffTime = (deadlineDate.getTime() - Date.now()) / (1000 * 60 * 60);
-
-  // 期限がまだ先の場合は、importance を (diffTime + 1) の平方根で割る
-  // 期限が過ぎている場合は importance をそのまま返す
   return diffTime >= 0 ? importance / Math.pow(diffTime + 1, 0.5) : importance;
 };
 
@@ -215,7 +210,14 @@ const TaskItem: React.FC<TaskItemProps> = ({
 }) => {
   const t = useTranslations("TaskDashboard");
   const [showDetails, setShowDetails] = useState(false);
-  const displayDeadline = task.deadline ? new Date(task.deadline).toLocaleString() : t("noDeadline");
+  const displayDeadline = task.deadline
+    ? new Date(task.deadline).toLocaleString()
+    : t("noDeadline");
+
+  // 完了済みタスクの場合は、優先度は重要度そのものにする
+  const computedPriority = task.deadline
+    ? calculatePriority(task.importance, task.deadline)
+    : task.importance;
 
   return (
     <li
@@ -226,34 +228,43 @@ const TaskItem: React.FC<TaskItemProps> = ({
         <span className={`text-xl font-semibold ${task.completed ? "line-through" : ""} text-gray-900 dark:text-gray-100`}>
           {task.title}
         </span>
-        {task.deadline ? (
-          task.completed ? (
-            // 完了済みの場合：締切日時のみ静的に表示
-            <div className="flex flex-col sm:flex-row items-end sm:items-center gap-2">
-              <span className="text-sm text-gray-700 dark:text-gray-300">
-                {displayDeadline}
-              </span>
-            </div>
-          ) : (
-            // 未完了で締切がある場合：優先度と残り／超過時間を表示
-            <div className="flex flex-col sm:flex-row items-end sm:items-center gap-2">
-              <span className="text-sm text-gray-700 dark:text-gray-300">
-                {t("priorityText", { value: task.priority?.toFixed(2) })}
-              </span>
-              <PriorityLabel priority={task.priority!} />
+        {task.completed ? (
+          // 完了済みタスクは、重要度中心の表示＋締切（ある場合）と完了日時（ある場合）をわかりやすく表示
+          <div className="flex flex-col sm:flex-row items-end sm:items-center gap-2">
+            <span className="text-sm text-gray-700 dark:text-gray-300">
+              {t("importanceText", { value: task.importance })}
+            </span>
+            {task.deadline && (
               <span className="text-sm text-gray-600 dark:text-gray-400">
-                {(() => {
-                  const deadlineDate = new Date(task.deadline);
-                  const diffTime = (deadlineDate.getTime() - new Date().getTime()) / (1000 * 60 * 60);
-                  return diffTime >= 0
-                    ? `${t("remaining")} ${formatRemainingTime(diffTime)}`
-                    : `${t("overdue")} ${formatRemainingTime(-diffTime)}`;
-                })()}
+                {t("deadlineLabel")} {displayDeadline}
               </span>
-            </div>
-          )
+            )}
+            {task.completed_at && (
+              <span className="text-sm text-gray-600 dark:text-gray-400">
+                {t("completedAtLabel", { defaultValue: "Completed at:" })}{" "}
+                {new Date(task.completed_at).toLocaleString()}
+              </span>
+            )}
+          </div>
+        ) : task.deadline ? (
+          // 未完了で締切がある場合：優先度と残り／超過時間を表示
+          <div className="flex flex-col sm:flex-row items-end sm:items-center gap-2">
+            <span className="text-sm text-gray-700 dark:text-gray-300">
+              {t("priorityText", { value: task.priority?.toFixed(2) })}
+            </span>
+            <PriorityLabel priority={task.priority!} />
+            <span className="text-sm text-gray-600 dark:text-gray-400">
+              {(() => {
+                const deadlineDate = new Date(task.deadline!);
+                const diffTime = (deadlineDate.getTime() - new Date().getTime()) / (1000 * 60 * 60);
+                return diffTime >= 0
+                  ? `${t("remaining")} ${formatRemainingTime(diffTime)}`
+                  : `${t("overdue")} ${formatRemainingTime(-diffTime)}`;
+              })()}
+            </span>
+          </div>
         ) : (
-          // 締切がない場合は重要度を表示
+          // 締切がない場合は重要度のみを表示
           <div className="flex items-center gap-3">
             <span className="text-sm text-gray-700 dark:text-gray-300">
               {t("importanceText", { value: task.importance })}
@@ -288,18 +299,58 @@ const TaskItem: React.FC<TaskItemProps> = ({
           ) : (
             <div className="mt-4 border-t border-gray-300 dark:border-gray-700 pt-3" onClick={(e) => e.stopPropagation()}>
               <div className="space-y-2">
-                <div>
-                  <strong className="text-sm text-gray-800 dark:text-gray-200">
-                    {task.deadline ? t("priorityLabel") : t("importanceLabel")}:
-                  </strong>{" "}
-                  <span className="text-sm text-gray-700 dark:text-gray-300">
-                    {task.deadline ? task.priority?.toFixed(2) : task.importance}
-                  </span>
-                </div>
-                <div>
-                  <strong className="text-sm text-gray-800 dark:text-gray-200">{t("deadlineLabel")}:</strong>{" "}
-                  <span className="text-sm text-gray-700 dark:text-gray-300">{displayDeadline}</span>
-                </div>
+                {/* 詳細部分：完了済みの場合は重要度、締切（あれば）と完了日時（あれば）を表示 */}
+                {task.completed ? (
+                  <>
+                    <div>
+                      <strong className="text-sm text-gray-800 dark:text-gray-200">
+                        {t("importanceLabel")}:
+                      </strong>{" "}
+                      <span className="text-sm text-gray-700 dark:text-gray-300">
+                        {task.importance}
+                      </span>
+                    </div>
+                    {task.deadline && (
+                      <div>
+                        <strong className="text-sm text-gray-800 dark:text-gray-200">
+                          {t("deadlineLabel")}:
+                        </strong>{" "}
+                        <span className="text-sm text-gray-700 dark:text-gray-300">
+                          {displayDeadline}
+                        </span>
+                      </div>
+                    )}
+                    {task.completed_at && (
+                      <div>
+                        <strong className="text-sm text-gray-800 dark:text-gray-200">
+                          {t("completedAtLabel", { defaultValue: "Completed at:" })}
+                        </strong>{" "}
+                        <span className="text-sm text-gray-700 dark:text-gray-300">
+                          {new Date(task.completed_at).toLocaleString()}
+                        </span>
+                      </div>
+                    )}
+                  </>
+                ) : (
+                  <>
+                    <div>
+                      <strong className="text-sm text-gray-800 dark:text-gray-200">
+                        {task.deadline ? t("priorityLabel") : t("importanceLabel")}:
+                      </strong>{" "}
+                      <span className="text-sm text-gray-700 dark:text-gray-300">
+                        {task.deadline ? computedPriority.toFixed(2) : task.importance}
+                      </span>
+                    </div>
+                    <div>
+                      <strong className="text-sm text-gray-800 dark:text-gray-200">
+                        {t("deadlineLabel")}:
+                      </strong>{" "}
+                      <span className="text-sm text-gray-700 dark:text-gray-300">
+                        {displayDeadline}
+                      </span>
+                    </div>
+                  </>
+                )}
                 <div className="flex gap-3 mt-3">
                   <button
                     onClick={(e) => {
@@ -386,7 +437,7 @@ const InteractiveTaskDashboard: React.FC<InteractiveTaskDashboardProps> = ({ tas
     .filter(task => task.deadline === null && !task.completed)
     .sort((a, b) => b.importance - a.importance);
 
-  // 期限付きタスクは importance と deadline から優先度（priority）を計算する
+  // 期限付きタスクは importance と deadline から優先度（priority）を計算する（未完了のみ）
   const tasksWithDeadlineActive = tasks
     .filter(task => task.deadline !== null && !task.completed)
     .map(task => ({

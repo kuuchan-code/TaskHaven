@@ -21,6 +21,7 @@
     "highPriorityLabel": "高優先度",
     "mediumPriorityLabel": "中優先度",
     "priorityLabel": "優先度",
+    "completedAtLabel": "完了時刻:",
     "deadlineShortcutsLabel": "ショートカット締切：",
     "shortcut1Hour": "1時間後",
     "shortcut3Hours": "3時間後",
