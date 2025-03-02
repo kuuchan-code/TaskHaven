@@ -1,9 +1,9 @@
 import os
 
 files = [
-    "src/app/page.tsx",
-    "messages/en.json",
+    "src/app/components/WebhookForm.tsx",
     "messages/ja.json",
+    "messages/en.json",
 ]
 
 # 出力するプロンプトファイルの名前

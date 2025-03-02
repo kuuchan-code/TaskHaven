@@ -79,17 +79,22 @@
   },
   "WebhookForm": {
     "formHeader": "Webhook Settings",
-    "collapse": "Collapse",
-    "expand": "Expand",
-    "instructions": "※Please set your Discord Webhook URL. If left blank, notifications will be disabled.",
+    "instructions": "※Please enter your Discord Webhook URL. If left blank, notifications will be disabled.",
     "webhookLabel": "Discord Webhook URL",
     "webhookPlaceholderText": "※Leave blank to disable notifications.",
     "notificationIntervalLabel": "Notification Interval (minutes)",
     "notificationIntervalInfo": "※The interval for receiving notifications (e.g., every 5 minutes).",
+    "notificationCondition": "※Only tasks with a high priority score of 2 or higher (calculated based on remaining time and importance) will trigger a notification.",
     "submitButton": "Update",
     "updateSuccess": "Webhook URL and notification interval have been updated.",
     "updateFail": "Failed to update.",
-    "notificationCondition": "※Only tasks with a high priority score of 2 or higher (calculated based on remaining time and importance) will trigger a notification."
+    "testButton": "Send Test Notification",
+    "testSuccess": "Test notification has been sent.",
+    "testFail": "Failed to send test notification.",
+    "invalidUrl": "Invalid URL format.",
+    "webhookRequirement": "Note: Discord webhook settings can only be configured using Discord's web or desktop application.",
+    "testMessageContent": "This is a test message",
+    "minutes": "minutes"
   },
   "TaskStreak": {
     "todayStreak": "Today's Task Completion Count"

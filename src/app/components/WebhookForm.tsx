@@ -1,4 +1,3 @@
-// src/app/components/WebhookForm.tsx
 "use client";
 
 import { useState } from "react";
@@ -11,75 +10,112 @@ type WebhookFormProps = {
   currentNotificationInterval?: number;
 };
 
-export default function WebhookForm({ username, currentWebhook, currentNotificationInterval }: WebhookFormProps) {
+export default function WebhookForm({
+  username,
+  currentWebhook,
+  currentNotificationInterval,
+}: WebhookFormProps) {
   const t = useTranslations("WebhookForm");
   const [webhook, setWebhook] = useState(currentWebhook || "");
   const [notificationInterval, setNotificationInterval] = useState(currentNotificationInterval ?? 5);
   const [message, setMessage] = useState("");
-  const [expanded, setExpanded] = useState(false);
+  const [testMessage, setTestMessage] = useState("");
+  const [urlError, setUrlError] = useState("");
+
+  // シンプルなURLバリデーション
+  const validateUrl = (url: string) => {
+    try {
+      new URL(url);
+      return true;
+    } catch {
+      return false;
+    }
+  };
+
+  const handleWebhookChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setWebhook(value);
+    setUrlError(value && !validateUrl(value) ? t("invalidUrl") : "");
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (webhook && urlError) {
+      setMessage(t("invalidUrl"));
+      return;
+    }
     const res = await fetch("/api/updateWebhook", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ username, webhook_url: webhook, notification_interval: notificationInterval }),
     });
-    if (res.ok) {
-      setMessage(t("updateSuccess"));
-    } else {
-      setMessage(t("updateFail"));
+    setMessage(res.ok ? t("updateSuccess") : t("updateFail"));
+  };
+
+  const handleTestWebhook = async () => {
+    if (!webhook || urlError) {
+      setTestMessage(t("invalidUrl"));
+      return;
+    }
+    try {
+      const res = await fetch(webhook, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ content: t("testMessageContent") }),
+      });
+      setTestMessage(res.ok ? t("testSuccess") : t("testFail"));
+    } catch {
+      setTestMessage(t("testFail"));
     }
   };
 
   return (
     <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 mb-6">
-      <div className="flex justify-between items-center mb-4">
-        <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-100">{t("formHeader")}</h2>
-        <button
-          onClick={() => setExpanded(prev => !prev)}
-          className="flex items-center justify-center text-sm font-semibold text-blue-600 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-800 rounded-md px-4 py-2 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
-        >
-          {expanded ? `▲ ${t("collapse")}` : `▼ ${t("expand")}`}
-        </button>
-      </div>
-      {expanded && (
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <p className="text-sm text-gray-600 dark:text-gray-400">{t("instructions")}</p>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-              {t("webhookLabel")}
-            </label>
-            <input
-              type="url"
-              value={webhook}
-              onChange={(e) => setWebhook(e.target.value)}
-              placeholder={currentWebhook || "https://discord.com/api/webhooks/XXXXXXXX/XXXXXXXX"}
-              className={inputClasses}
-            />
-            <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">{t("webhookPlaceholderText")}</p>
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-              {t("notificationIntervalLabel")}
-            </label>
-            <input
-              type="number"
-              value={notificationInterval}
-              onChange={(e) => setNotificationInterval(Number(e.target.value))}
-              placeholder={String(currentNotificationInterval ?? 5)}
-              required
-              className={inputClasses}
-            />
-            <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">{t("notificationIntervalInfo")}</p>
-          </div>
-          <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">{t("notificationCondition")}</p>
-          <button type="submit" className={buttonClasses}>
-            {t("submitButton")}
+      <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-100 mb-4">{t("formHeader")}</h2>
+      <p className="text-sm text-red-600 dark:text-red-400 mb-4">{t("webhookRequirement")}</p>
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <p className="text-sm text-gray-600 dark:text-gray-400">{t("instructions")}</p>
+        <div>
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+            {t("webhookLabel")}
+          </label>
+          <input
+            type="url"
+            value={webhook}
+            onChange={handleWebhookChange}
+            placeholder="https://discord.com/api/webhooks/XXXXXXXX/XXXXXXXX"
+            className={inputClasses}
+          />
+          {urlError && <p className="mt-1 text-xs text-red-500">{urlError}</p>}
+          <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">{t("webhookPlaceholderText")}</p>
+          <button type="button" onClick={handleTestWebhook} className={`${buttonClasses} mt-2`}>
+            {t("testButton")}
           </button>
-          {message && <p className="mt-4 text-center text-sm text-green-600 dark:text-green-400">{message}</p>}
-        </form>
-      )}
+          {testMessage && <p className="mt-1 text-xs text-blue-600">{testMessage}</p>}
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+            {t("notificationIntervalLabel")}
+          </label>
+          <select
+            value={notificationInterval}
+            onChange={(e) => setNotificationInterval(Number(e.target.value))}
+            className={inputClasses}
+          >
+            <option value={5}>5 {t("minutes")}</option>
+            <option value={10}>10 {t("minutes")}</option>
+            <option value={15}>15 {t("minutes")}</option>
+            <option value={30}>30 {t("minutes")}</option>
+            <option value={60}>60 {t("minutes")}</option>
+          </select>
+          <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">{t("notificationIntervalInfo")}</p>
+        </div>
+        <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">{t("notificationCondition")}</p>
+        <button type="submit" className={buttonClasses}>
+          {t("submitButton")}
+        </button>
+        {message && <p className="mt-4 text-center text-sm text-green-600 dark:text-green-400">{message}</p>}
+      </form>
     </div>
   );
 }

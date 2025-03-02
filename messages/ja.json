@@ -77,21 +77,26 @@
   "LogoutButton": {
     "logoutButton": "ログアウト"
   },
-    "WebhookForm": {
-      "formHeader": "Webhook 設定",
-      "collapse": "折りたたむ",
-      "expand": "展開する",
-      "instructions": "※DiscordのWebhook URLを設定してください。Webhook URLが空の場合は通知を無効化します。",
-      "webhookLabel": "Discord Webhook URL",
-      "webhookPlaceholderText": "※空欄にすると通知が無効化されます。",
-      "notificationIntervalLabel": "通知間隔（分）",
-      "notificationIntervalInfo": "※通知を受け取る間隔（例：5分ごと）。",
-      "submitButton": "更新する",
-      "updateSuccess": "Webhook URL と通知間隔が更新されました。",
-      "updateFail": "更新に失敗しました。",
-      "notificationCondition": "※通知は、残り時間と重要度から算出された優先度スコアが2以上のタスクのみ対象となります。"
-    },
-    "TaskStreak": {
-      "todayStreak": "今日のタスク達成数"
-    }
+  "WebhookForm": {
+    "formHeader": "Webhook 設定",
+    "instructions": "※Discord Webhook URL を入力してください。空白の場合は通知が無効化されます。",
+    "webhookLabel": "Discord Webhook URL",
+    "webhookPlaceholderText": "※空白にすると通知が無効化されます。",
+    "notificationIntervalLabel": "通知間隔 (分)",
+    "notificationIntervalInfo": "※通知を受信する間隔（例：5 分ごと）。",
+    "notificationCondition": "※優先度が高いタスク（優先度 2 以上）のみ通知が送信されます。",
+    "submitButton": "更新",
+    "updateSuccess": "Webhook URL と通知間隔が更新されました。",
+    "updateFail": "更新に失敗しました。",
+    "testButton": "テスト通知",
+    "testSuccess": "テスト通知が送信されました。",
+    "testFail": "テスト通知の送信に失敗しました。",
+    "invalidUrl": "無効な URL 形式です。",
+    "webhookRequirement": "注意: Discord の Webhook 設定は、Web版またはデスクトップ版のみで利用可能です。",
+    "testMessageContent": "これはテストメッセージです",
+    "minutes": "分"
+  },
+  "TaskStreak": {
+    "todayStreak": "今日のタスク達成数"
+  }
 }
