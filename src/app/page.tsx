@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "./utils/supabase/client";
 
@@ -15,7 +15,6 @@ const validateEmail = (email: string): boolean => {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 };
 
-// utils/supabase/client.ts を利用して Supabase クライアントを作成
 const supabase = createClient();
 
 export default function HomePage() {
@@ -26,13 +25,21 @@ export default function HomePage() {
   const [signUpEmail, setSignUpEmail] = useState("");
   const [signUpPassword, setSignUpPassword] = useState("");
 
-  // ログイン用の状態（メールアドレスまたはユーザー名）
-  const [loginIdentifier, setLoginIdentifier] = useState("");
+  // ログイン用の状態（メールアドレス専用）
+  const [loginEmail, setLoginEmail] = useState("");
   const [loginPassword, setLoginPassword] = useState("");
 
   // エラー・メッセージ表示用状態
   const [error, setError] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
+
+  // コンポーネント初回マウント時にlocalStorageから認証情報を読み込む
+  useEffect(() => {
+    const savedEmail = localStorage.getItem("loginEmail");
+    const savedPassword = localStorage.getItem("loginPassword");
+    if (savedEmail) setLoginEmail(savedEmail);
+    if (savedPassword) setLoginPassword(savedPassword);
+  }, []);
 
   // ユーザー名の重複チェック関数
   const checkUsernameExists = async (username: string) => {
@@ -60,7 +67,7 @@ export default function HomePage() {
     return { exists: !!data };
   };
 
-  // ユーザー登録処理（入力値のサニタイジング・バリデーションを実施）
+  // ユーザー登録処理
   const handleSignUp = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError(null);
@@ -126,47 +133,22 @@ export default function HomePage() {
         setError(insertError.message);
         return;
       }
-      // 登録完了後は、確認メール送信の旨を表示
       setMessage("登録完了しました。確認メールを送信しましたので、メールをご確認ください。");
-      // ※自動リダイレクトする場合は下記のように
-      // router.push(`/${username}`);
+      // router.push(`/${username}`); // 自動リダイレクトする場合
     }
   };
 
+  // ログイン処理（メールアドレスのみ）
   const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError(null);
     setMessage(null);
 
-    const identifier = loginIdentifier.trim();
-    let email = identifier;
+    const email = loginEmail.trim().toLowerCase();
 
-    // 入力値が有効なメールアドレスかチェック
-    if (validateEmail(identifier)) {
-      email = identifier;
-    } else {
-      // メールアドレスとしての形式でなければ、ユーザー名として検証
-      if (!validateUsername(identifier)) {
-        setError(
-          "入力されたユーザー名が無効です。3～20文字の半角英数字またはアンダースコアのみ使用可能です。"
-        );
-        return;
-      }
-      // ユーザー名から対応するメールアドレスを取得
-      const { data: userData, error: fetchError } = await supabase
-        .from("users")
-        .select("email")
-        .eq("username", identifier)
-        .maybeSingle();
-      if (fetchError) {
-        setError(fetchError.message);
-        return;
-      }
-      if (!userData || !userData.email) {
-        setError("このユーザー名に対応するメールアドレスが見つかりません。");
-        return;
-      }
-      email = userData.email;
+    if (!validateEmail(email)) {
+      setError("有効なメールアドレスを入力してください。");
+      return;
     }
 
     // ログイン処理
@@ -180,6 +162,9 @@ export default function HomePage() {
     }
     const user = data.user;
     if (user && user.user_metadata && user.user_metadata.username) {
+      // ログイン成功時に認証情報をlocalStorageへ保存
+      localStorage.setItem("loginEmail", email);
+      localStorage.setItem("loginPassword", loginPassword);
       router.push(`/${user.user_metadata.username}`);
     } else {
       setError("ユーザー名が見つかりません。");
@@ -268,17 +253,17 @@ export default function HomePage() {
           <form onSubmit={handleLogin} className="space-y-6">
             <div>
               <label
-                htmlFor="login-identifier"
+                htmlFor="login-email"
                 className="block text-sm font-medium text-gray-700"
               >
-                メールアドレスまたはユーザー名
+                メールアドレス
               </label>
               <input
-                id="login-identifier"
-                type="text"
-                placeholder="例: john@example.com または john_doe"
-                value={loginIdentifier}
-                onChange={(e) => setLoginIdentifier(e.target.value)}
+                id="login-email"
+                type="email"
+                placeholder="例: john@example.com"
+                value={loginEmail}
+                onChange={(e) => setLoginEmail(e.target.value)}
                 required
                 className="mt-1 w-full p-2 border rounded"
               />
