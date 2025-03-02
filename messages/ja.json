@@ -52,5 +52,21 @@
     "completedTasks": "完了済みタスク",
     "collapse": "折りたたむ",
     "expand": "展開する"
+  },
+  "TaskForm": {
+    "taskAddedSuccess": "タスクが追加されました！",
+    "formHeader": "タスク追加フォーム",
+    "collapse": "折りたたむ",
+    "expand": "展開する",
+    "titleLabel": "タイトル：",
+    "importanceLabel": "重要度：",
+    "deadlineOptionalLabel": "締切（任意）：",
+    "deadlineShortcutsLabel": "ショートカット締切：",
+    "shortcut1Hour": "1時間後",
+    "shortcut3Hours": "3時間後",
+    "shortcut1Day": "1日後",
+    "shortcut3Days": "3日後",
+    "shortcut1Week": "1週間後",
+    "addButton": "追加"
   }
 }

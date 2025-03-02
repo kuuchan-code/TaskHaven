@@ -52,5 +52,22 @@
     "completedTasks": "Completed Tasks",
     "collapse": "Collapse",
     "expand": "Expand"
+  },
+  "TaskForm": {
+    "taskAddedSuccess": "Task added successfully!",
+    "formHeader": "Task Form",
+    "collapse": "Collapse",
+    "expand": "Expand",
+    "titleLabel": "Title:",
+    "importanceLabel": "Importance:",
+    "deadlineOptionalLabel": "Deadline (Optional):",
+    "deadlineLabelOptional": "Deadline (Optional):",
+    "deadlineShortcutsLabel": "Deadline Shortcuts:",
+    "shortcut1Hour": "1 Hour Later",
+    "shortcut3Hours": "3 Hours Later",
+    "shortcut1Day": "1 Day Later",
+    "shortcut3Days": "3 Days Later",
+    "shortcut1Week": "1 Week Later",
+    "addButton": "Add Task"
   }
 }

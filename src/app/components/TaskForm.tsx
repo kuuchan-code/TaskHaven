@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 
 interface TaskFormProps {
   onTaskAdded: () => void;
@@ -23,6 +24,7 @@ const convertLocalToIsoWithOffset = (localDateString: string): string => {
 };
 
 export default function TaskForm({ onTaskAdded, username }: TaskFormProps) {
+  const t = useTranslations("TaskForm");
   const [title, setTitle] = useState("");
   const [importance, setImportance] = useState(1);
   const [deadline, setDeadline] = useState("");
@@ -63,7 +65,7 @@ export default function TaskForm({ onTaskAdded, username }: TaskFormProps) {
       setTitle("");
       setImportance(1);
       setDeadline("");
-      setSuccessMessage("タスクが追加されました！");
+      setSuccessMessage(t("taskAddedSuccess"));
       setTimeout(() => setSuccessMessage(""), 3000);
     }
   };
@@ -72,12 +74,14 @@ export default function TaskForm({ onTaskAdded, username }: TaskFormProps) {
     <div className="bg-white dark:bg-gray-800 rounded-xl shadow p-6 mb-8">
       {/* ヘッダー */}
       <div className="flex justify-between items-center mb-4">
-        <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-100">タスク追加フォーム</h2>
+        <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-100">
+          {t("formHeader")}
+        </h2>
         <button
           onClick={() => setExpanded((prev) => !prev)}
           className="flex items-center justify-center text-sm font-semibold text-blue-600 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-800 rounded-md px-4 py-2 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
         >
-          {expanded ? "▲ 折りたたむ" : "▼ 展開する"}
+          {expanded ? `▲ ${t("collapse")}` : `▼ ${t("expand")}`}
         </button>
       </div>
       {expanded && (
@@ -88,7 +92,9 @@ export default function TaskForm({ onTaskAdded, username }: TaskFormProps) {
             </div>
           )}
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">タイトル：</label>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+              {t("titleLabel")}：
+            </label>
             <input
               type="text"
               value={title}
@@ -98,7 +104,9 @@ export default function TaskForm({ onTaskAdded, username }: TaskFormProps) {
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">重要度：</label>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+              {t("importanceLabel")}：
+            </label>
             <div className="mt-1">
               <input
                 type="range"
@@ -114,7 +122,9 @@ export default function TaskForm({ onTaskAdded, username }: TaskFormProps) {
             </div>
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">締切（任意）：</label>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+              {t("deadlineLabelOptional")}：
+            </label>
             <input
               type="datetime-local"
               value={deadline}
@@ -124,22 +134,24 @@ export default function TaskForm({ onTaskAdded, username }: TaskFormProps) {
           </div>
           {/* ショートカットボタン */}
           <div>
-            <span className="block text-sm font-medium text-gray-700 dark:text-gray-300">ショートカット締切：</span>
+            <span className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+              {t("deadlineShortcutsLabel")}
+            </span>
             <div className="flex space-x-2 mt-1">
               {[
-                { label: "1時間後", offset: 1 },
-                { label: "3時間後", offset: 3 },
-                { label: "1日後", offset: 24 },
-                { label: "3日後", offset: 72 },
-                { label: "1週間後", offset: 168 },
-              ].map(({ label, offset }) => (
+                { key: "shortcut1Hour", offset: 1 },
+                { key: "shortcut3Hours", offset: 3 },
+                { key: "shortcut1Day", offset: 24 },
+                { key: "shortcut3Days", offset: 72 },
+                { key: "shortcut1Week", offset: 168 },
+              ].map(({ key, offset }) => (
                 <button
                   key={offset}
                   type="button"
                   onClick={() => setDeadline(getRelativeDeadline(offset))}
                   className="px-2 py-1 bg-gray-300 dark:bg-gray-700 text-sm rounded hover:bg-gray-400 dark:hover:bg-gray-600 transition-colors"
                 >
-                  {label}
+                  {t(key)}
                 </button>
               ))}
             </div>
@@ -148,7 +160,7 @@ export default function TaskForm({ onTaskAdded, username }: TaskFormProps) {
             type="submit"
             className="w-full px-4 py-2 bg-blue-500 dark:bg-blue-600 text-white rounded-md shadow hover:bg-blue-600 dark:hover:bg-blue-700 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500"
           >
-            追加
+            {t("addButton")}
           </button>
         </form>
       )}
