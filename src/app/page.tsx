@@ -1,4 +1,3 @@
-// src/app/page.tsx
 "use client";
 
 import { useState } from "react";
@@ -40,7 +39,9 @@ export default function HomePage() {
   const [loginIdentifier, setLoginIdentifier] = useState("");
   const [loginPassword, setLoginPassword] = useState("");
 
+  // エラー・メッセージ表示用状態
   const [error, setError] = useState<string | null>(null);
+  const [message, setMessage] = useState<string | null>(null);
 
   // ユーザー名の重複チェック関数
   const checkUsernameExists = async (username: string) => {
@@ -55,30 +56,58 @@ export default function HomePage() {
     return { exists: !!data };
   };
 
+  // メールアドレスの重複チェック関数
+  const checkEmailExists = async (email: string) => {
+    const { data, error } = await supabase
+      .from("users")
+      .select("email")
+      .eq("email", email)
+      .maybeSingle();
+    if (error) {
+      return { error };
+    }
+    return { exists: !!data };
+  };
+
   // ユーザー登録処理（入力値のサニタイジング・バリデーションを実施）
   const handleSignUp = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    setError(null);
+    setMessage(null);
+
     const username = signUpUsername.trim();
     const email = signUpEmail.trim().toLowerCase();
 
+    // ユーザー名検証
     if (!validateUsername(username)) {
       setError("ユーザー名は3～20文字の半角英数字またはアンダースコアのみ使用可能です。");
       return;
     }
-
+    // メールアドレス検証
     if (!validateEmail(email)) {
       setError("有効なメールアドレスを入力してください。");
       return;
     }
 
     // ユーザー名の重複チェック
-    const { exists, error: checkError } = await checkUsernameExists(username);
-    if (checkError) {
-      setError(checkError.message);
+    const { exists: usernameExists, error: usernameCheckError } = await checkUsernameExists(username);
+    if (usernameCheckError) {
+      setError(usernameCheckError.message);
       return;
     }
-    if (exists) {
+    if (usernameExists) {
       setError("このユーザー名はすでに使用されています。別のユーザー名を選んでください。");
+      return;
+    }
+
+    // メールアドレスの重複チェック
+    const { exists: emailExists, error: emailCheckError } = await checkEmailExists(email);
+    if (emailCheckError) {
+      setError(emailCheckError.message);
+      return;
+    }
+    if (emailExists) {
+      setError("このメールアドレスはすでに登録されています。別のメールアドレスを使用してください。");
       return;
     }
 
@@ -92,7 +121,9 @@ export default function HomePage() {
       setError(error.message);
       return;
     }
+    // Supabase側で確認メールが送信される場合
     if (data.user) {
+      // users テーブルにも登録
       const { error: insertError } = await supabase
         .from("users")
         .insert([{ id: data.user.id, username, email }]);
@@ -100,22 +131,30 @@ export default function HomePage() {
         setError(insertError.message);
         return;
       }
-      router.push(`/${username}`);
+      // 登録完了後は、確認メール送信の旨を表示（本来はメール認証待ち状態）
+      setMessage("登録完了しました。確認メールを送信しましたので、メールをご確認ください。");
+      // ※自動リダイレクトする場合は下記のように
+      // router.push(`/${username}`);
     }
   };
-
-  // ログイン処理（入力値のサニタイジング・バリデーションを実施）
   const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    setError(null);
+    setMessage(null);
+  
     const identifier = loginIdentifier.trim();
     let email = identifier;
-
-    // 入力値に "@" が含まれていなければ、ユーザー名とみなす
-    if (!identifier.includes("@")) {
+  
+    // まず、入力値が有効なメールアドレスかチェック
+    if (validateEmail(identifier)) {
+      email = identifier;
+    } else {
+      // メールアドレスとしての形式でなければ、ユーザー名として検証する
       if (!validateUsername(identifier)) {
-        setError("ユーザー名は3～20文字の半角英数字またはアンダースコアのみ使用可能です。");
+        setError("入力されたユーザー名が無効です。3～20文字の半角英数字またはアンダースコアのみ使用可能です。");
         return;
       }
+      // ユーザー名から対応するメールアドレスを取得
       const { data: userData, error: fetchError } = await supabase
         .from("users")
         .select("email")
@@ -130,13 +169,8 @@ export default function HomePage() {
         return;
       }
       email = userData.email;
-    } else {
-      if (!validateEmail(identifier)) {
-        setError("有効なメールアドレスを入力してください。");
-        return;
-      }
     }
-
+  
     // ログイン処理
     const { data, error } = await supabase.auth.signInWithPassword({
       email,
@@ -153,7 +187,7 @@ export default function HomePage() {
       setError("ユーザー名が見つかりません。");
     }
   };
-
+  
   return (
     <main className="min-h-screen bg-gray-100 dark:bg-gray-900 p-8">
       <div className="max-w-5xl mx-auto">
@@ -161,6 +195,7 @@ export default function HomePage() {
           Task Haven へようこそ
         </h1>
         {error && <p className="text-red-500 mb-4">{error}</p>}
+        {message && <p className="text-green-500 mb-4">{message}</p>}
         <section className="mb-12">
           <h2 className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-4">
             ユーザー登録
