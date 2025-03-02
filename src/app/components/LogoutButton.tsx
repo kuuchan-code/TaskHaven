@@ -3,11 +3,11 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { createPagesBrowserClient } from "@supabase/auth-helpers-nextjs";
+import { createClient } from "../utils/supabase/client";
 
 export default function LogoutButton() {
   const router = useRouter();
-  const supabase = createPagesBrowserClient();
+  const supabase = createClient();
   const [error, setError] = useState<string | null>(null);
 
   const handleLogout = async () => {
