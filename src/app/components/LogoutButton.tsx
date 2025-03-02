@@ -1,11 +1,12 @@
-// src/app/components/LogoutButton.tsx
 "use client";
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "../utils/supabase/client";
+import { useTranslations } from "next-intl";
 
 export default function LogoutButton() {
+  const t = useTranslations("LogoutButton");
   const router = useRouter();
   const supabase = createClient();
   const [error, setError] = useState<string | null>(null);
@@ -22,7 +23,7 @@ export default function LogoutButton() {
   return (
     <div>
       {error && <p style={{ color: "red" }}>{error}</p>}
-      <button onClick={handleLogout}>ログアウト</button>
+      <button onClick={handleLogout}>{t("logoutButton")}</button>
     </div>
   );
 }

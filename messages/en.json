@@ -69,5 +69,26 @@
     "shortcut3Days": "3 Days Later",
     "shortcut1Week": "1 Week Later",
     "addButton": "Add Task"
+  },
+  "TaskPage": {
+    "errorLoadingData": "Error loading data.",
+    "loading": "Loading...",
+    "pageTitle": "Tasks for {username}"
+  },
+  "LogoutButton": {
+    "logoutButton": "Logout"
+  },
+  "WebhookForm": {
+    "formHeader": "Webhook Settings",
+    "collapse": "Collapse",
+    "expand": "Expand",
+    "instructions": "※Please set your Discord Webhook URL. If left blank, notifications will be disabled.",
+    "webhookLabel": "Discord Webhook URL",
+    "webhookPlaceholderText": "※Leave blank to disable notifications.",
+    "notificationIntervalLabel": "Notification Interval (minutes)",
+    "notificationIntervalInfo": "※The interval for receiving notifications (e.g., every 5 minutes).",
+    "submitButton": "Update",
+    "updateSuccess": "Webhook URL and notification interval have been updated.",
+    "updateFail": "Failed to update."
   }
 }

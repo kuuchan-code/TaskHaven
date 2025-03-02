@@ -68,5 +68,26 @@
     "shortcut3Days": "3日後",
     "shortcut1Week": "1週間後",
     "addButton": "追加"
+  },
+  "TaskPage": {
+    "errorLoadingData": "データの読み込み中にエラーが発生しました。",
+    "loading": "読み込み中...",
+    "pageTitle": "{username}のタスク"
+  },
+  "LogoutButton": {
+    "logoutButton": "ログアウト"
+  },
+  "WebhookForm": {
+    "formHeader": "Webhook 設定",
+    "collapse": "折りたたむ",
+    "expand": "展開する",
+    "instructions": "※DiscordのWebhook URLを設定してください。Webhook URLが空の場合は通知を無効化します。",
+    "webhookLabel": "Discord Webhook URL",
+    "webhookPlaceholderText": "※空欄にすると通知が無効化されます。",
+    "notificationIntervalLabel": "通知間隔（分）",
+    "notificationIntervalInfo": "※通知を受け取る間隔（例：5分ごと）。",
+    "submitButton": "更新する",
+    "updateSuccess": "Webhook URL と通知間隔が更新されました",
+    "updateFail": "更新に失敗しました"
   }
 }
