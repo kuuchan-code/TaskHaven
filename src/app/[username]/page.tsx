@@ -3,8 +3,6 @@ import { createClient } from "../utils/supabase/server";
 import LogoutButton from "../components/LogoutButton";
 import TaskPage from "../components/TaskPage";
 
-export const runtime = "edge";
-
 export default async function UserPage({
   params,
 }: {
