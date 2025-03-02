@@ -492,7 +492,7 @@ const InteractiveTaskDashboard: React.FC<InteractiveTaskDashboardProps> = ({ tas
             label={showNoDeadlineSection ? t("collapse") : t("expand")}
           />
         </div>
-        {showNoDeadlineSection && renderTaskList(tasksWithNoDeadlineActive)}
+        {showNoDeadlineSection && renderTaskList(tasks.filter(task => task.deadline === null && !task.completed))}
       </section>
 
       <section className="bg-white dark:bg-gray-800 rounded-xl shadow p-6">

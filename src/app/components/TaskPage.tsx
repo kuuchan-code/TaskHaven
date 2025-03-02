@@ -29,8 +29,14 @@ const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
 export default function TaskPage({ username }: TaskPageProps) {
   const t = useTranslations("TaskPage");
-  const { data: tasks, error: tasksError, mutate: mutateTasks } = useSWR<Task[]>(`/api/tasks?username=${username}`, fetcher);
-  const { data: user, error: userError } = useSWR<User>(`/api/user?username=${username}`, fetcher);
+  const { data: tasks, error: tasksError, mutate: mutateTasks } = useSWR<Task[]>(
+    `/api/tasks?username=${username}`,
+    fetcher
+  );
+  const { data: user, error: userError } = useSWR<User>(
+    `/api/user?username=${username}`,
+    fetcher
+  );
 
   if (tasksError || userError) return <div>{t("errorLoadingData")}</div>;
   if (!tasks || !user) return <div>{t("loading")}</div>;
