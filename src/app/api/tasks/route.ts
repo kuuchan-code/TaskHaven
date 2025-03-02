@@ -2,6 +2,7 @@
 export const runtime = "edge";
 import { createClient } from "@supabase/supabase-js";
 import type { NextRequest } from "next/server";
+import { NextResponse } from "next/server";
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
@@ -17,29 +18,30 @@ export type Task = {
   priority?: number;
 };
 
+
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
   const username = searchParams.get("username");
   if (!username) {
-    return new Response(
-      JSON.stringify({ error: "username is required" }),
-      { status: 400, headers: { "Content-Type": "application/json" } }
+    return NextResponse.json(
+      { error: "username is required" },
+      { status: 400 }
     );
   }
 
-  // tasks テーブルから completed_at も含むすべてのカラムを取得する
   const { data, error } = await supabase
     .from("tasks")
     .select("*")
     .eq("username", username);
 
   if (error) {
-    return new Response(
-      JSON.stringify({ error: error.message }),
-      { status: 500, headers: { "Content-Type": "application/json" } }
+    return NextResponse.json(
+      { error: error.message },
+      { status: 500 }
     );
   }
-  return new Response(JSON.stringify(data), { status: 200, headers: { "Content-Type": "application/json" } });
+  // data が配列であることを確認（Supabase は通常配列を返す）
+  return NextResponse.json(data, { status: 200 });
 }
 
 
