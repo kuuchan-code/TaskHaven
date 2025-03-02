@@ -1,10 +1,10 @@
-// src/app/page.tsx
 "use client";
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "./utils/supabase/client";
 import { useTranslations } from "next-intl";
+import { buttonClasses, inputClasses, sectionHeaderClasses } from "./utils/designUtils";
 
 const validateUsername = (username: string): boolean =>
   /^[a-zA-Z0-9_]{3,20}$/.test(username);
@@ -112,19 +112,17 @@ export default function HomePage() {
 
   return (
     <main className="min-h-screen bg-gray-100 dark:bg-gray-900 p-8">
-      <div className="max-w-5xl mx-auto">
-        <h1 className="text-5xl font-extrabold text-center text-gray-900 dark:text-gray-100 mb-12">
+      <div className="max-w-5xl mx-auto space-y-12">
+        <h1 className={`text-5xl font-extrabold text-center ${sectionHeaderClasses} mb-12`}>
           {t("welcomeMessage")}
         </h1>
-        {error && <p className="text-red-500 mb-4">{error}</p>}
-        {message && <p className="text-green-500 mb-4">{message}</p>}
-        <section className="mb-12">
-          <h2 className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-4">
-            {t("signup")}
-          </h2>
+        {error && <p className="text-red-500 text-center">{error}</p>}
+        {message && <p className="text-green-500 text-center">{message}</p>}
+        <section className="bg-white dark:bg-gray-800 rounded-xl shadow p-6">
+          <h2 className={`${sectionHeaderClasses} mb-4`}>{t("signup")}</h2>
           <form onSubmit={handleSignUp} className="space-y-6">
             <div>
-              <label htmlFor="signup-username" className="block text-sm font-medium text-gray-700">
+              <label htmlFor="signup-username" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
                 {t("username")}
               </label>
               <input
@@ -134,12 +132,12 @@ export default function HomePage() {
                 value={signUpUsername}
                 onChange={(e) => setSignUpUsername(e.target.value)}
                 required
-                className="mt-1 w-full p-2 border rounded"
+                className={inputClasses}
               />
-              <p className="mt-1 text-sm text-gray-500">{t("usernameHelp")}</p>
+              <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">{t("usernameHelp")}</p>
             </div>
             <div>
-              <label htmlFor="signup-email" className="block text-sm font-medium text-gray-700">
+              <label htmlFor="signup-email" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
                 {t("email")}
               </label>
               <input
@@ -149,11 +147,11 @@ export default function HomePage() {
                 value={signUpEmail}
                 onChange={(e) => setSignUpEmail(e.target.value)}
                 required
-                className="mt-1 w-full p-2 border rounded"
+                className={inputClasses}
               />
             </div>
             <div>
-              <label htmlFor="signup-password" className="block text-sm font-medium text-gray-700">
+              <label htmlFor="signup-password" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
                 {t("password")}
               </label>
               <input
@@ -163,21 +161,19 @@ export default function HomePage() {
                 value={signUpPassword}
                 onChange={(e) => setSignUpPassword(e.target.value)}
                 required
-                className="mt-1 w-full p-2 border rounded"
+                className={inputClasses}
               />
             </div>
-            <button type="submit" className="w-full px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">
+            <button type="submit" className={buttonClasses}>
               {t("signup")}
             </button>
           </form>
         </section>
-        <section>
-          <h2 className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-4">
-            {t("login")}
-          </h2>
+        <section className="bg-white dark:bg-gray-800 rounded-xl shadow p-6">
+          <h2 className={`${sectionHeaderClasses} mb-4`}>{t("login")}</h2>
           <form onSubmit={handleLogin} className="space-y-6">
             <div>
-              <label htmlFor="login-email" className="block text-sm font-medium text-gray-700">
+              <label htmlFor="login-email" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
                 {t("email")}
               </label>
               <input
@@ -187,11 +183,11 @@ export default function HomePage() {
                 value={loginEmail}
                 onChange={(e) => setLoginEmail(e.target.value)}
                 required
-                className="mt-1 w-full p-2 border rounded"
+                className={inputClasses}
               />
             </div>
             <div>
-              <label htmlFor="login-password" className="block text-sm font-medium text-gray-700">
+              <label htmlFor="login-password" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
                 {t("password")}
               </label>
               <input
@@ -201,10 +197,10 @@ export default function HomePage() {
                 value={loginPassword}
                 onChange={(e) => setLoginPassword(e.target.value)}
                 required
-                className="mt-1 w-full p-2 border rounded"
+                className={inputClasses}
               />
             </div>
-            <button type="submit" className="w-full px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600">
+            <button type="submit" className={buttonClasses}>
               {t("login")}
             </button>
           </form>
