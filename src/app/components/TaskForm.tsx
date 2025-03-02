@@ -1,3 +1,4 @@
+// src/app/components/TaskForm.tsx
 import { useState } from "react";
 import { useTranslations } from "next-intl";
 
@@ -6,7 +7,6 @@ interface TaskFormProps {
   username: string;
 }
 
-// ローカル日時をタイムゾーン付きISO形式に変換する関数
 const convertLocalToIsoWithOffset = (localDateString: string): string => {
   const localDate = new Date(localDateString);
   const pad = (num: number) => String(num).padStart(2, "0");
@@ -29,10 +29,8 @@ export default function TaskForm({ onTaskAdded, username }: TaskFormProps) {
   const [importance, setImportance] = useState(1);
   const [deadline, setDeadline] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
-  // 折りたたみ状態を管理
   const [expanded, setExpanded] = useState(true);
 
-  // 相対的な締切日時を datetime-local 用フォーマットで取得するヘルパー関数
   const getRelativeDeadline = (hoursOffset: number): string => {
     const date = new Date();
     date.setHours(date.getHours() + hoursOffset);
@@ -47,18 +45,11 @@ export default function TaskForm({ onTaskAdded, username }: TaskFormProps) {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
     const deadlineToSend = deadline ? convertLocalToIsoWithOffset(deadline) : null;
-
     const res = await fetch("/api/tasks", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        title,
-        importance,
-        deadline: deadlineToSend,
-        username,
-      }),
+      body: JSON.stringify({ title, importance, deadline: deadlineToSend, username }),
     });
     if (res.ok) {
       onTaskAdded();
@@ -72,13 +63,10 @@ export default function TaskForm({ onTaskAdded, username }: TaskFormProps) {
 
   return (
     <div className="bg-white dark:bg-gray-800 rounded-xl shadow p-6 mb-8">
-      {/* ヘッダー */}
       <div className="flex justify-between items-center mb-4">
-        <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-100">
-          {t("formHeader")}
-        </h2>
+        <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-100">{t("formHeader")}</h2>
         <button
-          onClick={() => setExpanded((prev) => !prev)}
+          onClick={() => setExpanded(prev => !prev)}
           className="flex items-center justify-center text-sm font-semibold text-blue-600 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-800 rounded-md px-4 py-2 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
         >
           {expanded ? `▲ ${t("collapse")}` : `▼ ${t("expand")}`}
@@ -92,9 +80,7 @@ export default function TaskForm({ onTaskAdded, username }: TaskFormProps) {
             </div>
           )}
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-              {t("titleLabel")}：
-            </label>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">{t("titleLabel")}：</label>
             <input
               type="text"
               value={title}
@@ -104,9 +90,7 @@ export default function TaskForm({ onTaskAdded, username }: TaskFormProps) {
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-              {t("importanceLabel")}：
-            </label>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">{t("importanceLabel")}：</label>
             <div className="mt-1">
               <input
                 type="range"
@@ -116,15 +100,11 @@ export default function TaskForm({ onTaskAdded, username }: TaskFormProps) {
                 onChange={(e) => setImportance(Number(e.target.value))}
                 className="w-full"
               />
-              <div className="text-sm text-gray-600 dark:text-gray-400">
-                {importance}
-              </div>
+              <div className="text-sm text-gray-600 dark:text-gray-400">{importance}</div>
             </div>
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-              {t("deadlineLabelOptional")}：
-            </label>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">{t("deadlineLabelOptional")}：</label>
             <input
               type="datetime-local"
               value={deadline}
@@ -132,11 +112,8 @@ export default function TaskForm({ onTaskAdded, username }: TaskFormProps) {
               className="mt-1 block w-full rounded-md border border-gray-300 dark:border-gray-700 shadow-sm p-2 bg-white dark:bg-gray-800 dark:text-gray-100 focus:ring-blue-500 focus:border-blue-500"
             />
           </div>
-          {/* ショートカットボタン */}
           <div>
-            <span className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-              {t("deadlineShortcutsLabel")}
-            </span>
+            <span className="block text-sm font-medium text-gray-700 dark:text-gray-300">{t("deadlineShortcutsLabel")}</span>
             <div className="flex space-x-2 mt-1">
               {[
                 { key: "shortcut1Hour", offset: 1 },
@@ -156,10 +133,7 @@ export default function TaskForm({ onTaskAdded, username }: TaskFormProps) {
               ))}
             </div>
           </div>
-          <button
-            type="submit"
-            className="w-full px-4 py-2 bg-blue-500 dark:bg-blue-600 text-white rounded-md shadow hover:bg-blue-600 dark:hover:bg-blue-700 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500"
-          >
+          <button type="submit" className="w-full px-4 py-2 bg-blue-500 dark:bg-blue-600 text-white rounded-md shadow hover:bg-blue-600 dark:hover:bg-blue-700 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500">
             {t("addButton")}
           </button>
         </form>

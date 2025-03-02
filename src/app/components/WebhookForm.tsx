@@ -1,3 +1,4 @@
+// src/app/components/WebhookForm.tsx
 "use client";
 
 import { useState } from "react";
@@ -32,11 +33,10 @@ export default function WebhookForm({ username, currentWebhook, currentNotificat
 
   return (
     <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 mb-6">
-      {/* ヘッダー */}
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-100">{t("formHeader")}</h2>
         <button
-          onClick={() => setExpanded((prev) => !prev)}
+          onClick={() => setExpanded(prev => !prev)}
           className="flex items-center justify-center text-sm font-semibold text-blue-600 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-800 rounded-md px-4 py-2 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
         >
           {expanded ? `▲ ${t("collapse")}` : `▼ ${t("expand")}`}
@@ -79,9 +79,7 @@ export default function WebhookForm({ username, currentWebhook, currentNotificat
           >
             {t("submitButton")}
           </button>
-          {message && (
-            <p className="mt-4 text-center text-sm text-green-600 dark:text-green-400">{message}</p>
-          )}
+          {message && <p className="mt-4 text-center text-sm text-green-600 dark:text-green-400">{message}</p>}
         </form>
       )}
     </div>

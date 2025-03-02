@@ -1,3 +1,4 @@
+// src/app/components/InteractiveTaskDashboard.tsx
 import React, { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
 
@@ -7,7 +8,6 @@ export type Task = {
   title: string;
   importance: number;
   deadline: string | null;
-  // APIから渡された priority カラム
   priority?: number;
 };
 
@@ -179,12 +179,8 @@ const TaskEditor: React.FC<TaskEditorProps> = ({
 };
 
 interface TaskItemProps {
-  task: Task & {
-    timeDiff?: number;
-    deadlineDate?: Date;
-  };
+  task: Task & { timeDiff?: number; deadlineDate?: Date };
   isEditing: boolean;
-  onClick: () => void;
   onStartEditing: () => void;
   onSaveEditing: () => void;
   onCancelEditing: () => void;
@@ -216,9 +212,7 @@ const TaskItem: React.FC<TaskItemProps> = ({
 }) => {
   const t = useTranslations("TaskDashboard");
   const [showDetails, setShowDetails] = useState(false);
-  const displayDeadline = task.deadline
-    ? new Date(task.deadline).toLocaleString()
-    : t("noDeadline");
+  const displayDeadline = task.deadline ? new Date(task.deadline).toLocaleString() : t("noDeadline");
 
   return (
     <li
@@ -264,7 +258,6 @@ const TaskItem: React.FC<TaskItemProps> = ({
           </div>
         )}
       </div>
-
       {showDetails && (
         <>
           {isEditing ? (
@@ -347,11 +340,7 @@ interface InteractiveTaskDashboardProps {
   username: string;
 }
 
-const InteractiveTaskDashboard: React.FC<InteractiveTaskDashboardProps> = ({
-  tasks,
-  refreshTasks,
-  username,
-}) => {
+const InteractiveTaskDashboard: React.FC<InteractiveTaskDashboardProps> = ({ tasks, refreshTasks, username }) => {
   const t = useTranslations("TaskDashboard");
   const [currentTime, setCurrentTime] = useState<Date>(new Date());
   const [showNoDeadlineSection, setShowNoDeadlineSection] = useState(false);
@@ -372,26 +361,22 @@ const InteractiveTaskDashboard: React.FC<InteractiveTaskDashboardProps> = ({
   useEffect(() => {
     if (window.location.hash === "#deadline-tasks") {
       const element = document.getElementById("deadline-tasks");
-      if (element) {
-        element.scrollIntoView({ behavior: "smooth" });
-      }
+      if (element) element.scrollIntoView({ behavior: "smooth" });
     }
   }, []);
 
-  const tasksWithNoDeadlineActive = tasks
-    .filter((task) => task.deadline === null && !task.completed)
-    .sort((a, b) => b.importance - a.importance);
+  const tasksWithNoDeadlineActive = tasks.filter(task => task.deadline === null && !task.completed).sort((a, b) => b.importance - a.importance);
 
   const tasksWithDeadlineActive = tasks
-    .filter((task) => task.deadline !== null && !task.completed)
-    .map((task) => {
+    .filter(task => task.deadline !== null && !task.completed)
+    .map(task => {
       const deadlineDate = new Date(task.deadline as string);
       const diffTime = (deadlineDate.getTime() - currentTime.getTime()) / (1000 * 60 * 60);
       return { ...task, timeDiff: diffTime, deadlineDate };
     })
     .sort((a, b) => (b.priority ?? 0) - (a.priority ?? 0));
 
-  const completedTasks = tasks.filter((task) => task.completed);
+  const completedTasks = tasks.filter(task => task.completed);
 
   const startEditing = (task: Task) => {
     setEditingTaskId(task.id);
@@ -456,9 +441,7 @@ const InteractiveTaskDashboard: React.FC<InteractiveTaskDashboardProps> = ({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ id: taskId, username }),
       });
-      if (res.ok) {
-        refreshTasks();
-      }
+      if (res.ok) refreshTasks();
     }
   };
 
@@ -469,9 +452,7 @@ const InteractiveTaskDashboard: React.FC<InteractiveTaskDashboardProps> = ({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ id: taskId, completed: true, username }),
       });
-      if (res.ok) {
-        refreshTasks();
-      }
+      if (res.ok) refreshTasks();
     }
   };
 
@@ -482,24 +463,18 @@ const InteractiveTaskDashboard: React.FC<InteractiveTaskDashboardProps> = ({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ id: taskId, completed: false, username }),
       });
-      if (res.ok) {
-        refreshTasks();
-      }
+      if (res.ok) refreshTasks();
     }
   };
 
-  const renderTaskList = (
-    taskList: (Task & { timeDiff?: number; deadlineDate?: Date })[],
-    completedSection: boolean = false
-  ) => (
+  const renderTaskList = (taskList: (Task & { timeDiff?: number; deadlineDate?: Date })[], completedSection: boolean = false) => (
     <ul className="space-y-4">
       {taskList.length > 0 ? (
-        taskList.map((task) => (
+        taskList.map(task => (
           <TaskItem
             key={task.id}
             task={task}
             isEditing={editingTaskId === task.id}
-            onClick={() => {}}
             onStartEditing={() => startEditing(task)}
             onSaveEditing={() => saveEditing(task.id)}
             onCancelEditing={cancelEditing}
@@ -524,45 +499,36 @@ const InteractiveTaskDashboard: React.FC<InteractiveTaskDashboardProps> = ({
 
   return (
     <div className="space-y-12">
-      {/* 期限付きタスク */}
       <section id="deadline-tasks" className="bg-white dark:bg-gray-800 rounded-xl shadow p-6">
         <div className="flex justify-between items-center border-b border-gray-300 dark:border-gray-700 pb-3 mb-4">
-          <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-100">
-            {t("deadlineTasks")}
-          </h2>
+          <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-100">{t("deadlineTasks")}</h2>
           <ToggleButton
             expanded={showDeadlineSection}
-            onClick={() => setShowDeadlineSection((prev) => !prev)}
+            onClick={() => setShowDeadlineSection(prev => !prev)}
             label={showDeadlineSection ? t("collapse") : t("expand")}
           />
         </div>
         {showDeadlineSection && renderTaskList(tasksWithDeadlineActive)}
       </section>
 
-      {/* 期限なしタスク */}
       <section className="bg-white dark:bg-gray-800 rounded-xl shadow p-6">
         <div className="flex justify-between items-center border-b border-gray-300 dark:border-gray-700 pb-3 mb-4">
-          <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-100">
-            {t("noDeadlineTasks")}
-          </h2>
+          <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-100">{t("noDeadlineTasks")}</h2>
           <ToggleButton
             expanded={showNoDeadlineSection}
-            onClick={() => setShowNoDeadlineSection((prev) => !prev)}
+            onClick={() => setShowNoDeadlineSection(prev => !prev)}
             label={showNoDeadlineSection ? t("collapse") : t("expand")}
           />
         </div>
         {showNoDeadlineSection && renderTaskList(tasksWithNoDeadlineActive)}
       </section>
 
-      {/* 完了済みタスク */}
       <section className="bg-white dark:bg-gray-800 rounded-xl shadow p-6">
         <div className="flex justify-between items-center border-b border-gray-300 dark:border-gray-700 pb-3 mb-4">
-          <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-100">
-            {t("completedTasks")}
-          </h2>
+          <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-100">{t("completedTasks")}</h2>
           <ToggleButton
             expanded={showCompletedSection}
-            onClick={() => setShowCompletedSection((prev) => !prev)}
+            onClick={() => setShowCompletedSection(prev => !prev)}
             label={showCompletedSection ? t("collapse") : t("expand")}
           />
         </div>
@@ -573,4 +539,4 @@ const InteractiveTaskDashboard: React.FC<InteractiveTaskDashboardProps> = ({
 };
 
 export default InteractiveTaskDashboard;
-export const runtime = 'edge';
+export const runtime = "edge";
