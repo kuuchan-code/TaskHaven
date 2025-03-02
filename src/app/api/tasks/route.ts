@@ -21,7 +21,10 @@ export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
   const username = searchParams.get("username");
   if (!username) {
-    return new Response(JSON.stringify({ error: "username is required" }), { status: 400, headers: { "Content-Type": "application/json" } });
+    return new Response(
+      JSON.stringify({ error: "username is required" }),
+      { status: 400, headers: { "Content-Type": "application/json" } }
+    );
   }
 
   const { data, error } = await supabase
@@ -30,7 +33,10 @@ export async function GET(request: NextRequest) {
     .eq("username", username) as { data: Task[] | null; error: PostgrestError | null };
 
   if (error) {
-    return new Response(JSON.stringify({ error: error.message }), { status: 500, headers: { "Content-Type": "application/json" } });
+    return new Response(
+      JSON.stringify({ error: error.message }),
+      { status: 500, headers: { "Content-Type": "application/json" } }
+    );
   }
   return new Response(JSON.stringify(data), { status: 200, headers: { "Content-Type": "application/json" } });
 }

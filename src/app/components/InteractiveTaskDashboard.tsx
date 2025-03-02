@@ -365,7 +365,9 @@ const InteractiveTaskDashboard: React.FC<InteractiveTaskDashboardProps> = ({ tas
     }
   }, []);
 
-  const tasksWithNoDeadlineActive = tasks.filter(task => task.deadline === null && !task.completed).sort((a, b) => b.importance - a.importance);
+  const tasksWithNoDeadlineActive = tasks
+    .filter(task => task.deadline === null && !task.completed)
+    .sort((a, b) => b.importance - a.importance);
 
   const tasksWithDeadlineActive = tasks
     .filter(task => task.deadline !== null && !task.completed)

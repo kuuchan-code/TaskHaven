@@ -1,4 +1,6 @@
 // src/app/components/TaskForm.tsx
+"use client";
+
 import { useState } from "react";
 import { useTranslations } from "next-intl";
 
@@ -80,7 +82,9 @@ export default function TaskForm({ onTaskAdded, username }: TaskFormProps) {
             </div>
           )}
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">{t("titleLabel")}：</label>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+              {t("titleLabel")}：
+            </label>
             <input
               type="text"
               value={title}
@@ -90,7 +94,9 @@ export default function TaskForm({ onTaskAdded, username }: TaskFormProps) {
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">{t("importanceLabel")}：</label>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+              {t("importanceLabel")}：
+            </label>
             <div className="mt-1">
               <input
                 type="range"
@@ -104,7 +110,9 @@ export default function TaskForm({ onTaskAdded, username }: TaskFormProps) {
             </div>
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">{t("deadlineLabelOptional")}：</label>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+              {t("deadlineLabelOptional")}：
+            </label>
             <input
               type="datetime-local"
               value={deadline}
@@ -113,7 +121,9 @@ export default function TaskForm({ onTaskAdded, username }: TaskFormProps) {
             />
           </div>
           <div>
-            <span className="block text-sm font-medium text-gray-700 dark:text-gray-300">{t("deadlineShortcutsLabel")}</span>
+            <span className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+              {t("deadlineShortcutsLabel")}
+            </span>
             <div className="flex space-x-2 mt-1">
               {[
                 { key: "shortcut1Hour", offset: 1 },

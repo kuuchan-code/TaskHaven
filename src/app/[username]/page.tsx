@@ -1,3 +1,4 @@
+// src/app/[username]/page.tsx
 import { redirect } from "next/navigation";
 import { createClient } from "../utils/supabase/server";
 import LogoutButton from "../components/LogoutButton";
@@ -10,9 +11,7 @@ export default async function UserPage({
 }) {
   const { username } = await params;
   const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const { data: { user } } = await supabase.auth.getUser();
 
   if (!user || user.user_metadata.username !== username) {
     redirect("/");
