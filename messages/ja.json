@@ -1,0 +1,14 @@
+{
+    "HomePage": {
+        "welcomeMessage": "Task Haven へようこそ",
+        "signup": "ユーザー登録",
+        "login": "ログイン",
+        "email": "メールアドレス",
+        "username": "ユーザー名",
+        "password": "パスワード",
+        "task": "タスク",
+        "logout": "ログアウト",
+        "taskList": "タスクリスト",
+        "updateWebhook": "Webhook 更新"
+    }
+}

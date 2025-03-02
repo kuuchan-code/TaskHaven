@@ -1,0 +1,14 @@
+{
+    "HomePage": {
+        "welcomeMessage": "Welcome to Task Haven",
+        "signup": "Sign Up",
+        "login": "Login",
+        "email": "Email",
+        "username": "Username",
+        "password": "Password",
+        "task": "Task",
+        "logout": "Logout",
+        "taskList": "Task List",
+        "updateWebhook": "Update Webhook"
+    }
+}

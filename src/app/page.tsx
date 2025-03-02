@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "./utils/supabase/client";
+import { useTranslations } from 'next-intl';
 
 // サニタイジング・バリデーション関数
 const validateUsername = (username: string): boolean => {
@@ -19,6 +20,7 @@ const supabase = createClient();
 
 export default function HomePage() {
   const router = useRouter();
+  const t = useTranslations('HomePage');
 
   // サインアップ用の状態
   const [signUpUsername, setSignUpUsername] = useState("");
@@ -175,7 +177,7 @@ export default function HomePage() {
     <main className="min-h-screen bg-gray-100 dark:bg-gray-900 p-8">
       <div className="max-w-5xl mx-auto">
         <h1 className="text-5xl font-extrabold text-center text-gray-900 dark:text-gray-100 mb-12">
-          Task Haven へようこそ
+          {t('welcomeMessage')}
         </h1>
         {error && <p className="text-red-500 mb-4">{error}</p>}
         {message && <p className="text-green-500 mb-4">{message}</p>}
