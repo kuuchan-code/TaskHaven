@@ -14,7 +14,7 @@ export default function HomePage() {
   
   return (
     <div className="min-h-screen flex flex-col bg-gray-50">
-      <Header />
+      <Header isHomePage={true} />
       <main className="flex-grow py-12">
         <div className="container mx-auto px-4">
           <header className="mb-12 text-center">
