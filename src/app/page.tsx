@@ -9,7 +9,7 @@ import { buttonClasses, inputClasses, sectionHeaderClasses } from "./utils/desig
 const validateUsername = (username: string): boolean =>
   /^[a-zA-Z0-9_]{3,20}$/.test(username);
 const validateEmail = (email: string): boolean =>
-  /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email); 
 
 const supabase = createClient();
 
