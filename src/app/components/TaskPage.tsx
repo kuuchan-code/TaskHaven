@@ -1,7 +1,7 @@
 "use client";
 
 import useSWR from "swr";
-import InteractiveTaskDashboard from "./InteractiveTaskDashboard";
+import InteractiveTaskDashboard from "./tasks/InteractiveTaskDashboard";
 import TaskForm from "./TaskForm";
 import WebhookForm from "./WebhookForm";
 import TaskStreak from "./TaskStreak";
