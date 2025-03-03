@@ -96,7 +96,11 @@
     "noDeadlineTasks": "期限なしタスク",
     "completedTasks": "完了済みタスク",
     "collapse": "折りたたむ",
-    "expand": "展開する"
+    "expand": "展開する",
+    "hour": "時間",
+    "hours": "時間",
+    "day": "日",
+    "days": "日"
   },
   "TaskForm": {
     "taskAddedSuccess": "タスクが追加されました！",

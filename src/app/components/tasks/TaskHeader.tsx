@@ -1,13 +1,14 @@
 "use client";
 
 import React from "react";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
 import { TaskHeaderProps } from "./types";
 import { PriorityLabel } from "./UIComponents";
 import { formatRemainingTime } from "./taskUtils";
 
 const TaskHeader: React.FC<TaskHeaderProps> = ({ task }) => {
   const t = useTranslations("TaskDashboard");
+  const locale = useLocale();
   
   if (task.completed) {
     return (
@@ -42,8 +43,8 @@ const TaskHeader: React.FC<TaskHeaderProps> = ({ task }) => {
             const deadlineDate = new Date(task.deadline!);
             const diffTime = (deadlineDate.getTime() - new Date().getTime()) / (1000 * 60 * 60);
             return diffTime >= 0
-              ? `${t("remaining")} ${formatRemainingTime(diffTime)}`
-              : `${t("overdue")} ${formatRemainingTime(-diffTime)}`;
+              ? `${t("remaining")} ${formatRemainingTime(diffTime, locale, t)}`
+              : `${t("overdue")} ${formatRemainingTime(-diffTime, locale, t)}`;
           })()}
         </span>
       </div>

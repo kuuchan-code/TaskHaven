@@ -15,13 +15,39 @@ export const calculatePriority = (importance: number, deadline: string | null): 
 };
 
 // 残り時間のフォーマット
-export const formatRemainingTime = (hours: number): string => {
-  if (hours < 24) {
-    return `${hours.toFixed(1)} ${hours < 2 ? "hour" : "hours"}`;
+export const formatRemainingTime = (hours: number, locale?: string, t?: any): string => {
+  // ロケールが直接渡されない場合はブラウザのロケールを使用
+  if (!locale && typeof window !== 'undefined') {
+    locale = window.navigator.language;
   }
-  const days = Math.floor(hours / 24);
-  const remHours = hours % 24;
-  return `${days} ${days === 1 ? "day" : "days"} ${remHours.toFixed(0)} ${remHours === 1 ? "hour" : "hours"}`;
+  const isJapanese = locale?.startsWith('ja');
+
+  // 翻訳関数が渡された場合はそれを使用
+  if (t) {
+    if (hours < 24) {
+      return `${hours.toFixed(1)} ${t(hours < 2 ? "hour" : "hours")}`;
+    }
+    
+    const days = Math.floor(hours / 24);
+    const remHours = hours % 24;
+    
+    return `${days} ${t(days === 1 ? "day" : "days")} ${remHours.toFixed(0)} ${t(remHours === 1 ? "hour" : "hours")}`;
+  } 
+  // 従来の方法（翻訳関数が渡されない場合）
+  else {
+    if (hours < 24) {
+      return isJapanese
+        ? `${hours.toFixed(1)}時間`
+        : `${hours.toFixed(1)} ${hours < 2 ? "hour" : "hours"}`;
+    }
+    
+    const days = Math.floor(hours / 24);
+    const remHours = hours % 24;
+    
+    return isJapanese
+      ? `${days}日 ${remHours.toFixed(0)}時間`
+      : `${days} ${days === 1 ? "day" : "days"} ${remHours.toFixed(0)} ${remHours === 1 ? "hour" : "hours"}`;
+  }
 };
 
 // タスク編集状態管理カスタムフック
