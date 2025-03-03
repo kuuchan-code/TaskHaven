@@ -20,6 +20,7 @@ export default function TaskForm({ onTaskAdded, username }: TaskFormProps) {
   const [errorMessage, setErrorMessage] = useState("");
   const [expanded, setExpanded] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [animateSuccess, setAnimateSuccess] = useState(false);
 
   // クリア関数
   const resetForm = () => {
@@ -35,6 +36,7 @@ export default function TaskForm({ onTaskAdded, username }: TaskFormProps) {
       timer = setTimeout(() => {
         setSuccessMessage("");
         setErrorMessage("");
+        setAnimateSuccess(false);
       }, 3000);
     }
     return () => clearTimeout(timer);
@@ -65,6 +67,7 @@ export default function TaskForm({ onTaskAdded, username }: TaskFormProps) {
         onTaskAdded();
         resetForm();
         setSuccessMessage(t("taskAddedSuccess"));
+        setAnimateSuccess(true);
       } else {
         const data = await res.json();
         setErrorMessage(data.error || t("taskAddedError"));
@@ -78,9 +81,12 @@ export default function TaskForm({ onTaskAdded, username }: TaskFormProps) {
   };
 
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-xl shadow p-6 mb-8 transition-all duration-300 ease-in-out hover:shadow-lg">
+    <div className="bg-white dark:bg-gray-800 rounded-xl shadow p-6 mb-8 transition-all duration-300 ease-in-out hover:shadow-lg transform hover:-translate-y-1">
       <div className="flex justify-between items-center mb-4">
-        <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-100">{t("formHeader")}</h2>
+        <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-100 flex items-center">
+          <span className="mr-2 text-blue-500">✨</span>
+          {t("formHeader")}
+        </h2>
         <button
           onClick={() => setExpanded(prev => !prev)}
           className="flex items-center justify-center text-sm font-semibold text-blue-600 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-800 rounded-md px-4 py-2 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -95,7 +101,8 @@ export default function TaskForm({ onTaskAdded, username }: TaskFormProps) {
       >
         <form id="task-form" onSubmit={handleSubmit} className="space-y-4">
           {successMessage && (
-            <div className="p-2 bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-100 rounded" role="alert">
+            <div className={`p-3 bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-100 rounded-lg shadow-sm flex items-center ${animateSuccess ? 'animate-pulse' : ''}`} role="alert">
+              <span className="mr-2">🎉</span>
               {successMessage}
             </div>
           )}

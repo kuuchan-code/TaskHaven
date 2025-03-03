@@ -153,7 +153,14 @@
     "goodJob": "Good job!",
     "keepGoing": "Keep going!",
     "weeklyProgress": "Weekly Progress",
-    "noDataAvailable": "No data available"
+    "noDataAvailable": "No data available",
+    "streakTitle": "Achievement Dashboard",
+    "todayCompleted": "Today's Completed Tasks",
+    "yourAchievement": "Your Achievement",
+    "achievementUnlocked": "Achievement Unlocked!",
+    "completedFiveTasks": "You've completed 5 tasks in one day!",
+    "noTasksYet": "No tasks completed yet. Let's complete your first task!",
+    "highestCompleted": "Personal best: Completed {count} tasks in a day"
   },
   "Header": {
     "dashboard": "Dashboard",

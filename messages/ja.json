@@ -177,7 +177,14 @@
     "goodJob": "良い調子です！",
     "keepGoing": "頑張りましょう！",
     "weeklyProgress": "週間の進捗",
-    "noDataAvailable": "データがありません"
+    "noDataAvailable": "データがありません",
+    "streakTitle": "達成状況ダッシュボード",
+    "todayCompleted": "今日の達成タスク",
+    "yourAchievement": "あなたの実績",
+    "achievementUnlocked": "実績解除！",
+    "completedFiveTasks": "一日に5つのタスクを達成しました！",
+    "noTasksYet": "まだタスクを完了していません。最初のタスクを完了させましょう！",
+    "highestCompleted": "過去最高: 一日に{count}個のタスクを達成"
   },
   "Header": {
     "dashboard": "ダッシュボード",
