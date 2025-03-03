@@ -176,7 +176,8 @@
     "excellent": "素晴らしい！",
     "goodJob": "良い調子です！",
     "keepGoing": "頑張りましょう！",
-    "weeklyProgress": "週間の進捗"
+    "weeklyProgress": "週間の進捗",
+    "noDataAvailable": "データがありません"
   },
   "Header": {
     "dashboard": "ダッシュボード",

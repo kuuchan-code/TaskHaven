@@ -38,6 +38,11 @@ export default function TaskStreak({ tasks }: TaskStreakProps) {
       setTimeout(() => setAnimate(false), 1000);
     }
 
+    // デバッグ用：タスクの数と状態をログに出力
+    console.log('TaskStreak: タスクの総数', tasks.length);
+    console.log('TaskStreak: 完了済みタスク数', tasks.filter(task => task.completed).length);
+    console.log('TaskStreak: completed_at が設定されているタスク数', tasks.filter(task => task.completed_at).length);
+
     // 過去7日間の統計を計算
     const weekStats = [];
     for (let i = 6; i >= 0; i--) {
@@ -55,6 +60,9 @@ export default function TaskStreak({ tasks }: TaskStreakProps) {
       weekStats.push(dayCount);
     }
     setWeeklyStats(weekStats);
+    
+    // デバッグ用：週間統計のログ出力
+    console.log('TaskStreak: 週間統計', weekStats);
   }, [tasks, todayStreak]);
 
   // 達成度に応じた色を返す
@@ -86,8 +94,10 @@ export default function TaskStreak({ tasks }: TaskStreakProps) {
 
   // 週間グラフの各バーの高さを計算
   const getBarHeight = (count: number) => {
+    // 最大値を0より大きくするため、weeklyStatsの最大値と1の大きい方を使用
     const maxCount = Math.max(...weeklyStats, 1);
-    return Math.max((count / maxCount) * 100, 10); // 最低10%の高さは確保
+    // 最低10%の高さを確保し、countに基づいてパーセンテージを計算
+    return count > 0 ? Math.max((count / maxCount) * 100, 10) : 10; // 0の場合でも最低10%の高さを確保
   };
 
   // 曜日の配列（日曜始まり）
@@ -124,32 +134,38 @@ export default function TaskStreak({ tasks }: TaskStreakProps) {
         <h3 className="text-md font-semibold text-blue-700 dark:text-blue-300 mb-1">
           {t("weeklyProgress", { defaultValue: "週間の進捗" })}
         </h3>
-        <div className="flex justify-between items-end h-28 px-1">
-          {weeklyStats.map((count, index) => {
-            const isToday = index === 6;
-            const dayOfWeek = weekdays[(dayIndex + index - 6 + 7) % 7];
-            
-            return (
-              <div key={index} className="flex flex-col items-center">
-                <div 
-                  className={`w-11 transition-all duration-500 ease-out 
-                    ${isToday 
-                      ? 'bg-blue-500 dark:bg-blue-400' 
-                      : 'bg-blue-300 dark:bg-blue-700'
-                    } rounded-t-md`}
-                  style={{ height: `${getBarHeight(count)}%` }}
-                >
+        {weeklyStats.length > 0 ? (
+          <div className="flex justify-between items-end h-28 px-1">
+            {weeklyStats.map((count, index) => {
+              const isToday = index === 6;
+              const dayOfWeek = weekdays[(dayIndex + index - 6 + 7) % 7];
+              
+              return (
+                <div key={index} className="flex flex-col items-center">
+                  <div 
+                    className={`w-11 transition-all duration-500 ease-out 
+                      ${isToday 
+                        ? 'bg-blue-500 dark:bg-blue-400' 
+                        : 'bg-blue-300 dark:bg-blue-700'
+                      } rounded-t-md`}
+                    style={{ height: `${getBarHeight(count)}%` }}
+                  >
+                  </div>
+                  <div className={`text-sm font-medium ${isToday ? 'text-blue-600 dark:text-blue-300' : 'text-gray-600 dark:text-gray-400'}`}>
+                    {dayOfWeek}
+                  </div>
+                  <div className="text-sm font-bold text-gray-700 dark:text-gray-300">
+                    {count}
+                  </div>
                 </div>
-                <div className={`text-sm font-medium ${isToday ? 'text-blue-600 dark:text-blue-300' : 'text-gray-600 dark:text-gray-400'}`}>
-                  {dayOfWeek}
-                </div>
-                <div className="text-sm font-bold text-gray-700 dark:text-gray-300">
-                  {count}
-                </div>
-              </div>
-            );
-          })}
-        </div>
+              );
+            })}
+          </div>
+        ) : (
+          <div className="h-28 flex items-center justify-center text-gray-500 dark:text-gray-400">
+            {t("noDataAvailable", { defaultValue: "データがありません" })}
+          </div>
+        )}
       </div>
     </div>
   );

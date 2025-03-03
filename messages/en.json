@@ -152,7 +152,8 @@
     "excellent": "Excellent!",
     "goodJob": "Good job!",
     "keepGoing": "Keep going!",
-    "weeklyProgress": "Weekly Progress"
+    "weeklyProgress": "Weekly Progress",
+    "noDataAvailable": "No data available"
   },
   "Header": {
     "dashboard": "Dashboard",

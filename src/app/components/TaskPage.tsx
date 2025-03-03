@@ -48,6 +48,13 @@ export default function TaskPage({ username }: TaskPageProps) {
     fetcher
   );
 
+  // タスクデータをログに出力
+  useEffect(() => {
+    if (tasks) {
+      console.log('Tasks data loaded:', tasks);
+    }
+  }, [tasks]);
+
   // 簡易的なトースト通知
   const [toastMessage, setToastMessage] = useState<string | null>(null);
   const showToast = (message: string) => {
@@ -124,6 +131,11 @@ export default function TaskPage({ username }: TaskPageProps) {
           {activeTab === 'stats' && (
             <div className="bg-white dark:bg-gray-800 rounded-xl shadow p-6">
               <h2 className="text-2xl font-bold mb-6 text-gray-900 dark:text-gray-100">{t("statsTabTitle")}</h2>
+              {/* タスクデータをログに出力して確認 */}
+              <div style={{display: 'none'}}>{
+                // @ts-ignore
+                console.log('TaskStreak に渡されるタスク:', tasks)
+              }</div>
               <TaskStreak tasks={tasks} />
             </div>
           )}
