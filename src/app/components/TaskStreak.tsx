@@ -98,12 +98,12 @@ export default function TaskStreak({ tasks }: TaskStreakProps) {
   const feedback = getStreakFeedback();
 
   return (
-    <div className="p-6 bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900 dark:to-blue-800 rounded-xl shadow-md text-center transition-all duration-300 hover:shadow-lg">
-      <h2 className="text-xl font-bold text-blue-700 dark:text-blue-300 mb-4">
+    <div className="p-4 bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900 dark:to-blue-800 rounded-xl shadow-md text-center transition-all duration-300 hover:shadow-lg">
+      <h2 className="text-xl font-bold text-blue-700 dark:text-blue-300 mb-3">
         {t("todayStreak", { defaultValue: "今日のタスク達成数" })}
       </h2>
       
-      <div className="flex items-center justify-center mb-6">
+      <div className="flex items-center justify-center mb-3">
         <span 
           className={`text-5xl font-bold ${getStreakColor()} 
           ${animate ? 'scale-125 transition-transform duration-300' : 'transition-transform duration-300'}`}
@@ -114,17 +114,17 @@ export default function TaskStreak({ tasks }: TaskStreakProps) {
       </div>
       
       {todayStreak > 0 && (
-        <div className="my-4 text-lg font-medium text-blue-600 dark:text-blue-300 flex items-center justify-center">
+        <div className="mb-3 text-lg font-medium text-blue-600 dark:text-blue-300 flex items-center justify-center">
           <span className="text-2xl mr-2">{feedback.icon}</span>
           {feedback.message}
         </div>
       )}
 
-      <div className="mt-8">
-        <h3 className="text-md font-semibold text-blue-700 dark:text-blue-300 mb-2">
+      <div className="mt-3">
+        <h3 className="text-md font-semibold text-blue-700 dark:text-blue-300 mb-1">
           {t("weeklyProgress", { defaultValue: "週間の進捗" })}
         </h3>
-        <div className="flex justify-between items-end h-32 px-2 pt-4">
+        <div className="flex justify-between items-end h-28 px-1">
           {weeklyStats.map((count, index) => {
             const isToday = index === 6;
             const dayOfWeek = weekdays[(dayIndex + index - 6 + 7) % 7];
@@ -132,7 +132,7 @@ export default function TaskStreak({ tasks }: TaskStreakProps) {
             return (
               <div key={index} className="flex flex-col items-center">
                 <div 
-                  className={`w-8 transition-all duration-500 ease-out 
+                  className={`w-11 transition-all duration-500 ease-out 
                     ${isToday 
                       ? 'bg-blue-500 dark:bg-blue-400' 
                       : 'bg-blue-300 dark:bg-blue-700'
@@ -140,10 +140,10 @@ export default function TaskStreak({ tasks }: TaskStreakProps) {
                   style={{ height: `${getBarHeight(count)}%` }}
                 >
                 </div>
-                <div className={`text-xs mt-1 font-medium ${isToday ? 'text-blue-600 dark:text-blue-300' : 'text-gray-600 dark:text-gray-400'}`}>
+                <div className={`text-sm font-medium ${isToday ? 'text-blue-600 dark:text-blue-300' : 'text-gray-600 dark:text-gray-400'}`}>
                   {dayOfWeek}
                 </div>
-                <div className="text-xs font-bold text-gray-700 dark:text-gray-300">
+                <div className="text-sm font-bold text-gray-700 dark:text-gray-300">
                   {count}
                 </div>
               </div>

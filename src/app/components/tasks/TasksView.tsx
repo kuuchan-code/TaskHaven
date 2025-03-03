@@ -12,7 +12,7 @@ const TasksView: React.FC<TasksViewProps> = ({ tasks, refreshTasks, username }) 
   // デフォルトでは期限付きタスクのみ表示
   const [showNoDeadlineSection, setShowNoDeadlineSection] = useState(false);
   const [showDeadlineSection, setShowDeadlineSection] = useState(true);
-  const [showCompletedSection, setShowCompletedSection] = useState(false);
+  const [showCompletedSection, setShowCompletedSection] = useState(true);
 
   const taskEditorState = useTaskEditor(refreshTasks, username);
   const taskOperations = useTaskOperations(refreshTasks, username);

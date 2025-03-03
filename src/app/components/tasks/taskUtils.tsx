@@ -168,7 +168,20 @@ export const useTaskSorting = (tasks: Task[], currentTime: Date) => {
     }))
     .sort((a, b) => (b.priority ?? 0) - (a.priority ?? 0));
 
-  const completedTasks = tasks.filter(task => task.completed);
+  // 完了済みタスクを完了日時の降順でソート（最新の完了タスクが先頭に来るように）
+  const completedTasks = tasks
+    .filter(task => task.completed)
+    .sort((a, b) => {
+      // 完了日時がある場合はそれでソート
+      if (a.completed_at && b.completed_at) {
+        return new Date(b.completed_at).getTime() - new Date(a.completed_at).getTime();
+      }
+      // 片方にだけ完了日時がある場合
+      if (a.completed_at) return -1;
+      if (b.completed_at) return 1;
+      // 両方とも完了日時がない場合はIDでソート
+      return b.id - a.id;
+    });
 
   return { tasksWithNoDeadlineActive, tasksWithDeadlineActive, completedTasks };
 }; 

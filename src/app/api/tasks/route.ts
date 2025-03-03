@@ -65,9 +65,9 @@ export async function DELETE(request: Request) {
 }
 
 interface UpdateTask {
-  title: string;
-  importance: number;
-  deadline: string | null;
+  title?: string;
+  importance?: number;
+  deadline?: string | null;
   completed?: boolean;
   completed_at?: string | null;
 }
@@ -77,9 +77,17 @@ export async function PUT(request: Request) {
   if (!username) {
     return new Response(JSON.stringify({ error: "username is required" }), { status: 400, headers: { "Content-Type": "application/json" } });
   }
-  const updateData: UpdateTask = { title, importance, deadline };
+  
+  // updateDataを初期化
+  const updateData: UpdateTask = {};
+  
+  // タイトル、重要度、期限が指定されている場合は更新
+  if (title !== undefined) updateData.title = title;
+  if (importance !== undefined) updateData.importance = importance;
+  if (deadline !== undefined) updateData.deadline = deadline;
 
-  if (typeof completed !== "undefined") {
+  // 完了状態が指定されている場合
+  if (completed !== undefined) {
     updateData.completed = completed;
     // 完了の場合は完了日時を設定し、再オープンの場合は null にする
     updateData.completed_at = completed ? new Date().toISOString() : null;
