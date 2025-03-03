@@ -46,11 +46,6 @@ export default function TaskStreak({ tasks }: TaskStreakProps) {
       }
     }
 
-    // デバッグ用：タスクの数と状態をログに出力
-    console.log('TaskStreak: タスクの総数', tasks.length);
-    console.log('TaskStreak: 完了済みタスク数', tasks.filter(task => task.completed).length);
-    console.log('TaskStreak: completed_at が設定されているタスク数', tasks.filter(task => task.completed_at).length);
-
     // 過去7日間の統計を計算
     const weekStats = [];
     let maxDaily = 0;
@@ -70,9 +65,6 @@ export default function TaskStreak({ tasks }: TaskStreakProps) {
       weekStats.push(dayCount);
       maxDaily = Math.max(maxDaily, dayCount);
     }
-    
-    // デバッグ：週間統計のデータを出力
-    console.log('TaskStreak: 週間統計データ', weekStats);
     
     setWeeklyStats(weekStats);
     setMaxCompletedInDay(maxDaily);
@@ -107,14 +99,17 @@ export default function TaskStreak({ tasks }: TaskStreakProps) {
 
   // 週間グラフの各バーの高さを計算
   const getBarHeight = (count: number) => {
-    // 高さの比率を計算（0〜100のスケール）
-    const maxCount = Math.max(...weeklyStats, 1);
-    // 比率を計算（最低20%、最大100%）
-    const heightPercent = count > 0 ? Math.max(20 + (count / maxCount) * 80, 20) : 20;
+    if (count === 0) return 16; // 最小高さ
+
+    // 安全な最大高さ（コンテナの高さ-マージン）
+    const maxHeight = 115; // h-32 = 8rem = 128px、マージンを考慮
     
-    // 親コンテナの高さが約128px (h-32)なので、その割合でピクセル値を計算
-    // 最大100%なら128px、20%なら約26px
-    return Math.floor(heightPercent * 1.28);
+    // 比率を計算（最大値に対する割合）
+    const maxCount = Math.max(...weeklyStats, 1);
+    const ratio = count / maxCount;
+    
+    // 最小高さ16px + 残りの高さを比率で決定
+    return Math.min(16 + ratio * (maxHeight - 16), maxHeight);
   };
   
   // 曜日の略称を取得
@@ -135,11 +130,6 @@ export default function TaskStreak({ tasks }: TaskStreakProps) {
 
   const feedback = getStreakFeedback();
   const badge = getAchievementBadge();
-
-  // デバッグ用：バー表示のテスト値を設定
-  const testBarValues = [1, 2, 0, 3, 1, 0, 2];
-  // テスト用データがあれば使用（デバッグ時のみ有効）
-  const displayData = weeklyStats.every(v => v === 0) ? testBarValues : weeklyStats;
 
   return (
     <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-4 sm:p-6 animate-fadeIn">
@@ -174,12 +164,12 @@ export default function TaskStreak({ tasks }: TaskStreakProps) {
         
         {/* 週間チャート */}
         <div className="bg-gradient-to-br from-indigo-50 to-blue-50 dark:from-gray-900 dark:to-gray-800
-          p-2 sm:p-4 md:p-6 rounded-lg shadow-inner">
+          p-2 sm:p-4 md:p-6 rounded-lg shadow-inner overflow-hidden">
           <h3 className="text-lg font-semibold mb-2 sm:mb-4 text-gray-700 dark:text-gray-300 text-center">{t("weeklyProgress")}</h3>
           
           {/* バーチャート */}
-          <div className="flex items-end justify-between h-32 px-0 sm:px-1 md:px-2">
-            {displayData.map((count, index) => (
+          <div className="flex items-end justify-between h-32 px-0 sm:px-1 md:px-2 relative">
+            {weeklyStats.map((count, index) => (
               <div key={index} className="flex flex-col items-center w-1/7 px-0.5">
                 <div 
                   className={`w-3 sm:w-5 md:w-7 rounded-t-md ${count > 0 
