@@ -4,19 +4,10 @@ import useSWR from "swr";
 import InteractiveTaskDashboard from "./InteractiveTaskDashboard";
 import TaskForm from "./TaskForm";
 import WebhookForm from "./WebhookForm";
-import TaskStreak from "./TaskStreak"; // 新規追加
+import TaskStreak from "./TaskStreak";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
-
-export type Task = {
-  completed: boolean;
-  id: number;
-  title: string;
-  importance: number;
-  deadline: string | null;
-  // 完了日時を追加（タスク完了時に設定するなど）
-  completed_at?: string;
-};
+import { Task } from "../types/taskTypes";
 
 type User = {
   username: string;

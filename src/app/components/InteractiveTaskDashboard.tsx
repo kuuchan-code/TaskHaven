@@ -8,16 +8,7 @@ import {
   getRelativeDeadline
 } from "../utils/dateUtils";
 import { buttonClasses, sectionHeaderClasses } from "../utils/designUtils";
-
-export type Task = {
-  completed: boolean;
-  id: number;
-  title: string;
-  importance: number;
-  deadline: string | null;
-  priority?: number;
-  completed_at?: string;
-};
+import { Task } from "../types/taskTypes";
 
 // importance と deadline から優先度を計算する関数
 const calculatePriority = (importance: number, deadline: string | null): number => {
@@ -594,4 +585,3 @@ const InteractiveTaskDashboard: React.FC<InteractiveTaskDashboardProps> = ({ tas
 };
 
 export default InteractiveTaskDashboard;
-export const runtime = "edge";

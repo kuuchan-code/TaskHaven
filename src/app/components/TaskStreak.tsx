@@ -2,11 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
-
-type Task = {
-  completed: boolean;
-  completed_at?: string; // 完了日時（ISO文字列）
-};
+import { Task } from "../types/taskTypes"; // 共通の型定義をインポート
 
 type TaskStreakProps = {
   tasks: Task[];
