@@ -19,7 +19,13 @@
     "signupCompleteTitle": "Registration Complete!",
     "signupCompleteMessage": "Your account has been created successfully.",
     "checkEmailMessage": "Please check your email for a confirmation link to activate your account.",
-    "errorGeneric": "An error occurred. Please try again later."
+    "errorGeneric": "An error occurred. Please try again later.",
+    "errorCheckingUsername": "An error occurred while checking username availability. Please try again.",
+    "errorCheckingEmail": "An error occurred while checking email availability. Please try again.",
+    "errorAuthSystem": "An error occurred in the authentication system. Please try again later.",
+    "loginAfterSignup": "If you are already registered, please log in instead.",
+    "passwordRequirements": "Password must be at least 8 characters and include letters, numbers, and symbols.",
+    "errorDuplicateAccount": "This account information is already registered."
   },
   "TaskDashboard": {
     "highPriorityLabel": "High Priority",

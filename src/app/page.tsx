@@ -36,13 +36,17 @@ export default function HomePage() {
     if (savedEmail) setLoginEmail(savedEmail);
   }, []);
 
-  // 共通の存在チェックヘルパー
+  // 共通の存在チェックヘルパーを改善
   const checkIfExists = async (field: "username" | "email", value: string) => {
+    // 大文字小文字を区別せずに検索するために小文字に変換（emailの場合）
+    const searchValue = field === "email" ? value.toLowerCase() : value;
+    
     const { data, error } = await supabase
       .from("users")
       .select(field)
-      .eq(field, value)
+      .ilike(field, searchValue) // 大文字小文字を区別しない検索
       .maybeSingle();
+    
     return { exists: !!data, error };
   };
 
@@ -50,43 +54,76 @@ export default function HomePage() {
     e.preventDefault();
     setError(null);
     setMessage(null);
-    setIsSigningUp(true); // ローディング状態を開始
+    setIsSigningUp(true);
     setSignupComplete(false);
 
     try {
-      const username = signUpUsername.trim();
-      const email = signUpEmail.trim().toLowerCase();
+    const username = signUpUsername.trim();
+    const email = signUpEmail.trim().toLowerCase();
 
-      if (!validateUsername(username)) {
-        setError(t("errorUsernameValidation"));
+      // 入力検証
+    if (!validateUsername(username)) {
+      setError(t("errorUsernameValidation"));
+        setIsSigningUp(false);
+      return;
+    }
+    if (!validateEmail(email)) {
+      setError(t("errorEmailValidation"));
+        setIsSigningUp(false);
+      return;
+    }
+
+      // ユーザー名の重複チェック - より詳細なエラーメッセージ
+    const { exists: usernameExists, error: usernameError } = await checkIfExists("username", username);
+      if (usernameError) {
+        console.log("【エラー】ユーザー名確認エラー:", usernameError);
+        setError(t("errorCheckingUsername"));
         setIsSigningUp(false);
         return;
       }
-      if (!validateEmail(email)) {
-        setError(t("errorEmailValidation"));
+      if (usernameExists) {
+        setError(t("errorUsernameExists"));
         setIsSigningUp(false);
         return;
       }
 
-      const { exists: usernameExists, error: usernameError } = await checkIfExists("username", username);
-      if (usernameError) return setError(usernameError.message);
-      if (usernameExists) return setError(t("errorUsernameExists"));
-
-      const { exists: emailExists, error: emailError } = await checkIfExists("email", email);
-      if (emailError) return setError(emailError.message);
-      if (emailExists) return setError(t("errorEmailExists"));
+      // メールアドレスの重複チェック - より詳細なエラーメッセージ
+    const { exists: emailExists, error: emailError } = await checkIfExists("email", email);
+      if (emailError) {
+        console.log("【エラー】メールアドレス確認エラー:", emailError);
+        setError(t("errorCheckingEmail"));
+        setIsSigningUp(false);
+        return;
+      }
+      if (emailExists) {
+        setError(t("errorEmailExists"));
+        setIsSigningUp(false);
+        return;
+      }
 
       // サインアップ処理
-      const { data, error } = await supabase.auth.signUp({
-        email,
-        password: signUpPassword,
+    const { data, error } = await supabase.auth.signUp({
+      email,
+      password: signUpPassword,
         options: { 
           data: { username },
           emailRedirectTo: `${window.location.origin}/auth/callback`
         },
       });
+      
+      // Supabase認証エラーの詳細な処理
       if (error) {
-        setError(error.message);
+        console.log("【エラー】Supabase認証エラー:", error);
+        
+        // エラータイプに基づいた対応
+        if (error.message.includes("email") || error.message.includes("Email")) {
+          setError(`${t("errorEmailExists")} ${t("loginAfterSignup")}`);
+        } else if (error.message.includes("password") || error.message.includes("Password")) {
+          setError(`${error.message}. ${t("passwordRequirements")}`);
+        } else {
+          setError(`${t("errorAuthSystem")}: ${error.message}`);
+        }
+        
         setIsSigningUp(false);
         return;
       }
@@ -112,11 +149,30 @@ export default function HomePage() {
           
           if (!response.ok) {
             console.log("【エラー】サーバー側でのユーザー登録エラー:", result);
-            // エラーメッセージを表示するが、サインアップ自体は完了したと伝える
+            
+            // 409 Conflict (重複エラー)の場合
+            if (response.status === 409) {
+              const conflictType = result.conflict || 'unknown';
+              
+              if (conflictType === 'username') {
+                setError(t("errorUsernameExists"));
+              } else if (conflictType === 'email') {
+                setError(t("errorEmailExists"));
+              } else {
+                setError(result.message || t("errorDuplicateAccount"));
+              }
+              
+              // 重複エラーの場合は完了フラグを設定しない
+              setSignupComplete(false);
+              setIsSigningUp(false);
+              return;
+            }
+            
+            // その他のエラーの場合
             setMessage(`${t("messageSignUpSuccess")} (${result.message || "エラーが発生しましたが、認証は成功しています"})`);
           } else {
             console.log("【成功】ユーザー登録完了:", result);
-            setMessage(t("messageSignUpSuccess"));
+      setMessage(t("messageSignUpSuccess"));
           }
         } catch (err) {
           console.log("【エラー】APIリクエストエラー:", err);
@@ -190,52 +246,52 @@ export default function HomePage() {
         
         {/* サインアップフォーム */}
         {!signupComplete && (
-          <section className="bg-white dark:bg-gray-800 rounded-xl shadow p-6">
-            <h2 className={`${sectionHeaderClasses} mb-4`}>{t("signup")}</h2>
-            <form onSubmit={handleSignUp} className="space-y-6">
-              <div>
-                <label htmlFor="signup-username" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                  {t("username")}
-                </label>
-                <input
-                  id="signup-username"
-                  type="text"
-                  placeholder={t("usernamePlaceholder")}
-                  value={signUpUsername}
-                  onChange={(e) => setSignUpUsername(e.target.value)}
-                  required
-                  className={inputClasses}
-                />
-                <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">{t("usernameHelp")}</p>
-              </div>
-              <div>
-                <label htmlFor="signup-email" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                  {t("email")}
-                </label>
-                <input
-                  id="signup-email"
-                  type="email"
-                  placeholder={t("emailPlaceholder")}
-                  value={signUpEmail}
-                  onChange={(e) => setSignUpEmail(e.target.value)}
-                  required
-                  className={inputClasses}
-                />
-              </div>
-              <div>
-                <label htmlFor="signup-password" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                  {t("password")}
-                </label>
-                <input
-                  id="signup-password"
-                  type="password"
-                  placeholder={t("passwordPlaceholder")}
-                  value={signUpPassword}
-                  onChange={(e) => setSignUpPassword(e.target.value)}
-                  required
-                  className={inputClasses}
-                />
-              </div>
+        <section className="bg-white dark:bg-gray-800 rounded-xl shadow p-6">
+          <h2 className={`${sectionHeaderClasses} mb-4`}>{t("signup")}</h2>
+          <form onSubmit={handleSignUp} className="space-y-6">
+            <div>
+              <label htmlFor="signup-username" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                {t("username")}
+              </label>
+              <input
+                id="signup-username"
+                type="text"
+                placeholder={t("usernamePlaceholder")}
+                value={signUpUsername}
+                onChange={(e) => setSignUpUsername(e.target.value)}
+                required
+                className={inputClasses}
+              />
+              <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">{t("usernameHelp")}</p>
+            </div>
+            <div>
+              <label htmlFor="signup-email" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                {t("email")}
+              </label>
+              <input
+                id="signup-email"
+                type="email"
+                placeholder={t("emailPlaceholder")}
+                value={signUpEmail}
+                onChange={(e) => setSignUpEmail(e.target.value)}
+                required
+                className={inputClasses}
+              />
+            </div>
+            <div>
+              <label htmlFor="signup-password" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                {t("password")}
+              </label>
+              <input
+                id="signup-password"
+                type="password"
+                placeholder={t("passwordPlaceholder")}
+                value={signUpPassword}
+                onChange={(e) => setSignUpPassword(e.target.value)}
+                required
+                className={inputClasses}
+              />
+            </div>
               {/* サインアップボタン - ローディング状態表示 */}
               <button 
                 type="submit" 
@@ -253,9 +309,9 @@ export default function HomePage() {
                     </span>
                   </>
                 ) : t("signup")}
-              </button>
-            </form>
-          </section>
+            </button>
+          </form>
+        </section>
         )}
         
         {/* ログインセクション */}

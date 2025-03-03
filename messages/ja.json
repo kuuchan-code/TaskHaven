@@ -19,7 +19,13 @@
     "signupCompleteTitle": "登録完了！",
     "signupCompleteMessage": "アカウントが正常に作成されました。",
     "checkEmailMessage": "確認メールをご確認ください。アカウントを有効化するには確認リンクをクリックしてください。",
-    "errorGeneric": "エラーが発生しました。後でもう一度お試しください。"
+    "errorGeneric": "エラーが発生しました。後でもう一度お試しください。",
+    "errorCheckingUsername": "ユーザー名の確認中にエラーが発生しました。もう一度お試しください。",
+    "errorCheckingEmail": "メールアドレスの確認中にエラーが発生しました。もう一度お試しください。",
+    "errorAuthSystem": "認証システムでエラーが発生しました。しばらく経ってからもう一度お試しください。",
+    "loginAfterSignup": "すでに登録済みの場合は、ログインしてください。",
+    "passwordRequirements": "パスワードは8文字以上で、文字、数字、記号を含める必要があります。",
+    "errorDuplicateAccount": "このアカウント情報はすでに登録されています。"
   },
   "TaskDashboard": {
     "highPriorityLabel": "高優先度",
