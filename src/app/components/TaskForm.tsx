@@ -1,7 +1,7 @@
 // src/app/components/TaskForm.tsx
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useTranslations } from "next-intl";
 import { convertLocalToIsoWithOffset, getRelativeDeadline } from "../utils/dateUtils";
 import { buttonClasses, inputClasses } from "../utils/designUtils";
@@ -17,23 +17,63 @@ export default function TaskForm({ onTaskAdded, username }: TaskFormProps) {
   const [importance, setImportance] = useState(1);
   const [deadline, setDeadline] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
   const [expanded, setExpanded] = useState(true);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // クリア関数
+  const resetForm = () => {
+    setTitle("");
+    setImportance(1);
+    setDeadline("");
+  };
+
+  // エラーメッセージと成功メッセージは自動的に消える
+  useEffect(() => {
+    let timer: NodeJS.Timeout;
+    if (successMessage || errorMessage) {
+      timer = setTimeout(() => {
+        setSuccessMessage("");
+        setErrorMessage("");
+      }, 3000);
+    }
+    return () => clearTimeout(timer);
+  }, [successMessage, errorMessage]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const deadlineToSend = deadline ? convertLocalToIsoWithOffset(deadline) : null;
-    const res = await fetch("/api/tasks", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ title, importance, deadline: deadlineToSend, username }),
-    });
-    if (res.ok) {
-      onTaskAdded();
-      setTitle("");
-      setImportance(1);
-      setDeadline("");
-      setSuccessMessage(t("taskAddedSuccess"));
-      setTimeout(() => setSuccessMessage(""), 3000);
+    setIsSubmitting(true);
+    setErrorMessage("");
+    
+    try {
+      const deadlineToSend = deadline ? convertLocalToIsoWithOffset(deadline) : null;
+      const fcmToken = localStorage.getItem("fcmToken");
+      
+      const res = await fetch("/api/tasks", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ 
+          title, 
+          importance, 
+          deadline: deadlineToSend, 
+          username,
+          fcmToken
+        }),
+      });
+      
+      if (res.ok) {
+        onTaskAdded();
+        resetForm();
+        setSuccessMessage(t("taskAddedSuccess"));
+      } else {
+        const data = await res.json();
+        setErrorMessage(data.error || t("taskAddedError"));
+      }
+    } catch (error) {
+      setErrorMessage(t("taskAddedError"));
+      console.error("タスク追加エラー:", error);
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -44,50 +84,66 @@ export default function TaskForm({ onTaskAdded, username }: TaskFormProps) {
         <button
           onClick={() => setExpanded(prev => !prev)}
           className="flex items-center justify-center text-sm font-semibold text-blue-600 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-800 rounded-md px-4 py-2 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          aria-expanded={expanded}
+          aria-controls="task-form"
         >
           {expanded ? `▲ ${t("collapse")}` : `▼ ${t("expand")}`}
         </button>
       </div>
       {expanded && (
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form id="task-form" onSubmit={handleSubmit} className="space-y-4">
           {successMessage && (
-            <div className="p-2 bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-100 rounded">
+            <div className="p-2 bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-100 rounded" role="alert">
               {successMessage}
             </div>
           )}
+          {errorMessage && (
+            <div className="p-2 bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-100 rounded" role="alert">
+              {errorMessage}
+            </div>
+          )}
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+            <label htmlFor="task-title" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
               {t("titleLabel")}：
             </label>
             <input
+              id="task-title"
               type="text"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               required
               className={inputClasses}
+              placeholder={t("titlePlaceholder")}
+              autoFocus
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+            <label htmlFor="task-importance" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
               {t("importanceLabel")}：
             </label>
             <div className="mt-1">
-              <input
-                type="range"
-                min={1}
-                max={10}
-                value={importance}
-                onChange={(e) => setImportance(Number(e.target.value))}
-                className="w-full"
-              />
-              <div className="text-sm text-gray-600 dark:text-gray-400">{importance}</div>
+              <div className="flex items-center gap-2">
+                <span className="text-xs text-gray-600 dark:text-gray-400">{t("lowImportance")}</span>
+                <input
+                  id="task-importance"
+                  type="range"
+                  min={1}
+                  max={10}
+                  value={importance}
+                  onChange={(e) => setImportance(Number(e.target.value))}
+                  className="flex-grow"
+                />
+                <span className="text-xs text-gray-600 dark:text-gray-400">{t("highImportance")}</span>
+              </div>
+              <div className="text-sm text-center text-gray-600 dark:text-gray-400">{importance}</div>
             </div>
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+            <label htmlFor="task-deadline" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
               {t("deadlineLabelOptional")}：
             </label>
             <input
+              id="task-deadline"
               type="datetime-local"
               value={deadline}
               onChange={(e) => setDeadline(e.target.value)}
@@ -98,7 +154,7 @@ export default function TaskForm({ onTaskAdded, username }: TaskFormProps) {
             <span className="block text-sm font-medium text-gray-700 dark:text-gray-300">
               {t("deadlineShortcutsLabel")}
             </span>
-            <div className="flex space-x-2 mt-1">
+            <div className="flex flex-wrap gap-2 mt-1">
               {[
                 { key: "shortcut1Hour", offset: 1 },
                 { key: "shortcut3Hours", offset: 3 },
@@ -117,9 +173,22 @@ export default function TaskForm({ onTaskAdded, username }: TaskFormProps) {
               ))}
             </div>
           </div>
-          <button type="submit" className={buttonClasses}>
-            {t("addButton")}
-          </button>
+          <div className="flex gap-3">
+            <button 
+              type="submit" 
+              className={`${buttonClasses} flex-1`}
+              disabled={!title.trim() || isSubmitting}
+            >
+              {isSubmitting ? t("addingButton") : t("addButton")}
+            </button>
+            <button 
+              type="button" 
+              onClick={resetForm}
+              className="flex-1 px-4 py-2 bg-gray-500 dark:bg-gray-600 text-white rounded-md shadow hover:bg-gray-600 dark:hover:bg-gray-700 transition-colors"
+            >
+              {t("clearButton")}
+            </button>
+          </div>
         </form>
       )}
     </div>

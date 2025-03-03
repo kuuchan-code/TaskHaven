@@ -92,7 +92,11 @@
     "shortcut1Day": "1 Day Later",
     "shortcut3Days": "3 Days Later",
     "shortcut1Week": "1 Week Later",
-    "addButton": "Add Task"
+    "addButton": "Add Task",
+    "titlePlaceholder": "Enter task title",
+    "lowImportance": "Low",
+    "highImportance": "High",
+    "clearButton": "Clear"
   },
   "TaskPage": {
     "errorLoadingData": "Error loading data.",
