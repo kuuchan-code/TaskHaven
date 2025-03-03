@@ -123,7 +123,7 @@
     "enableNotifications": "Enable notifications",
     "toggleDescription": "Settings will be preserved when toggled off",
     "webhookLabel": "Discord Webhook URL",
-    "webhookPlaceholderText": "URL is required to receive notifications",
+    "webhookPlaceholderText": "See the guide for setup instructions",
     "urlRequired": "URL is required to enable notifications",
     "notificationIntervalLabel": "Notification Interval",
     "notificationIntervalInfo": "",

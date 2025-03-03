@@ -143,7 +143,7 @@
     "enableNotifications": "通知を有効にする",
     "toggleDescription": "オフにしても設定は保存されます",
     "webhookLabel": "Discord Webhook URL",
-    "webhookPlaceholderText": "通知を受け取るにはURLが必要です",
+    "webhookPlaceholderText": "設定方法はガイドを参照してください",
     "urlRequired": "通知を有効にするにはURLが必要です",
     "notificationIntervalLabel": "通知間隔",
     "notificationIntervalInfo": "",
