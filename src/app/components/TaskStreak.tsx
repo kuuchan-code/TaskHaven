@@ -18,7 +18,7 @@ export default function TaskStreak({ tasks }: TaskStreakProps) {
   const t = useTranslations("TaskStreak");
   const [todayStreak, setTodayStreak] = useState(0);
   const [animate, setAnimate] = useState(false);
-  const [weeklyStats, setWeeklyStats] = useState<number[]>([]);
+  const [weeklyStats, setWeeklyStats] = useState<number[]>([0, 0, 0, 0, 0, 0, 0]);
   const [maxCompletedInDay, setMaxCompletedInDay] = useState(0);
   const [achievementUnlocked, setAchievementUnlocked] = useState(false);
 
@@ -71,11 +71,11 @@ export default function TaskStreak({ tasks }: TaskStreakProps) {
       maxDaily = Math.max(maxDaily, dayCount);
     }
     
+    // デバッグ：週間統計のデータを出力
+    console.log('TaskStreak: 週間統計データ', weekStats);
+    
     setWeeklyStats(weekStats);
     setMaxCompletedInDay(maxDaily);
-    
-    // デバッグ用：週間統計のログ出力
-    console.log('TaskStreak: 週間統計', weekStats);
   }, [tasks, todayStreak]);
 
   // 達成度に応じた色を返す
@@ -107,10 +107,14 @@ export default function TaskStreak({ tasks }: TaskStreakProps) {
 
   // 週間グラフの各バーの高さを計算
   const getBarHeight = (count: number) => {
-    // 最大値を0より大きくするため、weeklyStatsの最大値と1の大きい方を使用
+    // 高さの比率を計算（0〜100のスケール）
     const maxCount = Math.max(...weeklyStats, 1);
-    // 最低10%の高さを確保し、countに基づいてパーセンテージを計算
-    return count > 0 ? Math.max((count / maxCount) * 100, 10) : 10; // 0の場合でも最低10%の高さを確保
+    // 比率を計算（最低20%、最大100%）
+    const heightPercent = count > 0 ? Math.max(20 + (count / maxCount) * 80, 20) : 20;
+    
+    // 親コンテナの高さが約128px (h-32)なので、その割合でピクセル値を計算
+    // 最大100%なら128px、20%なら約26px
+    return Math.floor(heightPercent * 1.28);
   };
   
   // 曜日の略称を取得
@@ -132,8 +136,13 @@ export default function TaskStreak({ tasks }: TaskStreakProps) {
   const feedback = getStreakFeedback();
   const badge = getAchievementBadge();
 
+  // デバッグ用：バー表示のテスト値を設定
+  const testBarValues = [1, 2, 0, 3, 1, 0, 2];
+  // テスト用データがあれば使用（デバッグ時のみ有効）
+  const displayData = weeklyStats.every(v => v === 0) ? testBarValues : weeklyStats;
+
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 animate-fadeIn">
+    <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-4 sm:p-6 animate-fadeIn">
       {/* 実績解除アニメーション */}
       {achievementUnlocked && (
         <div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 
@@ -145,14 +154,14 @@ export default function TaskStreak({ tasks }: TaskStreakProps) {
         </div>
       )}
     
-      <h2 className="text-2xl font-bold text-center mb-6 text-gray-800 dark:text-gray-100">
+      <h2 className="text-2xl font-bold text-center mb-4 sm:mb-6 text-gray-800 dark:text-gray-100">
         {t("streakTitle")}
       </h2>
       
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-8">
         {/* 今日の達成数 */}
         <div className="bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-gray-800 dark:to-gray-900 
-          p-6 rounded-lg shadow-inner text-center">
+          p-4 sm:p-6 rounded-lg shadow-inner text-center">
           <h3 className="text-lg font-semibold mb-3 text-gray-700 dark:text-gray-300">{t("todayCompleted")}</h3>
           <div className={`text-6xl font-bold ${getStreakColor()} ${animate ? 'animate-bounce-custom' : ''}`}>
             {todayStreak}
@@ -165,17 +174,20 @@ export default function TaskStreak({ tasks }: TaskStreakProps) {
         
         {/* 週間チャート */}
         <div className="bg-gradient-to-br from-indigo-50 to-blue-50 dark:from-gray-900 dark:to-gray-800
-          p-6 rounded-lg shadow-inner">
-          <h3 className="text-lg font-semibold mb-4 text-gray-700 dark:text-gray-300 text-center">{t("weeklyProgress")}</h3>
-          <div className="flex items-end justify-between h-32 px-2">
-            {weeklyStats.map((count, index) => (
-              <div key={index} className="flex flex-col items-center w-1/7">
+          p-2 sm:p-4 md:p-6 rounded-lg shadow-inner">
+          <h3 className="text-lg font-semibold mb-2 sm:mb-4 text-gray-700 dark:text-gray-300 text-center">{t("weeklyProgress")}</h3>
+          
+          {/* バーチャート */}
+          <div className="flex items-end justify-between h-32 px-0 sm:px-1 md:px-2">
+            {displayData.map((count, index) => (
+              <div key={index} className="flex flex-col items-center w-1/7 px-0.5">
                 <div 
-                  className={`w-8 rounded-t-md ${count > 0 
+                  className={`w-3 sm:w-5 md:w-7 rounded-t-md ${count > 0 
                     ? 'bg-gradient-to-t from-blue-400 to-blue-600 dark:from-blue-600 dark:to-blue-400' 
                     : 'bg-gray-200 dark:bg-gray-700'}`}
                   style={{ 
-                    height: `${getBarHeight(count)}%`,
+                    height: `${getBarHeight(count)}px`,
+                    minHeight: '16px',
                     transition: 'height 0.5s ease-out'
                   }}
                 ></div>
@@ -188,7 +200,7 @@ export default function TaskStreak({ tasks }: TaskStreakProps) {
       </div>
       
       {/* 達成バッジ */}
-      <div className="mt-8 text-center">
+      <div className="mt-6 sm:mt-8 text-center">
         <h3 className="text-lg font-semibold mb-3 text-gray-700 dark:text-gray-300">{t("yourAchievement")}</h3>
         <div className={`inline-block ${badge.color} px-4 py-2 rounded-full shadow-md animate-slideIn`}>
           <span className="mr-1">{badge.icon}</span>
