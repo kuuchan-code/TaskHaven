@@ -25,7 +25,16 @@
     "errorAuthSystem": "認証システムでエラーが発生しました。しばらく経ってからもう一度お試しください。",
     "loginAfterSignup": "すでに登録済みの場合は、ログインしてください。",
     "passwordRequirements": "パスワードは8文字以上で、文字、数字、記号を含める必要があります。",
-    "errorDuplicateAccount": "このアカウント情報はすでに登録されています。"
+    "errorDuplicateAccount": "このアカウント情報はすでに登録されています。",
+    "passwordWeak": "弱い",
+    "passwordModerate": "普通",
+    "passwordStrong": "強い",
+    "passwordVeryStrong": "非常に強い",
+    "showPassword": "パスワードを表示",
+    "hidePassword": "パスワードを隠す",
+    "forgotPassword": "パスワードをお忘れですか？",
+    "rememberMe": "ログイン状態を保持する",
+    "passwordTooWeak": "パスワードが弱すぎます。より強いパスワードを設定してください。"
   },
   "TaskDashboard": {
     "highPriorityLabel": "高優先度",
