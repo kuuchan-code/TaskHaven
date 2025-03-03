@@ -25,7 +25,7 @@ export default function LogoutButton() {
       } else {
         router.push("/");
       }
-    } catch (e) {
+    } catch {
       setError(t("logoutFailed"));
     } finally {
       setIsLoading(false);

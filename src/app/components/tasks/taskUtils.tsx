@@ -15,7 +15,7 @@ export const calculatePriority = (importance: number, deadline: string | null): 
 };
 
 // 残り時間のフォーマット
-export const formatRemainingTime = (hours: number, locale?: string, t?: any): string => {
+export const formatRemainingTime = (hours: number, locale?: string, t?: (key: string) => string): string => {
   // ロケールが直接渡されない場合はブラウザのロケールを使用
   if (!locale && typeof window !== 'undefined') {
     locale = window.navigator.language;
