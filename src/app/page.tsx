@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "./utils/supabase/client";
 import { useTranslations } from "next-intl";
@@ -135,14 +135,6 @@ export default function HomePage() {
       setFieldErrors(newErrors);
     }
   };
-
-  // useEffectを使ってパスワード強度のチェックを分離
-  useEffect(() => {
-    if (signUpPassword) {
-      const { strength } = validatePasswordStrength(signUpPassword);
-      // パスワード強度に基づいて何か処理をする場合はここに記述
-    }
-  }, [signUpPassword]);
 
   const handleSignUp = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -314,6 +306,11 @@ export default function HomePage() {
     }
   };
 
+  // パスワード強度の計算をメモ化
+  const passwordStrength = useMemo(() => {
+    return validatePasswordStrength(signUpPassword);
+  }, [signUpPassword]);
+
   return (
     <main className="min-h-screen bg-gray-100 dark:bg-gray-900 p-4 md:p-8">
       <div className="max-w-5xl mx-auto space-y-8 md:space-y-12">
@@ -479,21 +476,21 @@ export default function HomePage() {
                         <div className="h-1.5 flex-1 bg-gray-200 rounded-full overflow-hidden">
                           <div 
                             className={`h-full ${
-                              validatePasswordStrength(signUpPassword).strength === 1 ? 'bg-red-500' : 
-                              validatePasswordStrength(signUpPassword).strength === 2 ? 'bg-yellow-500' : 
-                              validatePasswordStrength(signUpPassword).strength === 3 ? 'bg-green-400' : 
+                              passwordStrength.strength === 1 ? 'bg-red-500' : 
+                              passwordStrength.strength === 2 ? 'bg-yellow-500' : 
+                              passwordStrength.strength === 3 ? 'bg-green-400' : 
                               'bg-green-500'}`}
                             style={{ 
-                              width: `${validatePasswordStrength(signUpPassword).strength * 100 / 4}%` 
+                              width: `${passwordStrength.strength * 100 / 4}%` 
                             }}
                           ></div>
                         </div>
                         <span className="ml-2 text-xs text-gray-500 dark:text-gray-400">
-                          {validatePasswordStrength(signUpPassword).strength === 1 
+                          {passwordStrength.strength === 1 
                             ? t("passwordWeak") 
-                            : validatePasswordStrength(signUpPassword).strength === 2 
+                            : passwordStrength.strength === 2 
                               ? t("passwordModerate") 
-                              : validatePasswordStrength(signUpPassword).strength === 3 
+                              : passwordStrength.strength === 3 
                                 ? t("passwordStrong") 
                                 : t("passwordVeryStrong")}
                         </span>
