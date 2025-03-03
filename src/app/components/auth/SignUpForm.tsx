@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useTranslations } from "next-intl";
-import { buttonClasses, inputClasses, sectionHeaderClasses } from "../../utils/designUtils";
+import { buttonClasses, inputClasses } from "../../utils/designUtils";
 import { useAuth } from "../../utils/hooks/useAuth";
 import { validateEmail, validateUsername, validatePasswordStrength } from "../../utils/validation";
 
@@ -92,8 +92,7 @@ export const SignUpForm = () => {
 
   if (signupComplete) {
     return (
-      <div className="p-6 bg-white rounded-lg shadow-md">
-        <h2 className={sectionHeaderClasses}>{t("signUpComplete")}</h2>
+      <div className="p-6">
         <p className="text-green-600 mb-4">{message}</p>
         <p>{t("checkEmail")}</p>
       </div>
@@ -101,9 +100,7 @@ export const SignUpForm = () => {
   }
 
   return (
-    <div className="p-6 bg-white rounded-lg shadow-md">
-      <h2 className={sectionHeaderClasses}>{t("createAccount")}</h2>
-      
+    <div className="p-6">
       {error && <div className="text-red-500 mb-4">{error}</div>}
       {message && <div className="text-green-600 mb-4">{message}</div>}
       

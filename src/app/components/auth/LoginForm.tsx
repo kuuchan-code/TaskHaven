@@ -2,7 +2,7 @@
 
 import { useEffect } from "react";
 import { useTranslations } from "next-intl";
-import { buttonClasses, inputClasses, sectionHeaderClasses } from "../../utils/designUtils";
+import { buttonClasses, inputClasses } from "../../utils/designUtils";
 import { useAuth } from "../../utils/hooks/useAuth";
 import { validateEmail } from "../../utils/validation";
 
@@ -49,9 +49,7 @@ export const LoginForm = () => {
   };
 
   return (
-    <div className="p-6 bg-white rounded-lg shadow-md">
-      <h2 className={sectionHeaderClasses}>{t("login")}</h2>
-      
+    <div className="p-6">
       {error && (
         <div className="bg-red-50 border-l-4 border-red-500 p-4 mb-4">
           <div className="flex">
