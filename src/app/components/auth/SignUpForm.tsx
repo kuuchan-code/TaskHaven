@@ -64,13 +64,10 @@ export const SignUpForm = () => {
     const strength = validatePasswordStrength(value);
     setPasswordStrength(strength);
     
-    if (!strength.isValid && value) {
-      setFieldErrors({ ...fieldErrors, password: strength.message });
-    } else {
-      const newErrors = { ...fieldErrors };
-      delete newErrors.password;
-      setFieldErrors(newErrors);
-    }
+    // 弱いパスワードでもfieldErrorsには設定しない（二重表示を避けるため）
+    const newErrors = { ...fieldErrors };
+    delete newErrors.password;
+    setFieldErrors(newErrors);
   };
 
   // ブラー時のユーザー名の存在チェック

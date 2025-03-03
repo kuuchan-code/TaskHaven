@@ -119,31 +119,48 @@ export const useAuth = () => {
       
       console.log("認証サインアップ完了:", data.user?.id);
 
-      // ユーザーテーブルにレコードを作成
+      // ユーザーテーブルにレコードを作成 (サーバーサイドAPIを使用)
       if (data?.user) {
         console.log("usersテーブルにデータ作成:", data.user.id);
-        const { error: profileError } = await supabase.from("users").insert([
-          {
-            id: data.user.id,
-            username: signUpUsername,
-            email: signUpEmail.toLowerCase(),
-            created_at: new Date().toISOString(),
-          },
-        ]);
-
-        if (profileError) {
-          console.error("プロフィール作成エラー:", profileError);
+        
+        try {
+          // サーバーサイドAPIを呼び出してユーザーデータを作成
+          const response = await fetch('/api/user/signup', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              userId: data.user.id,
+              username: signUpUsername,
+              email: signUpEmail.toLowerCase(),
+              created_at: new Date().toISOString(),
+            }),
+          });
           
-          // ユーザーは作成されたがプロフィールが作成できなかった場合の対応
-          const { error: cleanupError } = await supabase.auth.admin.deleteUser(data.user.id);
-          if (cleanupError) {
-            console.error("ユーザークリーンアップエラー:", cleanupError);
+          const result = await response.json();
+          
+          if (!response.ok) {
+            console.error("API呼び出しエラー:", result);
+            throw new Error(result.message || "ユーザープロフィールの作成に失敗しました");
           }
           
-          throw profileError;
+          console.log("ユーザープロフィール作成完了:", result);
+        } catch (apiError: any) {
+          console.error("APIエラー:", apiError);
+          
+          // ユーザーは作成されたがプロフィールが作成できなかった場合の対応
+          try {
+            const { error: cleanupError } = await supabase.auth.admin.deleteUser(data.user.id);
+            if (cleanupError) {
+              console.error("ユーザークリーンアップエラー:", cleanupError);
+            }
+          } catch (cleanupErr) {
+            console.error("クリーンアップ中のエラー:", cleanupErr);
+          }
+          
+          throw apiError;
         }
-        
-        console.log("ユーザープロフィール作成完了");
       }
 
       // サインアップ成功
