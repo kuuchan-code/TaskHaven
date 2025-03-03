@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useTranslations } from "next-intl";
-import { buttonClasses, sectionHeaderClasses } from "./utils/designUtils";
+import { sectionHeaderClasses } from "./utils/designUtils";
 import { SignUpForm } from "./components/auth/SignUpForm";
 import { LoginForm } from "./components/auth/LoginForm";
 import { PasswordResetModal } from "./components/auth/PasswordResetModal";
