@@ -22,7 +22,7 @@ export async function POST(request: Request) {
     }
 
     // サインアップ前に重複チェックを行う
-    const { data: existingUser, error: checkError } = await supabase
+    const { data: existingUser } = await supabase
       .from("users")
       .select("username, email")
       .or(`username.eq.${username},email.eq.${email.toLowerCase()}`)

@@ -178,8 +178,8 @@ export const useAuth = () => {
           }
           
           console.log("ユーザープロフィール作成完了:", result);
-        } catch (apiError: any) {
-          console.error("APIエラー:", apiError);
+        } catch (apiError: unknown) {
+          console.error("APIエラー:", apiError as AuthError);
           
           // ユーザーは作成されたがプロフィールが作成できなかった場合の対応
           try {
