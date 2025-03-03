@@ -113,15 +113,24 @@
     "shortcut3Days": "3日後",
     "shortcut1Week": "1週間後",
     "addButton": "追加",
+    "addingButton": "追加中...",
     "titlePlaceholder": "タスク名を入力",
     "lowImportance": "低",
     "highImportance": "高",
-    "clearButton": "クリア"
+    "clearButton": "クリア",
+    "quickAddTask": "クイック追加",
+    "taskAddedError": "タスクの追加に失敗しました"
   },
   "TaskPage": {
     "errorLoadingData": "データの読み込み中にエラーが発生しました。",
     "loading": "読み込み中...",
-    "pageTitle": "{username}のダッシュボード"
+    "pageTitle": "{username}のダッシュボード",
+    "tasksTab": "タスク",
+    "statsTab": "統計",
+    "settingsTab": "設定",
+    "statsTabTitle": "タスク達成統計",
+    "settingsTabTitle": "通知設定",
+    "taskAddedSuccess": "タスクが追加されました！"
   },
   "LogoutButton": {
     "logoutButton": "ログアウト",
@@ -159,7 +168,8 @@
     "todayStreak": "今日のタスク達成数",
     "excellent": "素晴らしい！",
     "goodJob": "良い調子です！",
-    "keepGoing": "頑張りましょう！"
+    "keepGoing": "頑張りましょう！",
+    "weeklyProgress": "週間の進捗"
   },
   "Header": {
     "dashboard": "ダッシュボード",

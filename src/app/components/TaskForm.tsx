@@ -18,7 +18,7 @@ export default function TaskForm({ onTaskAdded, username }: TaskFormProps) {
   const [deadline, setDeadline] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
-  const [expanded, setExpanded] = useState(true);
+  const [expanded, setExpanded] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // クリア関数
@@ -78,7 +78,7 @@ export default function TaskForm({ onTaskAdded, username }: TaskFormProps) {
   };
 
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-xl shadow p-6 mb-8">
+    <div className="bg-white dark:bg-gray-800 rounded-xl shadow p-6 mb-8 transition-all duration-300 ease-in-out hover:shadow-lg">
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-100">{t("formHeader")}</h2>
         <button
@@ -90,7 +90,9 @@ export default function TaskForm({ onTaskAdded, username }: TaskFormProps) {
           {expanded ? `▲ ${t("collapse")}` : `▼ ${t("expand")}`}
         </button>
       </div>
-      {expanded && (
+      <div 
+        className={`overflow-hidden transition-all duration-300 ease-in-out ${expanded ? 'max-h-[1000px] opacity-100' : 'max-h-0 opacity-0'}`}
+      >
         <form id="task-form" onSubmit={handleSubmit} className="space-y-4">
           {successMessage && (
             <div className="p-2 bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-100 rounded" role="alert">
@@ -190,6 +192,16 @@ export default function TaskForm({ onTaskAdded, username }: TaskFormProps) {
             </button>
           </div>
         </form>
+      </div>
+      {!expanded && (
+        <div className="flex justify-center">
+          <button
+            onClick={() => setExpanded(true)}
+            className="mt-2 py-2 px-4 bg-blue-50 dark:bg-blue-900 text-blue-600 dark:text-blue-300 rounded-full text-sm hover:bg-blue-100 dark:hover:bg-blue-800 transition-colors flex items-center"
+          >
+            <span className="mr-1">+</span> {t("quickAddTask")}
+          </button>
+        </div>
       )}
     </div>
   );

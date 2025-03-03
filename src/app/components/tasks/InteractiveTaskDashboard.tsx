@@ -9,6 +9,7 @@ import TaskSection from "./TaskSection";
 const InteractiveTaskDashboard: React.FC<InteractiveTaskDashboardProps> = ({ tasks, refreshTasks, username }) => {
   const t = useTranslations("TaskDashboard");
   const [currentTime, setCurrentTime] = useState<Date>(new Date());
+  // デフォルトでは期限付きタスクのみ表示
   const [showNoDeadlineSection, setShowNoDeadlineSection] = useState(false);
   const [showDeadlineSection, setShowDeadlineSection] = useState(true);
   const [showCompletedSection, setShowCompletedSection] = useState(false);
@@ -41,10 +42,10 @@ const InteractiveTaskDashboard: React.FC<InteractiveTaskDashboardProps> = ({ tas
   });
 
   return (
-    <div className="space-y-12">
+    <div className="space-y-8">
       {/* 期限切れのタスクがある場合に警告を表示 */}
       {hasOverdueTasks && (
-        <div className="bg-red-100 dark:bg-red-900 border-l-4 border-red-500 p-4 rounded-md">
+        <div className="bg-red-100 dark:bg-red-900 border-l-4 border-red-500 p-4 rounded-md animate-pulse">
           <div className="flex">
             <div className="flex-shrink-0">
               <svg className="h-5 w-5 text-red-500" viewBox="0 0 20 20" fill="currentColor">

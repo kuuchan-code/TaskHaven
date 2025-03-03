@@ -93,15 +93,24 @@
     "shortcut3Days": "3 Days Later",
     "shortcut1Week": "1 Week Later",
     "addButton": "Add Task",
+    "addingButton": "Adding...",
     "titlePlaceholder": "Enter task title",
     "lowImportance": "Low",
     "highImportance": "High",
-    "clearButton": "Clear"
+    "clearButton": "Clear",
+    "quickAddTask": "Quick Add",
+    "taskAddedError": "Failed to add task"
   },
   "TaskPage": {
     "errorLoadingData": "Error loading data.",
     "loading": "Loading...",
-    "pageTitle": "{username}'s Dashboard"
+    "pageTitle": "{username}'s Dashboard",
+    "tasksTab": "Tasks",
+    "statsTab": "Statistics",
+    "settingsTab": "Settings",
+    "statsTabTitle": "Task Completion Statistics",
+    "settingsTabTitle": "Notification Settings",
+    "taskAddedSuccess": "Task added successfully!"
   },
   "LogoutButton": {
     "logoutButton": "Logout",
@@ -139,7 +148,8 @@
     "todayStreak": "Today's Task Completion Count",
     "excellent": "Excellent!",
     "goodJob": "Good job!",
-    "keepGoing": "Keep going!"
+    "keepGoing": "Keep going!",
+    "weeklyProgress": "Weekly Progress"
   },
   "Header": {
     "dashboard": "Dashboard",
