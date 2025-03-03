@@ -34,7 +34,11 @@
     "hidePassword": "パスワードを隠す",
     "forgotPassword": "パスワードをお忘れですか？",
     "rememberMe": "ログイン状態を保持する",
-    "passwordTooWeak": "パスワードが弱すぎます。より強いパスワードを設定してください。"
+    "passwordTooWeak": "パスワードが弱すぎます。より強いパスワードを設定してください。",
+    "resetPassword": "パスワードリセット",
+    "sendResetLink": "リセットリンクを送信",
+    "resetPasswordEmailSent": "パスワードリセット手順をメールで送信しました。",
+    "close": "閉じる"
   },
   "TaskDashboard": {
     "highPriorityLabel": "高優先度",

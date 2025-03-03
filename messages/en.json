@@ -34,7 +34,11 @@
     "hidePassword": "Hide password",
     "forgotPassword": "Forgot password?",
     "rememberMe": "Remember me",
-    "passwordTooWeak": "Password is too weak. Please use a stronger password."
+    "passwordTooWeak": "Password is too weak. Please use a stronger password.",
+    "resetPassword": "Reset Password",
+    "sendResetLink": "Send Reset Link",
+    "resetPasswordEmailSent": "Password reset instructions have been sent to your email.",
+    "close": "Close"
   },
   "TaskDashboard": {
     "highPriorityLabel": "High Priority",

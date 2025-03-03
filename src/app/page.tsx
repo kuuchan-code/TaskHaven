@@ -47,6 +47,12 @@ export default function HomePage() {
     loginPassword?: string;
   }>({});
 
+  // パスワードリセット用の状態を追加
+  const [showResetModal, setShowResetModal] = useState(false);
+  const [resetEmail, setResetEmail] = useState("");
+  const [isResetting, setIsResetting] = useState(false);
+  const [resetMessage, setResetMessage] = useState<string | null>(null);
+
   useEffect(() => {
     const savedEmail = localStorage.getItem("loginEmail");
     if (savedEmail) setLoginEmail(savedEmail);
@@ -327,6 +333,39 @@ export default function HomePage() {
     return validatePasswordStrength(signUpPassword);
   }, [signUpPassword]);
 
+  // パスワードリセット処理を追加
+  const handleResetPassword = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setResetMessage(null);
+    setIsResetting(true);
+    
+    const email = resetEmail.trim().toLowerCase();
+    if (!validateEmail(email)) {
+      setResetMessage(t("errorEmailValidation"));
+      setIsResetting(false);
+      return;
+    }
+    
+    try {
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: `${window.location.origin}/auth/reset-password`,
+      });
+      
+      if (error) {
+        setResetMessage(error.message);
+      } else {
+        setResetMessage(t("resetPasswordEmailSent"));
+        // 成功したら入力をクリア
+        setResetEmail("");
+      }
+    } catch (err) {
+      console.error("パスワードリセット中にエラーが発生しました:", err);
+      setResetMessage(t("errorGeneric"));
+    } finally {
+      setIsResetting(false);
+    }
+  };
+
   return (
     <main className="min-h-screen bg-gray-100 dark:bg-gray-900 p-4 md:p-8">
       <div className="max-w-5xl mx-auto space-y-8 md:space-y-12">
@@ -583,7 +622,14 @@ export default function HomePage() {
                   <label htmlFor="login-password" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
                     {t("password")} <span className="text-red-500">*</span>
                   </label>
-                  <a href="#" className="text-xs text-indigo-600 hover:text-indigo-500 dark:text-indigo-400 dark:hover:text-indigo-300">
+                  <a 
+                    href="#" 
+                    onClick={(e) => {
+                      e.preventDefault();
+                      setShowResetModal(true);
+                    }} 
+                    className="text-xs text-indigo-600 hover:text-indigo-500 dark:text-indigo-400 dark:hover:text-indigo-300"
+                  >
                     {t("forgotPassword")}
                   </a>
                 </div>
@@ -652,6 +698,72 @@ export default function HomePage() {
           </section>
         </div>
       </div>
+      
+      {/* パスワードリセットモーダル */}
+      {showResetModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white dark:bg-gray-800 rounded-xl p-6 w-full max-w-md relative">
+            <button 
+              type="button"
+              onClick={() => setShowResetModal(false)}
+              className="absolute top-3 right-3 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+              aria-label={t("close")}
+            >
+              <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+            
+            <h2 className={`${sectionHeaderClasses} mb-4`}>{t("resetPassword")}</h2>
+            
+            {resetMessage && (
+              <div className={`p-3 rounded mb-4 ${
+                resetMessage === t("resetPasswordEmailSent") 
+                  ? "bg-green-50 dark:bg-green-900/20 text-green-600 dark:text-green-400" 
+                  : "bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400"
+              }`}>
+                {resetMessage}
+              </div>
+            )}
+            
+            <form onSubmit={handleResetPassword} className="space-y-4">
+              <div>
+                <label htmlFor="reset-email" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  {t("email")} <span className="text-red-500">*</span>
+                </label>
+                <input
+                  id="reset-email"
+                  type="email"
+                  placeholder={t("emailPlaceholder")}
+                  value={resetEmail}
+                  onChange={(e) => setResetEmail(e.target.value)}
+                  required
+                  className={inputClasses}
+                  disabled={isResetting}
+                />
+              </div>
+              
+              <button 
+                type="submit" 
+                className={`${buttonClasses} relative w-full mt-2`}
+                disabled={isResetting}
+              >
+                {isResetting ? (
+                  <>
+                    <span className="opacity-0">{t("sendResetLink")}</span>
+                    <span className="absolute inset-0 flex items-center justify-center">
+                      <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                      </svg>
+                    </span>
+                  </>
+                ) : t("sendResetLink")}
+              </button>
+            </form>
+          </div>
+        </div>
+      )}
     </main>
   );
 }
