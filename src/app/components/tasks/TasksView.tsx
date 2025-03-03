@@ -2,11 +2,11 @@
 
 import React, { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
-import { InteractiveTaskDashboardProps } from "./types";
+import { TasksViewProps } from "./types";
 import { useTaskEditor, useTaskOperations, useTaskSorting } from "./taskUtils";
 import TaskSection from "./TaskSection";
 
-const InteractiveTaskDashboard: React.FC<InteractiveTaskDashboardProps> = ({ tasks, refreshTasks, username }) => {
+const TasksView: React.FC<TasksViewProps> = ({ tasks, refreshTasks, username }) => {
   const t = useTranslations("TaskDashboard");
   const [currentTime, setCurrentTime] = useState<Date>(new Date());
   // デフォルトでは期限付きタスクのみ表示
@@ -93,4 +93,4 @@ const InteractiveTaskDashboard: React.FC<InteractiveTaskDashboardProps> = ({ tas
   );
 };
 
-export default InteractiveTaskDashboard; 
+export default TasksView; 

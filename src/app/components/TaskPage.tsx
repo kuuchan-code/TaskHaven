@@ -1,7 +1,7 @@
 "use client";
 
 import useSWR from "swr";
-import InteractiveTaskDashboard from "./tasks/InteractiveTaskDashboard";
+import TasksView from "./tasks/TasksView";
 import TaskForm from "./TaskForm";
 import WebhookForm from "./WebhookForm";
 import TaskStreak from "./TaskStreak";
@@ -113,7 +113,7 @@ export default function TaskPage({ username }: TaskPageProps) {
                 }} 
                 username={username} 
               />
-              <InteractiveTaskDashboard 
+              <TasksView 
                 tasks={tasks} 
                 refreshTasks={mutateTasks} 
                 username={username} 

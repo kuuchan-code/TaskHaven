@@ -86,7 +86,7 @@ export interface TaskSectionProps {
   taskOperations: TaskOperations;
 }
 
-export interface InteractiveTaskDashboardProps {
+export interface TasksViewProps {
   tasks: Task[];
   refreshTasks: () => void;
   username: string;
