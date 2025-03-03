@@ -124,7 +124,7 @@
   "TaskPage": {
     "errorLoadingData": "データの読み込み中にエラーが発生しました。",
     "loading": "読み込み中...",
-    "pageTitle": "{username}のダッシュボード",
+    "pageTitle": "タスク管理",
     "tasksTab": "タスク",
     "statsTab": "統計",
     "settingsTab": "設定",
@@ -175,6 +175,9 @@
     "dashboard": "ダッシュボード",
     "welcomeMessage": "こんにちは、{username}さん",
     "login": "ログイン",
-    "openMenu": "メニューを開く"
+    "openMenu": "メニューを開く",
+    "tasks": "タスク",
+    "stats": "統計",
+    "settings": "設定"
   }
 }

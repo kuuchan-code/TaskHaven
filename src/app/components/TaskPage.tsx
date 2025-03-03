@@ -6,7 +6,8 @@ import TaskForm from "./TaskForm";
 import WebhookForm from "./WebhookForm";
 import TaskStreak from "./TaskStreak";
 import { useTranslations } from "next-intl";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useSearchParams } from "next/navigation";
 import { Task } from "../types/taskTypes";
 
 type User = {
@@ -23,7 +24,20 @@ const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
 export default function TaskPage({ username }: TaskPageProps) {
   const t = useTranslations("TaskPage");
-  const [activeTab, setActiveTab] = useState<'tasks' | 'stats' | 'settings'>('tasks');
+  const searchParams = useSearchParams();
+  const tabParam = searchParams.get('tab');
+  const [activeTab, setActiveTab] = useState<'tasks' | 'stats' | 'settings'>(
+    (tabParam === 'tasks' || tabParam === 'stats' || tabParam === 'settings') 
+      ? tabParam 
+      : 'tasks'
+  );
+  
+  // URLのtabパラメータが変更されたときにactiveTabを更新
+  useEffect(() => {
+    if (tabParam === 'tasks' || tabParam === 'stats' || tabParam === 'settings') {
+      setActiveTab(tabParam);
+    }
+  }, [tabParam]);
   
   const { data: tasks, error: tasksError, mutate: mutateTasks } = useSWR<Task[]>(
     `/api/tasks?username=${username}`,
@@ -62,7 +76,7 @@ export default function TaskPage({ username }: TaskPageProps) {
       )}
       
       <div className="max-w-5xl mx-auto">
-        <h1 className="text-4xl font-bold text-center text-gray-900 dark:text-gray-100 mb-8">
+        <h1 className="text-2xl font-medium text-center text-gray-900 dark:text-gray-100 mb-4">
           {t("pageTitle", { username })}
         </h1>
         
