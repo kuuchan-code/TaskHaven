@@ -3,7 +3,7 @@
 import { useEffect } from "react";
 import { useTranslations } from "next-intl";
 import { buttonClasses, inputClasses } from "../../utils/designUtils";
-import { useAuth } from "../../utils/hooks/useAuth";
+import { useAuthContext } from "../../utils/context/AuthContext";
 import { validateEmail } from "../../utils/validation";
 
 export const LoginForm = () => {
@@ -24,7 +24,7 @@ export const LoginForm = () => {
     setFieldErrors,
     setShowResetModal,
     handleLogin,
-  } = useAuth();
+  } = useAuthContext();
 
   // ローカルストレージからメールアドレスを取得
   useEffect(() => {

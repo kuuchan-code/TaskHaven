@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { buttonClasses, inputClasses } from "../../utils/designUtils";
-import { useAuth } from "../../utils/hooks/useAuth";
+import { useAuthContext } from "../../utils/context/AuthContext";
 import { validateEmail, validateUsername, validatePasswordStrength } from "../../utils/validation";
 
 export const SignUpForm = () => {
@@ -25,7 +25,7 @@ export const SignUpForm = () => {
     setFieldErrors,
     handleSignUp,
     checkIfExists,
-  } = useAuth();
+  } = useAuthContext();
   
   // パスワード強度の状態
   const [passwordStrength, setPasswordStrength] = useState<{

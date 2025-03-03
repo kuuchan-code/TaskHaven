@@ -2,7 +2,7 @@
 
 import { useTranslations } from "next-intl";
 import { buttonClasses, inputClasses } from "../../utils/designUtils";
-import { useAuth } from "../../utils/hooks/useAuth";
+import { useAuthContext } from "../../utils/context/AuthContext";
 import { validateEmail } from "../../utils/validation";
 
 export const PasswordResetModal = () => {
@@ -17,7 +17,7 @@ export const PasswordResetModal = () => {
     fieldErrors,
     setFieldErrors,
     handleResetPassword,
-  } = useAuth();
+  } = useAuthContext();
 
   // モーダルが表示されていない場合は何も表示しない
   if (!showResetModal) {
