@@ -10,7 +10,8 @@ import {
 import { buttonClasses, sectionHeaderClasses } from "../utils/designUtils";
 import { Task } from "../types/taskTypes";
 
-// importance と deadline から優先度を計算する関数
+// ユーティリティ関数
+// ---------------------------------------------------------
 const calculatePriority = (importance: number, deadline: string | null): number => {
   if (!deadline) return importance;
   const deadlineDate = new Date(deadline);
@@ -27,9 +28,153 @@ const formatRemainingTime = (hours: number): string => {
   return `${days} ${days === 1 ? "day" : "days"} ${remHours.toFixed(0)} ${remHours === 1 ? "hour" : "hours"}`;
 };
 
+// カスタムフック
+// ---------------------------------------------------------
+interface TaskEditorState {
+  editingTaskId: number | null;
+  editingTitle: string;
+  editingImportance: number;
+  editingDeadline: string | null;
+  startEditing: (task: Task) => void;
+  cancelEditing: () => void;
+  saveEditing: (taskId: number) => Promise<void>;
+  setEditingTitle: (title: string) => void;
+  setEditingImportance: (importance: number) => void;
+  setEditingDeadline: (deadline: string) => void;
+}
+
+const useTaskEditor = (refreshTasks: () => void, username: string): TaskEditorState => {
+  const [editingTaskId, setEditingTaskId] = useState<number | null>(null);
+  const [editingTitle, setEditingTitle] = useState("");
+  const [editingImportance, setEditingImportance] = useState(1);
+  const [editingDeadline, setEditingDeadline] = useState<string | null>(null);
+
+  const startEditing = (task: Task) => {
+    setEditingTaskId(task.id);
+    setEditingTitle(task.title);
+    setEditingImportance(task.importance);
+    setEditingDeadline(task.deadline ? formatForDatetimeLocal(task.deadline) : null);
+  };
+
+  const cancelEditing = () => {
+    setEditingTaskId(null);
+    setEditingTitle("");
+    setEditingImportance(1);
+    setEditingDeadline(null);
+  };
+
+  const saveEditing = async (taskId: number) => {
+    let deadlineToSave: string | null = editingDeadline;
+    if (deadlineToSave && deadlineToSave !== "") {
+      deadlineToSave = convertLocalToIsoWithOffset(deadlineToSave);
+    } else {
+      deadlineToSave = null;
+    }
+    const fcmToken = localStorage.getItem("fcmToken");
+    const res = await fetch("/api/tasks", {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        id: taskId,
+        title: editingTitle,
+        importance: editingImportance,
+        deadline: deadlineToSave,
+        username,
+        fcmToken,
+      }),
+    });
+    if (res.ok) {
+      cancelEditing();
+      refreshTasks();
+    }
+  };
+
+  return {
+    editingTaskId,
+    editingTitle, 
+    editingImportance, 
+    editingDeadline,
+    startEditing,
+    cancelEditing,
+    saveEditing,
+    setEditingTitle,
+    setEditingImportance,
+    setEditingDeadline,
+  };
+};
+
+interface TaskOperations {
+  completeTask: (taskId: number) => Promise<void>;
+  reopenTask: (taskId: number) => Promise<void>;
+  deleteTask: (taskId: number) => Promise<void>;
+}
+
+const useTaskOperations = (refreshTasks: () => void, username: string): TaskOperations => {
+  const t = useTranslations("TaskDashboard");
+
+  const deleteTask = async (taskId: number) => {
+    if (confirm(t("confirmDelete"))) {
+      const res = await fetch("/api/tasks", {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id: taskId, username }),
+      });
+      if (res.ok) refreshTasks();
+    }
+  };
+
+  const completeTask = async (taskId: number) => {
+    if (confirm(t("confirmComplete"))) {
+      const res = await fetch("/api/tasks", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id: taskId, completed: true, username }),
+      });
+      if (res.ok) refreshTasks();
+    }
+  };
+
+  const reopenTask = async (taskId: number) => {
+    if (confirm(t("confirmReopen"))) {
+      const res = await fetch("/api/tasks", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id: taskId, completed: false, username }),
+      });
+      if (res.ok) refreshTasks();
+    }
+  };
+
+  return { deleteTask, completeTask, reopenTask };
+};
+
+const useTaskSorting = (tasks: Task[], currentTime: Date) => {
+  // 期限なしタスクは重要度（importance）のみで管理（優先度プロパティは付与しない）
+  const tasksWithNoDeadlineActive = tasks
+    .filter(task => task.deadline === null && !task.completed)
+    .sort((a, b) => b.importance - a.importance);
+
+  // 期限付きタスクは importance と deadline から優先度（priority）を計算する（未完了のみ）
+  const tasksWithDeadlineActive = tasks
+    .filter(task => task.deadline !== null && !task.completed)
+    .map(task => ({
+      ...task,
+      timeDiff: (new Date(task.deadline!).getTime() - currentTime.getTime()) / (1000 * 60 * 60),
+      priority: calculatePriority(task.importance, task.deadline),
+    }))
+    .sort((a, b) => (b.priority ?? 0) - (a.priority ?? 0));
+
+  const completedTasks = tasks.filter(task => task.completed);
+
+  return { tasksWithNoDeadlineActive, tasksWithDeadlineActive, completedTasks };
+};
+
+// コンポーネント
+// ---------------------------------------------------------
 interface PriorityLabelProps {
   priority: number;
 }
+
 const PriorityLabel: React.FC<PriorityLabelProps> = ({ priority }) => {
   const t = useTranslations("TaskDashboard");
   if (priority >= 2) {
@@ -54,6 +199,7 @@ interface ToggleButtonProps {
   onClick: () => void;
   label: string;
 }
+
 const ToggleButton: React.FC<ToggleButtonProps> = ({ expanded, onClick, label }) => (
   <button
     onClick={onClick}
@@ -66,6 +212,7 @@ const ToggleButton: React.FC<ToggleButtonProps> = ({ expanded, onClick, label })
 interface DeadlineShortcutsProps {
   setDeadline: (deadline: string) => void;
 }
+
 const DeadlineShortcuts: React.FC<DeadlineShortcutsProps> = ({ setDeadline }) => {
   const t = useTranslations("TaskDashboard");
   const shortcuts = [
@@ -106,6 +253,7 @@ interface TaskEditorProps {
   onSave: () => void;
   onCancel: () => void;
 }
+
 const TaskEditor: React.FC<TaskEditorProps> = ({
   editingTitle,
   editingImportance,
@@ -167,6 +315,200 @@ const TaskEditor: React.FC<TaskEditorProps> = ({
   );
 };
 
+interface TaskHeaderProps {
+  task: Task & { timeDiff?: number };
+}
+
+const TaskHeader: React.FC<TaskHeaderProps> = ({ task }) => {
+  const t = useTranslations("TaskDashboard");
+  
+  // 完了済みタスクの場合は、優先度は重要度そのものにする
+  const computedPriority = task.deadline
+    ? calculatePriority(task.importance, task.deadline)
+    : task.importance;
+    
+  if (task.completed) {
+    return (
+      <div className="flex flex-col sm:flex-row items-end sm:items-center gap-2">
+        <span className="text-sm text-gray-700 dark:text-gray-300">
+          {t("importanceText", { value: task.importance })}
+        </span>
+        {task.deadline && (
+          <span className="text-sm text-gray-600 dark:text-gray-400">
+            {t("deadlineLabel")} {new Date(task.deadline).toLocaleString()}
+          </span>
+        )}
+        {task.completed_at && (
+          <span className="text-sm text-gray-600 dark:text-gray-400">
+            {t("completedAtLabel", { defaultValue: "Completed at:" })}{" "}
+            {new Date(task.completed_at).toLocaleString()}
+          </span>
+        )}
+      </div>
+    );
+  } 
+  
+  if (task.deadline) {
+    return (
+      <div className="flex flex-col sm:flex-row items-end sm:items-center gap-2">
+        <span className="text-sm text-gray-700 dark:text-gray-300">
+          {t("priorityText", { value: task.priority?.toFixed(2) })}
+        </span>
+        <PriorityLabel priority={task.priority!} />
+        <span className="text-sm text-gray-600 dark:text-gray-400">
+          {(() => {
+            const deadlineDate = new Date(task.deadline!);
+            const diffTime = (deadlineDate.getTime() - new Date().getTime()) / (1000 * 60 * 60);
+            return diffTime >= 0
+              ? `${t("remaining")} ${formatRemainingTime(diffTime)}`
+              : `${t("overdue")} ${formatRemainingTime(-diffTime)}`;
+          })()}
+        </span>
+      </div>
+    );
+  }
+  
+  return (
+    <div className="flex items-center gap-3">
+      <span className="text-sm text-gray-700 dark:text-gray-300">
+        {t("importanceText", { value: task.importance })}
+      </span>
+      {task.importance >= 9 ? (
+        <span className="bg-red-600 dark:bg-red-800 text-white text-xs font-bold rounded-full px-2 py-0.5">
+          {t("highImportanceLabel")}
+        </span>
+      ) : task.importance >= 7 ? (
+        <span className="bg-yellow-500 dark:bg-yellow-700 text-white text-xs font-bold rounded-full px-2 py-0.5">
+          {t("mediumImportanceLabel")}
+        </span>
+      ) : null}
+    </div>
+  );
+};
+
+interface TaskDetailsProps {
+  task: Task;
+  onEdit: () => void;
+  onComplete: () => void;
+  onDelete: () => void;
+  onReopen: () => void;
+}
+
+const TaskDetails: React.FC<TaskDetailsProps> = ({ 
+  task, 
+  onEdit, 
+  onComplete, 
+  onDelete, 
+  onReopen 
+}) => {
+  const t = useTranslations("TaskDashboard");
+  const displayDeadline = task.deadline
+    ? new Date(task.deadline).toLocaleString()
+    : t("noDeadline");
+  const computedPriority = task.deadline
+    ? calculatePriority(task.importance, task.deadline)
+    : task.importance;
+    
+  return (
+    <div className="mt-4 border-t border-gray-300 dark:border-gray-700 pt-3">
+      <div className="space-y-2">
+        {task.completed ? (
+          <>
+            <div>
+              <strong className="text-sm text-gray-800 dark:text-gray-200">
+                {t("importanceLabel")}:
+              </strong>{" "}
+              <span className="text-sm text-gray-700 dark:text-gray-300">
+                {task.importance}
+              </span>
+            </div>
+            {task.deadline && (
+              <div>
+                <strong className="text-sm text-gray-800 dark:text-gray-200">
+                  {t("deadlineLabel")}:
+                </strong>{" "}
+                <span className="text-sm text-gray-700 dark:text-gray-300">
+                  {displayDeadline}
+                </span>
+              </div>
+            )}
+            {task.completed_at && (
+              <div>
+                <strong className="text-sm text-gray-800 dark:text-gray-200">
+                  {t("completedAtLabel", { defaultValue: "Completed at:" })}
+                </strong>{" "}
+                <span className="text-sm text-gray-700 dark:text-gray-300">
+                  {new Date(task.completed_at).toLocaleString()}
+                </span>
+              </div>
+            )}
+          </>
+        ) : (
+          <>
+            <div>
+              <strong className="text-sm text-gray-800 dark:text-gray-200">
+                {task.deadline ? t("priorityLabel") : t("importanceLabel")}:
+              </strong>{" "}
+              <span className="text-sm text-gray-700 dark:text-gray-300">
+                {task.deadline ? computedPriority.toFixed(2) : task.importance}
+              </span>
+            </div>
+            <div>
+              <strong className="text-sm text-gray-800 dark:text-gray-200">
+                {t("deadlineLabel")}:
+              </strong>{" "}
+              <span className="text-sm text-gray-700 dark:text-gray-300">
+                {displayDeadline}
+              </span>
+            </div>
+          </>
+        )}
+        <div className="flex gap-3 mt-3">
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              onEdit();
+            }}
+            className={buttonClasses}
+          >
+            {t("edit")}
+          </button>
+          {task.completed ? (
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                onReopen();
+              }}
+              className="w-full px-4 py-2 bg-blue-600 dark:bg-blue-700 text-white rounded-md shadow hover:bg-blue-700 dark:hover:bg-blue-800 transition-colors text-sm"
+            >
+              {t("reopen")}
+            </button>
+          ) : (
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                onComplete();
+              }}
+              className="w-full px-4 py-2 bg-blue-600 dark:bg-blue-700 text-white rounded-md shadow hover:bg-blue-700 dark:hover:bg-blue-800 transition-colors text-sm"
+            >
+              {t("complete")}
+            </button>
+          )}
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              onDelete();
+            }}
+            className="w-full px-4 py-2 bg-red-600 dark:bg-red-800 text-white rounded-md shadow hover:bg-red-700 dark:hover:bg-red-900 transition-colors text-sm"
+          >
+            {t("delete")}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 interface TaskItemProps {
   task: Task & { timeDiff?: number };
   isEditing: boolean;
@@ -183,6 +525,7 @@ interface TaskItemProps {
   setEditingImportance: (importance: number) => void;
   setEditingDeadline: (deadline: string) => void;
 }
+
 const TaskItem: React.FC<TaskItemProps> = ({
   task,
   isEditing,
@@ -199,16 +542,7 @@ const TaskItem: React.FC<TaskItemProps> = ({
   setEditingImportance,
   setEditingDeadline,
 }) => {
-  const t = useTranslations("TaskDashboard");
   const [showDetails, setShowDetails] = useState(false);
-  const displayDeadline = task.deadline
-    ? new Date(task.deadline).toLocaleString()
-    : t("noDeadline");
-
-  // 完了済みタスクの場合は、優先度は重要度そのものにする
-  const computedPriority = task.deadline
-    ? calculatePriority(task.importance, task.deadline)
-    : task.importance;
 
   return (
     <li
@@ -219,58 +553,7 @@ const TaskItem: React.FC<TaskItemProps> = ({
         <span className={`text-xl font-semibold ${task.completed ? "line-through" : ""} text-gray-900 dark:text-gray-100`}>
           {task.title}
         </span>
-        {task.completed ? (
-          // 完了済みタスクは、重要度中心の表示＋締切（ある場合）と完了日時（ある場合）をわかりやすく表示
-          <div className="flex flex-col sm:flex-row items-end sm:items-center gap-2">
-            <span className="text-sm text-gray-700 dark:text-gray-300">
-              {t("importanceText", { value: task.importance })}
-            </span>
-            {task.deadline && (
-              <span className="text-sm text-gray-600 dark:text-gray-400">
-                {t("deadlineLabel")} {displayDeadline}
-              </span>
-            )}
-            {task.completed_at && (
-              <span className="text-sm text-gray-600 dark:text-gray-400">
-                {t("completedAtLabel", { defaultValue: "Completed at:" })}{" "}
-                {new Date(task.completed_at).toLocaleString()}
-              </span>
-            )}
-          </div>
-        ) : task.deadline ? (
-          // 未完了で締切がある場合：優先度と残り／超過時間を表示
-          <div className="flex flex-col sm:flex-row items-end sm:items-center gap-2">
-            <span className="text-sm text-gray-700 dark:text-gray-300">
-              {t("priorityText", { value: task.priority?.toFixed(2) })}
-            </span>
-            <PriorityLabel priority={task.priority!} />
-            <span className="text-sm text-gray-600 dark:text-gray-400">
-              {(() => {
-                const deadlineDate = new Date(task.deadline!);
-                const diffTime = (deadlineDate.getTime() - new Date().getTime()) / (1000 * 60 * 60);
-                return diffTime >= 0
-                  ? `${t("remaining")} ${formatRemainingTime(diffTime)}`
-                  : `${t("overdue")} ${formatRemainingTime(-diffTime)}`;
-              })()}
-            </span>
-          </div>
-        ) : (
-          // 締切がない場合は重要度のみを表示
-          <div className="flex items-center gap-3">
-            <span className="text-sm text-gray-700 dark:text-gray-300">
-              {t("importanceText", { value: task.importance })}
-            </span>
-            {task.importance >= 9 ? (
-              <span className="bg-red-600 dark:bg-red-800 text-white text-xs font-bold rounded-full px-2 py-0.5">
-                {t("highImportanceLabel")}
-              </span>
-            ) : task.importance >= 7 ? (
-              <span className="bg-yellow-500 dark:bg-yellow-700 text-white text-xs font-bold rounded-full px-2 py-0.5">
-                {t("mediumImportanceLabel")}
-              </span>
-            ) : null}
-          </div>
-        )}
+        <TaskHeader task={task} />
       </div>
       {showDetails && (
         <>
@@ -288,107 +571,99 @@ const TaskItem: React.FC<TaskItemProps> = ({
               />
             </div>
           ) : (
-            <div className="mt-4 border-t border-gray-300 dark:border-gray-700 pt-3" onClick={(e) => e.stopPropagation()}>
-              <div className="space-y-2">
-                {/* 詳細部分：完了済みの場合は重要度、締切（あれば）と完了日時（あれば）を表示 */}
-                {task.completed ? (
-                  <>
-                    <div>
-                      <strong className="text-sm text-gray-800 dark:text-gray-200">
-                        {t("importanceLabel")}:
-                      </strong>{" "}
-                      <span className="text-sm text-gray-700 dark:text-gray-300">
-                        {task.importance}
-                      </span>
-                    </div>
-                    {task.deadline && (
-                      <div>
-                        <strong className="text-sm text-gray-800 dark:text-gray-200">
-                          {t("deadlineLabel")}:
-                        </strong>{" "}
-                        <span className="text-sm text-gray-700 dark:text-gray-300">
-                          {displayDeadline}
-                        </span>
-                      </div>
-                    )}
-                    {task.completed_at && (
-                      <div>
-                        <strong className="text-sm text-gray-800 dark:text-gray-200">
-                          {t("completedAtLabel", { defaultValue: "Completed at:" })}
-                        </strong>{" "}
-                        <span className="text-sm text-gray-700 dark:text-gray-300">
-                          {new Date(task.completed_at).toLocaleString()}
-                        </span>
-                      </div>
-                    )}
-                  </>
-                ) : (
-                  <>
-                    <div>
-                      <strong className="text-sm text-gray-800 dark:text-gray-200">
-                        {task.deadline ? t("priorityLabel") : t("importanceLabel")}:
-                      </strong>{" "}
-                      <span className="text-sm text-gray-700 dark:text-gray-300">
-                        {task.deadline ? computedPriority.toFixed(2) : task.importance}
-                      </span>
-                    </div>
-                    <div>
-                      <strong className="text-sm text-gray-800 dark:text-gray-200">
-                        {t("deadlineLabel")}:
-                      </strong>{" "}
-                      <span className="text-sm text-gray-700 dark:text-gray-300">
-                        {displayDeadline}
-                      </span>
-                    </div>
-                  </>
-                )}
-                <div className="flex gap-3 mt-3">
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      onStartEditing();
-                    }}
-                    className={buttonClasses}
-                  >
-                    {t("edit")}
-                  </button>
-                  {task.completed ? (
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        onReopen();
-                      }}
-                      className="w-full px-4 py-2 bg-blue-600 dark:bg-blue-700 text-white rounded-md shadow hover:bg-blue-700 dark:hover:bg-blue-800 transition-colors text-sm"
-                    >
-                      {t("reopen")}
-                    </button>
-                  ) : (
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        onComplete();
-                      }}
-                      className="w-full px-4 py-2 bg-blue-600 dark:bg-blue-700 text-white rounded-md shadow hover:bg-blue-700 dark:hover:bg-blue-800 transition-colors text-sm"
-                    >
-                      {t("complete")}
-                    </button>
-                  )}
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      onDelete();
-                    }}
-                    className="w-full px-4 py-2 bg-red-600 dark:bg-red-800 text-white rounded-md shadow hover:bg-red-700 dark:hover:bg-red-900 transition-colors text-sm"
-                  >
-                    {t("delete")}
-                  </button>
-                </div>
-              </div>
+            <div onClick={(e) => e.stopPropagation()}>
+              <TaskDetails 
+                task={task}
+                onEdit={onStartEditing}
+                onComplete={onComplete}
+                onDelete={onDelete}
+                onReopen={onReopen}
+              />
             </div>
           )}
         </>
       )}
     </li>
+  );
+};
+
+interface TaskSectionProps {
+  id?: string;
+  title: string;
+  tasks: (Task & { timeDiff?: number })[];
+  showSection: boolean;
+  toggleSection: () => void; 
+  isCompletedSection?: boolean;
+  taskEditorState: TaskEditorState;
+  taskOperations: TaskOperations;
+}
+
+const TaskSection: React.FC<TaskSectionProps> = ({
+  id,
+  title,
+  tasks,
+  showSection,
+  toggleSection,
+  isCompletedSection = false,
+  taskEditorState,
+  taskOperations
+}) => {
+  const t = useTranslations("TaskDashboard");
+  const {
+    editingTaskId,
+    editingTitle,
+    editingImportance,
+    editingDeadline,
+    startEditing,
+    cancelEditing,
+    saveEditing,
+    setEditingTitle,
+    setEditingImportance,
+    setEditingDeadline
+  } = taskEditorState;
+  
+  const { completeTask, reopenTask, deleteTask } = taskOperations;
+  
+  return (
+    <section id={id} className="bg-white dark:bg-gray-800 rounded-xl shadow p-6">
+      <div className="flex justify-between items-center border-b border-gray-300 dark:border-gray-700 pb-3 mb-4">
+        <h2 className={sectionHeaderClasses}>{title}</h2>
+        <ToggleButton
+          expanded={showSection}
+          onClick={toggleSection}
+          label={showSection ? t("collapse") : t("expand")}
+        />
+      </div>
+      {showSection && (
+        <ul className="space-y-4">
+          {tasks.length > 0 ? (
+            tasks.map(task => (
+              <TaskItem
+                key={task.id}
+                task={task}
+                isEditing={editingTaskId === task.id}
+                onStartEditing={() => startEditing(task)}
+                onSaveEditing={() => saveEditing(task.id)}
+                onCancelEditing={cancelEditing}
+                onComplete={() => completeTask(task.id)}
+                onDelete={() => deleteTask(task.id)}
+                onReopen={() => reopenTask(task.id)}
+                editingTitle={editingTitle}
+                editingImportance={editingImportance}
+                editingDeadline={editingDeadline}
+                setEditingTitle={setEditingTitle}
+                setEditingImportance={setEditingImportance}
+                setEditingDeadline={setEditingDeadline}
+              />
+            ))
+          ) : (
+            <p className="text-gray-600 dark:text-gray-400">
+              {isCompletedSection ? t("noCompletedTasks") : t("noTasks")}
+            </p>
+          )}
+        </ul>
+      )}
+    </section>
   );
 };
 
@@ -405,11 +680,9 @@ const InteractiveTaskDashboard: React.FC<InteractiveTaskDashboardProps> = ({ tas
   const [showDeadlineSection, setShowDeadlineSection] = useState(true);
   const [showCompletedSection, setShowCompletedSection] = useState(false);
 
-  // 編集状態の管理
-  const [editingTaskId, setEditingTaskId] = useState<number | null>(null);
-  const [editingTitle, setEditingTitle] = useState("");
-  const [editingImportance, setEditingImportance] = useState(1);
-  const [editingDeadline, setEditingDeadline] = useState<string | null>(null);
+  const taskEditorState = useTaskEditor(refreshTasks, username);
+  const taskOperations = useTaskOperations(refreshTasks, username);
+  const { tasksWithNoDeadlineActive, tasksWithDeadlineActive, completedTasks } = useTaskSorting(tasks, currentTime);
 
   useEffect(() => {
     const timer = setInterval(() => setCurrentTime(new Date()), 60000);
@@ -423,163 +696,36 @@ const InteractiveTaskDashboard: React.FC<InteractiveTaskDashboardProps> = ({ tas
     }
   }, []);
 
-  // 期限なしタスクは重要度（importance）のみで管理（優先度プロパティは付与しない）
-  const tasksWithNoDeadlineActive = tasks
-    .filter(task => task.deadline === null && !task.completed)
-    .sort((a, b) => b.importance - a.importance);
-
-  // 期限付きタスクは importance と deadline から優先度（priority）を計算する（未完了のみ）
-  const tasksWithDeadlineActive = tasks
-    .filter(task => task.deadline !== null && !task.completed)
-    .map(task => ({
-      ...task,
-      timeDiff: (new Date(task.deadline!).getTime() - currentTime.getTime()) / (1000 * 60 * 60),
-      priority: calculatePriority(task.importance, task.deadline),
-    }))
-    .sort((a, b) => (b.priority ?? 0) - (a.priority ?? 0));
-
-  const completedTasks = tasks.filter(task => task.completed);
-
-  const startEditing = (task: Task) => {
-    setEditingTaskId(task.id);
-    setEditingTitle(task.title);
-    setEditingImportance(task.importance);
-    setEditingDeadline(task.deadline ? formatForDatetimeLocal(task.deadline) : null);
-  };
-
-  const cancelEditing = () => {
-    setEditingTaskId(null);
-    setEditingTitle("");
-    setEditingImportance(1);
-    setEditingDeadline(null);
-  };
-
-  const saveEditing = async (taskId: number) => {
-    let deadlineToSave: string | null = editingDeadline;
-    if (deadlineToSave && deadlineToSave !== "") {
-      deadlineToSave = convertLocalToIsoWithOffset(deadlineToSave);
-    } else {
-      deadlineToSave = null;
-    }
-    const fcmToken = localStorage.getItem("fcmToken");
-    const res = await fetch("/api/tasks", {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        id: taskId,
-        title: editingTitle,
-        importance: editingImportance,
-        deadline: deadlineToSave,
-        username,
-        fcmToken,
-      }),
-    });
-    if (res.ok) {
-      cancelEditing();
-      refreshTasks();
-    }
-  };
-
-  const deleteTask = async (taskId: number) => {
-    if (confirm(t("confirmDelete"))) {
-      const res = await fetch("/api/tasks", {
-        method: "DELETE",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ id: taskId, username }),
-      });
-      if (res.ok) refreshTasks();
-    }
-  };
-
-  const completeTask = async (taskId: number) => {
-    if (confirm(t("confirmComplete"))) {
-      const res = await fetch("/api/tasks", {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ id: taskId, completed: true, username }),
-      });
-      if (res.ok) refreshTasks();
-    }
-  };
-
-  const reopenTask = async (taskId: number) => {
-    if (confirm(t("confirmReopen"))) {
-      const res = await fetch("/api/tasks", {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ id: taskId, completed: false, username }),
-      });
-      if (res.ok) refreshTasks();
-    }
-  };
-
-  const renderTaskList = (taskList: (Task & { timeDiff?: number })[], completedSection: boolean = false) => (
-    <ul className="space-y-4">
-      {taskList.length > 0 ? (
-        taskList.map(task => (
-          <TaskItem
-            key={task.id}
-            task={task}
-            isEditing={editingTaskId === task.id}
-            onStartEditing={() => startEditing(task)}
-            onSaveEditing={() => saveEditing(task.id)}
-            onCancelEditing={cancelEditing}
-            onComplete={() => completeTask(task.id)}
-            onDelete={() => deleteTask(task.id)}
-            onReopen={() => reopenTask(task.id)}
-            editingTitle={editingTitle}
-            editingImportance={editingImportance}
-            editingDeadline={editingDeadline}
-            setEditingTitle={setEditingTitle}
-            setEditingImportance={setEditingImportance}
-            setEditingDeadline={setEditingDeadline}
-          />
-        ))
-      ) : (
-        <p className="text-gray-600 dark:text-gray-400">
-          {completedSection ? t("noCompletedTasks") : t("noTasks")}
-        </p>
-      )}
-    </ul>
-  );
-
   return (
     <div className="space-y-12">
-      <section id="deadline-tasks" className="bg-white dark:bg-gray-800 rounded-xl shadow p-6">
-        <div className="flex justify-between items-center border-b border-gray-300 dark:border-gray-700 pb-3 mb-4">
-          <h2 className={sectionHeaderClasses}>{t("deadlineTasks")}</h2>
-          <ToggleButton
-            expanded={showDeadlineSection}
-            onClick={() => setShowDeadlineSection(prev => !prev)}
-            label={showDeadlineSection ? t("collapse") : t("expand")}
-          />
-        </div>
-        {showDeadlineSection && renderTaskList(tasksWithDeadlineActive)}
-      </section>
-
-      <section className="bg-white dark:bg-gray-800 rounded-xl shadow p-6">
-        <div className="flex justify-between items-center border-b border-gray-300 dark:border-gray-700 pb-3 mb-4">
-          <h2 className={sectionHeaderClasses}>{t("noDeadlineTasks")}</h2>
-          <ToggleButton
-            expanded={showNoDeadlineSection}
-            onClick={() => setShowNoDeadlineSection(prev => !prev)}
-            label={showNoDeadlineSection ? t("collapse") : t("expand")}
-          />
-        </div>
-        {showNoDeadlineSection && renderTaskList(tasksWithNoDeadlineActive)}
-      </section>
-
-      <section className="bg-white dark:bg-gray-800 rounded-xl shadow p-6">
-        <div className="flex justify-between items-center border-b border-gray-300 dark:border-gray-700 pb-3 mb-4">
-          <h2 className={sectionHeaderClasses}>{t("completedTasks")}</h2>
-          <ToggleButton
-            expanded={showCompletedSection}
-            onClick={() => setShowCompletedSection(prev => !prev)}
-            label={showCompletedSection ? t("collapse") : t("expand")}
-          />
-        </div>
-        {showCompletedSection && renderTaskList(completedTasks, true)}
-      </section>
+      <TaskSection 
+        id="deadline-tasks"
+        title={t("deadlineTasks")}
+        tasks={tasksWithDeadlineActive}
+        showSection={showDeadlineSection}
+        toggleSection={() => setShowDeadlineSection(prev => !prev)}
+        taskEditorState={taskEditorState}
+        taskOperations={taskOperations}
+      />
+      
+      <TaskSection 
+        title={t("noDeadlineTasks")}
+        tasks={tasksWithNoDeadlineActive}
+        showSection={showNoDeadlineSection}
+        toggleSection={() => setShowNoDeadlineSection(prev => !prev)}
+        taskEditorState={taskEditorState}
+        taskOperations={taskOperations}
+      />
+      
+      <TaskSection 
+        title={t("completedTasks")}
+        tasks={completedTasks}
+        showSection={showCompletedSection}
+        toggleSection={() => setShowCompletedSection(prev => !prev)}
+        isCompletedSection={true}
+        taskEditorState={taskEditorState}
+        taskOperations={taskOperations}
+      />
     </div>
   );
 };
