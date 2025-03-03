@@ -43,7 +43,7 @@ const TaskSection: React.FC<TaskSectionProps> = ({
   };
   
   return (
-    <section id={id} className="bg-white dark:bg-gray-800 rounded-xl shadow p-6">
+    <section id={id} className="bg-white dark:bg-gray-800 rounded-xl shadow p-6 transition-all duration-300 ease-in-out hover:shadow-lg">
       <div className="flex justify-between items-center border-b border-gray-300 dark:border-gray-700 pb-3 mb-4">
         <h2 className={sectionHeaderClasses}>
           {title} {getTaskCountBadge()}
@@ -54,7 +54,9 @@ const TaskSection: React.FC<TaskSectionProps> = ({
           label={showSection ? t("collapse") : t("expand")}
         />
       </div>
-      {showSection && (
+      <div 
+        className={`overflow-hidden transition-all duration-300 ease-in-out ${showSection ? 'max-h-[2000px] opacity-100' : 'max-h-0 opacity-0'}`}
+      >
         <ul className="space-y-4">
           {tasks.length > 0 ? (
             tasks.map(task => (
@@ -82,7 +84,7 @@ const TaskSection: React.FC<TaskSectionProps> = ({
             </p>
           )}
         </ul>
-      )}
+      </div>
     </section>
   );
 };
