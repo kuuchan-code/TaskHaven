@@ -15,7 +15,11 @@
     "errorUsernameExists": "このユーザー名はすでに使用されています。別のユーザー名を選んでください。",
     "errorEmailExists": "このメールアドレスはすでに登録されています。別のメールアドレスを使用してください。",
     "messageSignUpSuccess": "登録完了しました。確認メールを送信しましたので、メールをご確認ください。",
-    "errorUserNotFound": "ユーザー名が見つかりません。"
+    "errorUserNotFound": "ユーザー名が見つかりません。",
+    "signupCompleteTitle": "登録完了！",
+    "signupCompleteMessage": "アカウントが正常に作成されました。",
+    "checkEmailMessage": "確認メールをご確認ください。アカウントを有効化するには確認リンクをクリックしてください。",
+    "errorGeneric": "エラーが発生しました。後でもう一度お試しください。"
   },
   "TaskDashboard": {
     "highPriorityLabel": "高優先度",
