@@ -10,15 +10,15 @@ export const PriorityLabel: React.FC<PriorityLabelProps> = ({ priority }) => {
   const t = useTranslations("TaskDashboard");
   if (priority >= 2) {
     return (
-      <span className="bg-red-600 dark:bg-red-800 text-white text-xs font-bold rounded-full px-2 py-0.5">
-        {t("highPriorityLabel")}
+      <span className="bg-red-600 dark:bg-red-800 text-white text-xs font-bold rounded-full px-3 py-1 shadow-sm flex items-center justify-center">
+        <span className="mr-1">⚠️</span> {t("highPriorityLabel")}
       </span>
     );
   }
   if (priority > 0.64 && priority < 2) {
     return (
-      <span className="bg-yellow-500 dark:bg-yellow-700 text-white text-xs font-bold rounded-full px-2 py-0.5">
-        {t("mediumPriorityLabel")}
+      <span className="bg-yellow-500 dark:bg-yellow-700 text-white text-xs font-bold rounded-full px-3 py-1 shadow-sm flex items-center justify-center">
+        <span className="mr-1">⚡</span> {t("mediumPriorityLabel")}
       </span>
     );
   }

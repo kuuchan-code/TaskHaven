@@ -34,10 +34,10 @@ const TaskItem: React.FC<TaskItemProps> = ({
       const deadlineDate = new Date(task.deadline);
       const diffTime = (deadlineDate.getTime() - Date.now()) / (1000 * 60 * 60);
       if (diffTime < 0) {
-        return "bg-red-50 dark:bg-red-950"; // 期限切れ
+        return "bg-red-100 dark:bg-red-900"; // より強調された期限切れ
       }
       if (diffTime < 24) {
-        return "bg-yellow-50 dark:bg-yellow-950"; // 24時間以内
+        return "bg-yellow-100 dark:bg-yellow-900"; // より強調された24時間以内
       }
     }
     return "bg-white dark:bg-gray-800"; // デフォルト
@@ -48,8 +48,8 @@ const TaskItem: React.FC<TaskItemProps> = ({
     if (task.completed) return "border-gray-200 dark:border-gray-700";
     
     switch(task.importance) {
-      case 3: return "border-red-500 dark:border-red-600";
-      case 2: return "border-yellow-500 dark:border-yellow-600";
+      case 3: return "border-red-500 dark:border-red-600 border-l-[6px]"; // 太いボーダー
+      case 2: return "border-yellow-500 dark:border-yellow-600 border-l-[6px]"; // 太いボーダー
       default: return "border-blue-300 dark:border-blue-800";
     }
   };
@@ -74,16 +74,18 @@ const TaskItem: React.FC<TaskItemProps> = ({
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
-      <div className="flex justify-between items-center">
+      <div className="flex justify-between items-start">
         <span className={`flex items-center text-xl font-semibold ${task.completed ? "line-through text-gray-500 dark:text-gray-400" : "text-gray-900 dark:text-gray-100"}`}>
-          <span className="mr-2 text-lg">{getTaskStatusIcon()}</span>
+          <span className="mr-3 text-2xl">{getTaskStatusIcon()}</span>
           {task.title}
         </span>
-        <TaskHeader task={task} />
+        <div className="ml-4 min-w-[140px]">
+          <TaskHeader task={task} />
+        </div>
       </div>
       
       {showDetails && (
-        <div className="mt-4 animate-fadeIn">
+        <div className="mt-6 animate-fadeIn">
           {isEditing ? (
             <div onClick={(e) => e.stopPropagation()}>
               <TaskEditor

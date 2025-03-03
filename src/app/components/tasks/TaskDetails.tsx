@@ -22,66 +22,66 @@ const TaskDetails: React.FC<TaskDetailsProps> = ({
     : task.importance;
     
   return (
-    <div className="mt-4 border-t border-gray-300 dark:border-gray-700 pt-3">
-      <div className="space-y-2">
+    <div className="mt-4 border-t border-gray-200 dark:border-gray-700 pt-4">
+      <div className="space-y-3">
         {task.completed ? (
-          <>
-            <div>
-              <strong className="text-sm text-gray-800 dark:text-gray-200">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4">
+            <div className="bg-gray-50 dark:bg-gray-800 p-3 rounded-lg shadow-sm">
+              <strong className="block text-sm font-medium text-gray-800 dark:text-gray-200 mb-1">
                 {t("importanceLabel")}:
-              </strong>{" "}
-              <span className="text-sm text-gray-700 dark:text-gray-300">
+              </strong>
+              <span className="text-base text-gray-700 dark:text-gray-300">
                 {task.importance}
               </span>
             </div>
             {task.deadline && (
-              <div>
-                <strong className="text-sm text-gray-800 dark:text-gray-200">
+              <div className="bg-gray-50 dark:bg-gray-800 p-3 rounded-lg shadow-sm">
+                <strong className="block text-sm font-medium text-gray-800 dark:text-gray-200 mb-1">
                   {t("deadlineLabel")}:
-                </strong>{" "}
-                <span className="text-sm text-gray-700 dark:text-gray-300">
+                </strong>
+                <span className="text-base text-gray-700 dark:text-gray-300">
                   {displayDeadline}
                 </span>
               </div>
             )}
             {task.completed_at && (
-              <div>
-                <strong className="text-sm text-gray-800 dark:text-gray-200">
+              <div className="bg-green-50 dark:bg-green-900 p-3 rounded-lg shadow-sm">
+                <strong className="block text-sm font-medium text-gray-800 dark:text-gray-200 mb-1">
                   {t("completedAtLabel", { defaultValue: "Completed at:" })}
-                </strong>{" "}
-                <span className="text-sm text-gray-700 dark:text-gray-300">
+                </strong>
+                <span className="text-base text-gray-700 dark:text-gray-300">
                   {new Date(task.completed_at).toLocaleString()}
                 </span>
               </div>
             )}
-          </>
+          </div>
         ) : (
-          <>
-            <div>
-              <strong className="text-sm text-gray-800 dark:text-gray-200">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4">
+            <div className="bg-gray-50 dark:bg-gray-800 p-3 rounded-lg shadow-sm">
+              <strong className="block text-sm font-medium text-gray-800 dark:text-gray-200 mb-1">
                 {task.deadline ? t("priorityLabel") : t("importanceLabel")}:
-              </strong>{" "}
-              <span className="text-sm text-gray-700 dark:text-gray-300">
+              </strong>
+              <span className="text-base text-gray-700 dark:text-gray-300 font-medium">
                 {task.deadline ? computedPriority.toFixed(2) : task.importance}
               </span>
             </div>
-            <div>
-              <strong className="text-sm text-gray-800 dark:text-gray-200">
+            <div className="bg-gray-50 dark:bg-gray-800 p-3 rounded-lg shadow-sm">
+              <strong className="block text-sm font-medium text-gray-800 dark:text-gray-200 mb-1">
                 {t("deadlineLabel")}:
-              </strong>{" "}
-              <span className="text-sm text-gray-700 dark:text-gray-300">
+              </strong>
+              <span className="text-base text-gray-700 dark:text-gray-300">
                 {displayDeadline}
               </span>
             </div>
-          </>
+          </div>
         )}
-        <div className="flex gap-3 mt-3">
+        <div className="flex gap-3 mt-4">
           <button
             onClick={(e) => {
               e.stopPropagation();
               onEdit();
             }}
-            className={`${buttonClasses} flex-1`}
+            className={`${buttonClasses} flex-1 py-2.5 text-base`}
             aria-label={t("edit")}
           >
             {t("edit")}
@@ -92,7 +92,7 @@ const TaskDetails: React.FC<TaskDetailsProps> = ({
                 e.stopPropagation();
                 onReopen();
               }}
-              className="flex-1 px-4 py-2 bg-blue-600 dark:bg-blue-700 text-white rounded-md shadow hover:bg-blue-700 dark:hover:bg-blue-800 transition-colors text-sm"
+              className="flex-1 px-4 py-2.5 bg-blue-600 dark:bg-blue-700 text-white rounded-md shadow hover:bg-blue-700 dark:hover:bg-blue-800 transition-colors text-base"
               aria-label={t("reopen")}
             >
               {t("reopen")}
@@ -103,7 +103,7 @@ const TaskDetails: React.FC<TaskDetailsProps> = ({
                 e.stopPropagation();
                 onComplete();
               }}
-              className="flex-1 px-4 py-2 bg-blue-600 dark:bg-blue-700 text-white rounded-md shadow hover:bg-blue-700 dark:hover:bg-blue-800 transition-colors text-sm"
+              className="flex-1 px-4 py-2.5 bg-blue-600 dark:bg-blue-700 text-white rounded-md shadow hover:bg-blue-700 dark:hover:bg-blue-800 transition-colors text-base"
               aria-label={t("complete")}
             >
               {t("complete")}
@@ -114,7 +114,7 @@ const TaskDetails: React.FC<TaskDetailsProps> = ({
               e.stopPropagation();
               onDelete();
             }}
-            className="flex-1 px-4 py-2 bg-red-600 dark:bg-red-800 text-white rounded-md shadow hover:bg-red-700 dark:hover:bg-red-900 transition-colors text-sm"
+            className="flex-1 px-4 py-2.5 bg-red-600 dark:bg-red-800 text-white rounded-md shadow hover:bg-red-700 dark:hover:bg-red-900 transition-colors text-base"
             aria-label={t("delete")}
           >
             {t("delete")}
