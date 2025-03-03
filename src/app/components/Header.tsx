@@ -18,7 +18,7 @@ export default function Header({ username, isHomePage = false }: HeaderProps) {
   const shouldShowMenu = username || !isHomePage;
 
   return (
-    <header className="bg-blue-600 text-white shadow-md">
+    <header className="bg-blue-600 dark:bg-blue-800 text-white shadow-md">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16">
           <div className="flex items-center">
@@ -31,7 +31,7 @@ export default function Header({ username, isHomePage = false }: HeaderProps) {
           <div className="hidden md:flex items-center space-x-4">
             {username && (
               <>
-                <span className="text-blue-300">
+                <span className="text-blue-300 dark:text-blue-200">
                   {t("welcomeMessage", { username })}
                 </span>
                 <LogoutButton />
@@ -49,7 +49,7 @@ export default function Header({ username, isHomePage = false }: HeaderProps) {
             <div className="md:hidden flex items-center">
               <button
                 onClick={() => setIsMenuOpen(!isMenuOpen)}
-                className="p-2 rounded-md text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-white"
+                className="p-2 rounded-md text-white hover:bg-blue-700 dark:hover:bg-blue-900 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-white"
               >
                 <span className="sr-only">{t("openMenu")}</span>
                 {/* ハンバーガーアイコン */}
@@ -80,7 +80,7 @@ export default function Header({ username, isHomePage = false }: HeaderProps) {
           <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
             {username && (
               <>
-                <span className="block px-3 py-2 text-blue-300">
+                <span className="block px-3 py-2 text-blue-300 dark:text-blue-200">
                   {t("welcomeMessage", { username })}
                 </span>
                 <div className="px-3 py-2">
@@ -91,7 +91,7 @@ export default function Header({ username, isHomePage = false }: HeaderProps) {
             {!username && !isHomePage && (
               <Link 
                 href="/" 
-                className="block px-3 py-2 rounded-md text-white hover:bg-blue-700"
+                className="block px-3 py-2 rounded-md text-white hover:bg-blue-700 dark:hover:bg-blue-900"
               >
                 {t("login")}
               </Link>

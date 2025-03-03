@@ -93,20 +93,20 @@ export const SignUpForm = () => {
   if (signupComplete) {
     return (
       <div className="p-6">
-        <p className="text-green-600 mb-4">{message}</p>
-        <p>{t("checkEmail")}</p>
+        <p className="text-green-600 dark:text-green-400 mb-4">{message}</p>
+        <p className="dark:text-gray-300">{t("checkEmail")}</p>
       </div>
     );
   }
 
   return (
     <div className="p-6">
-      {error && <div className="text-red-500 mb-4">{error}</div>}
-      {message && <div className="text-green-600 mb-4">{message}</div>}
+      {error && <div className="text-red-500 dark:text-red-400 mb-4">{error}</div>}
+      {message && <div className="text-green-600 dark:text-green-400 mb-4">{message}</div>}
       
       <form onSubmit={handleSignUp}>
         <div className="mb-4">
-          <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="username">
+          <label className="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2" htmlFor="username">
             {t("username")}
           </label>
           <input
@@ -122,12 +122,12 @@ export const SignUpForm = () => {
             placeholder={t("usernamePlaceholder")}
           />
           {fieldErrors.username && (
-            <p className="text-red-500 text-xs italic">{fieldErrors.username}</p>
+            <p className="text-red-500 dark:text-red-400 text-xs italic">{fieldErrors.username}</p>
           )}
         </div>
         
         <div className="mb-4">
-          <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="email">
+          <label className="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2" htmlFor="email">
             {t("email")}
           </label>
           <input
@@ -143,12 +143,12 @@ export const SignUpForm = () => {
             placeholder={t("emailPlaceholder")}
           />
           {fieldErrors.email && (
-            <p className="text-red-500 text-xs italic">{fieldErrors.email}</p>
+            <p className="text-red-500 dark:text-red-400 text-xs italic">{fieldErrors.email}</p>
           )}
         </div>
         
         <div className="mb-6">
-          <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="password">
+          <label className="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2" htmlFor="password">
             {t("password")}
           </label>
           <div className="relative">
@@ -162,7 +162,7 @@ export const SignUpForm = () => {
             />
             <button
               type="button"
-              className="absolute inset-y-0 right-0 pr-3 flex items-center text-sm"
+              className="absolute inset-y-0 right-0 pr-3 flex items-center text-sm dark:text-gray-300"
               onClick={() => setShowPassword(!showPassword)}
             >
               {showPassword ? t("hide") : t("show")}
@@ -170,7 +170,7 @@ export const SignUpForm = () => {
           </div>
           {signUpPassword && (
             <div className="mt-2">
-              <div className="h-2 rounded-full overflow-hidden bg-gray-200">
+              <div className="h-2 rounded-full overflow-hidden bg-gray-200 dark:bg-gray-700">
                 <div
                   className={`h-full ${
                     passwordStrength.strength === "weak"
@@ -192,10 +192,10 @@ export const SignUpForm = () => {
               <p
                 className={`text-xs mt-1 ${
                   passwordStrength.strength === "weak"
-                    ? "text-red-500"
+                    ? "text-red-500 dark:text-red-400"
                     : passwordStrength.strength === "medium"
-                    ? "text-yellow-500"
-                    : "text-green-500"
+                    ? "text-yellow-500 dark:text-yellow-400"
+                    : "text-green-500 dark:text-green-400"
                 }`}
               >
                 {passwordStrength.message}
@@ -203,14 +203,14 @@ export const SignUpForm = () => {
             </div>
           )}
           {fieldErrors.password && (
-            <p className="text-red-500 text-xs italic">{fieldErrors.password}</p>
+            <p className="text-red-500 dark:text-red-400 text-xs italic">{fieldErrors.password}</p>
           )}
         </div>
         
         <div className="flex items-center justify-between">
           <button
             type="submit"
-            className={`${buttonClasses} bg-blue-500 hover:bg-blue-700 text-white`}
+            className={`${buttonClasses}`}
             disabled={isSigningUp}
           >
             {isSigningUp ? (

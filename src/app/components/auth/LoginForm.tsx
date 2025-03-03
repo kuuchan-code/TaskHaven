@@ -51,7 +51,7 @@ export const LoginForm = () => {
   return (
     <div className="p-6">
       {error && (
-        <div className="bg-red-50 border-l-4 border-red-500 p-4 mb-4">
+        <div className="bg-red-50 dark:bg-red-900/30 border-l-4 border-red-500 p-4 mb-4">
           <div className="flex">
             <div className="flex-shrink-0">
               <svg className="h-5 w-5 text-red-500" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
@@ -59,14 +59,14 @@ export const LoginForm = () => {
               </svg>
             </div>
             <div className="ml-3">
-              <p className="text-sm text-red-700">{error}</p>
+              <p className="text-sm text-red-700 dark:text-red-300">{error}</p>
             </div>
           </div>
         </div>
       )}
       
       {message && (
-        <div className="bg-green-50 border-l-4 border-green-500 p-4 mb-4">
+        <div className="bg-green-50 dark:bg-green-900/30 border-l-4 border-green-500 p-4 mb-4">
           <div className="flex">
             <div className="flex-shrink-0">
               <svg className="h-5 w-5 text-green-500" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
@@ -74,7 +74,7 @@ export const LoginForm = () => {
               </svg>
             </div>
             <div className="ml-3">
-              <p className="text-sm text-green-700">{message}</p>
+              <p className="text-sm text-green-700 dark:text-green-300">{message}</p>
             </div>
           </div>
         </div>
@@ -85,7 +85,7 @@ export const LoginForm = () => {
         handleLogin(e);
       }}>
         <div className="mb-4">
-          <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="loginEmail">
+          <label className="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2" htmlFor="loginEmail">
             {t("email")}
           </label>
           <input
@@ -100,12 +100,12 @@ export const LoginForm = () => {
             placeholder={t("emailPlaceholder")}
           />
           {fieldErrors.loginEmail && (
-            <p className="text-red-500 text-xs italic">{fieldErrors.loginEmail}</p>
+            <p className="text-red-500 dark:text-red-400 text-xs italic">{fieldErrors.loginEmail}</p>
           )}
         </div>
         
         <div className="mb-4">
-          <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="loginPassword">
+          <label className="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2" htmlFor="loginPassword">
             {t("password")}
           </label>
           <div className="relative">
@@ -119,14 +119,14 @@ export const LoginForm = () => {
             />
             <button
               type="button"
-              className="absolute inset-y-0 right-0 pr-3 flex items-center text-sm"
+              className="absolute inset-y-0 right-0 pr-3 flex items-center text-sm dark:text-gray-300"
               onClick={() => setShowLoginPassword(!showLoginPassword)}
             >
               {showLoginPassword ? t("hide") : t("show")}
             </button>
           </div>
           {fieldErrors.loginPassword && (
-            <p className="text-red-500 text-xs italic">{fieldErrors.loginPassword}</p>
+            <p className="text-red-500 dark:text-red-400 text-xs italic">{fieldErrors.loginPassword}</p>
           )}
         </div>
         
@@ -139,13 +139,13 @@ export const LoginForm = () => {
               checked={rememberMe}
               onChange={(e) => setRememberMe(e.target.checked)}
             />
-            <label className="text-sm text-gray-600" htmlFor="rememberMe">
+            <label className="text-sm text-gray-600 dark:text-gray-400" htmlFor="rememberMe">
               {t("rememberMe")}
             </label>
           </div>
           <button
             type="button"
-            className="text-blue-500 text-sm hover:text-blue-700"
+            className="text-blue-500 text-sm hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
             onClick={() => setShowResetModal(true)}
           >
             {t("forgotPassword")}
@@ -155,7 +155,7 @@ export const LoginForm = () => {
         <div className="flex items-center justify-between">
           <button
             type="submit"
-            className={`${buttonClasses} bg-blue-500 hover:bg-blue-700 text-white`}
+            className={`${buttonClasses}`}
             disabled={isLoggingIn}
           >
             {isLoggingIn ? (

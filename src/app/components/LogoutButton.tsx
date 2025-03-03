@@ -34,7 +34,7 @@ export default function LogoutButton() {
 
   return (
     <div>
-      {error && <p className="text-red-500 mb-2 text-sm">{error}</p>}
+      {error && <p className="text-red-500 dark:text-red-400 mb-2 text-sm">{error}</p>}
       <button 
         className={`${buttonClasses} flex items-center justify-center min-w-[120px]`} 
         onClick={handleLogout}

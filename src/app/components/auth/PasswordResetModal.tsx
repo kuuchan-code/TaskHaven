@@ -39,9 +39,9 @@ export const PasswordResetModal = () => {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-      <div className="relative bg-white rounded-lg p-6 w-full max-w-md mx-4">
+      <div className="relative bg-white dark:bg-gray-800 rounded-lg p-6 w-full max-w-md mx-4">
         <button
-          className="absolute top-3 right-3 text-gray-400 hover:text-gray-600"
+          className="absolute top-3 right-3 text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-400"
           onClick={() => setShowResetModal(false)}
         >
           <svg 
@@ -60,17 +60,19 @@ export const PasswordResetModal = () => {
           </svg>
         </button>
         
-        <h2 className="text-xl font-bold mb-4">{t("resetPassword")}</h2>
+        <h2 className="text-xl font-bold mb-4 dark:text-gray-100">{t("resetPassword")}</h2>
         
         {resetMessage && (
-          <div className={`mb-4 p-3 rounded ${resetMessage.includes("エラー") ? "bg-red-100 text-red-700" : "bg-green-100 text-green-700"}`}>
+          <div className={`mb-4 p-3 rounded ${resetMessage.includes("エラー") 
+            ? "bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300" 
+            : "bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300"}`}>
             {resetMessage}
           </div>
         )}
         
         <form onSubmit={handleResetPassword}>
           <div className="mb-4">
-            <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="resetEmail">
+            <label className="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2" htmlFor="resetEmail">
               {t("email")}
             </label>
             <input
@@ -85,22 +87,22 @@ export const PasswordResetModal = () => {
               placeholder={t("emailPlaceholder")}
             />
             {fieldErrors.resetEmail && (
-              <p className="text-red-500 text-xs italic">{fieldErrors.resetEmail}</p>
+              <p className="text-red-500 dark:text-red-400 text-xs italic">{fieldErrors.resetEmail}</p>
             )}
-            <p className="text-sm text-gray-600 mt-2">{t("resetInstructions")}</p>
+            <p className="text-sm text-gray-600 dark:text-gray-400 mt-2">{t("resetInstructions")}</p>
           </div>
           
           <div className="flex gap-2">
             <button
               type="button"
-              className={`${buttonClasses} bg-gray-300 hover:bg-gray-400 text-gray-800`}
+              className={`${buttonClasses.replace('bg-blue-500', 'bg-gray-300 dark:bg-gray-700')} text-gray-800 dark:text-gray-200 hover:bg-gray-400 dark:hover:bg-gray-600`}
               onClick={() => setShowResetModal(false)}
             >
               {t("cancel")}
             </button>
             <button
               type="submit"
-              className={`${buttonClasses} bg-blue-500 hover:bg-blue-700 text-white`}
+              className={`${buttonClasses}`}
               disabled={isResetting}
             >
               {isResetting ? t("sending") : t("sendResetLink")}

@@ -18,7 +18,7 @@ export default async function UserPage({
   }
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col bg-gray-50 dark:bg-gray-900">
       <Header username={user.user_metadata.username} />
       <TaskPage username={user.user_metadata.username} />
     </div>
