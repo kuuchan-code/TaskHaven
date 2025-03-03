@@ -44,6 +44,25 @@ export default function WebhookForm({
     setUrlError(value && !validateUrl(value) ? t("invalidUrl") : "");
   };
 
+  const clearWebhook = () => {
+    setWebhook("");
+    if (message) setMessage("");
+    setUrlError("");
+  };
+
+  const handleIntervalChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    let value = parseInt(e.target.value);
+    
+    // 入力が空の場合はデフォルト値の5を設定
+    if (isNaN(value)) {
+      value = 5;
+    }
+    
+    // 値を1から120の範囲に制限
+    value = Math.max(1, Math.min(120, value));
+    setNotificationInterval(value);
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (webhook && urlError) {
@@ -140,13 +159,24 @@ export default function WebhookForm({
           <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
             {t("webhookLabel")}
           </label>
-          <input
-            type="url"
-            value={webhook}
-            onChange={handleWebhookChange}
-            placeholder="https://discord.com/api/webhooks/XXXXXXXX/XXXXXXXX"
-            className={`${inputClasses} ${urlError ? "border-red-500 dark:border-red-400" : ""} transition-all duration-200`}
-          />
+          <div className="relative">
+            <input
+              type="url"
+              value={webhook}
+              onChange={handleWebhookChange}
+              placeholder="https://discord.com/api/webhooks/XXXXXXXX/XXXXXXXX"
+              className={`${inputClasses} ${urlError ? "border-red-500 dark:border-red-400" : ""} transition-all duration-200 pr-20`}
+            />
+            {webhook && (
+              <button
+                type="button"
+                onClick={clearWebhook}
+                className="absolute right-2 top-1/2 -translate-y-1/2 bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-600 dark:text-gray-300 px-2 py-1 rounded text-xs"
+              >
+                {t("clearButton")}
+              </button>
+            )}
+          </div>
           {urlError && (
             <p className="mt-1 text-xs text-red-500 dark:text-red-400 flex items-center">
               <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -193,18 +223,20 @@ export default function WebhookForm({
           <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
             {t("notificationIntervalLabel")}
           </label>
-          <select
-            value={notificationInterval}
-            onChange={(e) => setNotificationInterval(Number(e.target.value))}
-            className={`${inputClasses} cursor-pointer`}
-          >
-            <option value={5}>5 {t("minutes")}</option>
-            <option value={10}>10 {t("minutes")}</option>
-            <option value={15}>15 {t("minutes")}</option>
-            <option value={30}>30 {t("minutes")}</option>
-            <option value={60}>60 {t("minutes")}</option>
-          </select>
-          <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">{t("notificationIntervalInfo")}</p>
+          <div className="flex items-center">
+            <input
+              type="number"
+              min="1"
+              max="120"
+              value={notificationInterval}
+              onChange={handleIntervalChange}
+              className={`${inputClasses} w-24 mr-2 text-center`}
+            />
+            <span className="text-gray-700 dark:text-gray-300">{t("minutes")}</span>
+          </div>
+          {t("notificationIntervalInfo") && (
+            <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">{t("notificationIntervalInfo")}</p>
+          )}
         </div>
         <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">{t("notificationCondition")}</p>
         <button 
