@@ -140,8 +140,11 @@
   "WebhookForm": {
     "formHeader": "Discord通知設定",
     "instructions": "Discordで通知を受け取る場合は、Webhook URLを入力してください。",
+    "enableNotifications": "通知を有効にする",
+    "toggleDescription": "オフにしても設定は保存されます",
     "webhookLabel": "Discord Webhook URL",
-    "webhookPlaceholderText": "空欄にすると通知はオフになります",
+    "webhookPlaceholderText": "通知を受け取るにはURLが必要です",
+    "urlRequired": "通知を有効にするにはURLが必要です",
     "notificationIntervalLabel": "通知間隔",
     "notificationIntervalInfo": "",
     "notificationCondition": "優先度2以上（高優先度）のタスクのみ通知されます",
@@ -162,8 +165,7 @@
     "guideTitle": "Discord Webhook 設定方法",
     "guideStep1": "Discordサーバーでチャンネルを選択し、編集アイコンをクリック",
     "guideStep2": "「連携サービス」→「ウェブフック」→「新しいウェブフック」をクリック",
-    "guideStep3": "名前を設定し、「ウェブフックURLをコピー」をクリックしてここに貼り付け",
-    "clearButton": "クリア"
+    "guideStep3": "名前を設定し、「ウェブフックURLをコピー」をクリックしてここに貼り付け"
   },
   "TaskStreak": {
     "todayStreak": "今日のタスク達成数",
