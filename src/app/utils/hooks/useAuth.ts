@@ -142,6 +142,38 @@ export const useAuth = () => {
           
           if (!response.ok) {
             console.error("API呼び出しエラー:", result);
+            
+            // 409 Conflict (重複エラー) を特別に処理
+            if (response.status === 409) {
+              if (result.duplicateField === "username") {
+                setFieldErrors({ ...fieldErrors, username: "このユーザー名は既に使用されています" });
+              } else if (result.duplicateField === "email") {
+                setFieldErrors({ ...fieldErrors, email: "このメールアドレスは既に使用されています" });
+              } else if (result.duplicateFields) {
+                // 複数フィールドが重複している場合
+                const newErrors: FieldErrors = {};
+                if (result.duplicateFields.includes("username")) {
+                  newErrors.username = "このユーザー名は既に使用されています";
+                }
+                if (result.duplicateFields.includes("email")) {
+                  newErrors.email = "このメールアドレスは既に使用されています";
+                }
+                setFieldErrors({ ...fieldErrors, ...newErrors });
+              }
+              
+              // 認証ユーザーを削除（プロフィール作成に失敗したため）
+              try {
+                const { error: cleanupError } = await supabase.auth.admin.deleteUser(data.user.id);
+                if (cleanupError) {
+                  console.error("ユーザークリーンアップエラー:", cleanupError);
+                }
+              } catch (cleanupErr) {
+                console.error("クリーンアップ中のエラー:", cleanupErr);
+              }
+              
+              throw new Error(result.message || "ユーザー情報が既に使用されています");
+            }
+            
             throw new Error(result.message || "ユーザープロフィールの作成に失敗しました");
           }
           
