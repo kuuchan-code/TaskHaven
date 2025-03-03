@@ -104,7 +104,9 @@
     "pageTitle": "{username}'s Dashboard"
   },
   "LogoutButton": {
-    "logoutButton": "Logout"
+    "logoutButton": "Logout",
+    "loggingOut": "Logging out...",
+    "logoutFailed": "Logout failed"
   },
   "WebhookForm": {
     "formHeader": "Webhook Settings",
@@ -124,9 +126,25 @@
     "webhookRequirement": "Note: Discord webhook settings can only be configured using Discord's web or desktop application.",
     "testMessageContent": "This is a test message",
     "minutes": "minutes",
-    "updating": "Updating..."
+    "updating": "Updating...",
+    "testing": "Testing...",
+    "showGuide": "Show Guide",
+    "hideGuide": "Hide Guide",
+    "guideTitle": "Discord Webhook Setup Guide",
+    "guideStep1": "Choose a channel in your Discord server and click the edit icon",
+    "guideStep2": "Click 'Integrations' → 'Webhooks' → 'Create Webhook'",
+    "guideStep3": "Set a name and click 'Copy Webhook URL' to paste it here"
   },
   "TaskStreak": {
-    "todayStreak": "Today's Task Completion Count"
+    "todayStreak": "Today's Task Completion Count",
+    "excellent": "Excellent!",
+    "goodJob": "Good job!",
+    "keepGoing": "Keep going!"
+  },
+  "Header": {
+    "dashboard": "Dashboard",
+    "welcomeMessage": "Hello, {username}",
+    "login": "Login",
+    "openMenu": "Open menu"
   }
 }

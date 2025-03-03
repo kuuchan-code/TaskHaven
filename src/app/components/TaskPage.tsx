@@ -43,14 +43,14 @@ export default function TaskPage({ username }: TaskPageProps) {
   if (!tasks || !user) return <div>{t("loading")}</div>;
 
   return (
-    <main className="min-h-screen bg-gray-100 dark:bg-gray-900 p-8 relative">
+    <main className="flex-grow bg-gray-100 dark:bg-gray-900 p-8 relative">
       {toastMessage && (
         <div className="absolute top-4 left-1/2 transform -translate-x-1/2 bg-green-500 text-white px-4 py-2 rounded shadow-md">
           {toastMessage}
         </div>
       )}
       <div className="max-w-5xl mx-auto space-y-8">
-        <h1 className="text-5xl font-extrabold text-center text-gray-900 dark:text-gray-100">
+        <h1 className="text-4xl font-bold text-center text-gray-900 dark:text-gray-100">
           {t("pageTitle", { username })}
         </h1>
         {/* タスク達成ストリークを表示 */}

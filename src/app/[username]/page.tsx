@@ -1,7 +1,7 @@
 // src/app/[username]/page.tsx
 import { redirect } from "next/navigation";
 import { createClient } from "../utils/supabase/server";
-import LogoutButton from "../components/LogoutButton";
+import Header from "../components/Header";
 import TaskPage from "../components/TaskPage";
 
 export default async function UserPage({
@@ -18,8 +18,8 @@ export default async function UserPage({
   }
 
   return (
-    <div>
-      <LogoutButton />
+    <div className="min-h-screen flex flex-col">
+      <Header username={user.user_metadata.username} />
       <TaskPage username={user.user_metadata.username} />
     </div>
   );

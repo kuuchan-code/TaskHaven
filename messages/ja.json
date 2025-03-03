@@ -124,7 +124,9 @@
     "pageTitle": "{username}のダッシュボード"
   },
   "LogoutButton": {
-    "logoutButton": "ログアウト"
+    "logoutButton": "ログアウト",
+    "loggingOut": "ログアウト中...",
+    "logoutFailed": "ログアウトに失敗しました"
   },
   "WebhookForm": {
     "formHeader": "Webhook 設定",
@@ -144,9 +146,25 @@
     "webhookRequirement": "注意: Discord の Webhook 設定は、Web版またはデスクトップ版のみで利用可能です。",
     "testMessageContent": "これはテストメッセージです",
     "minutes": "分",
-    "updating": "更新中..."
+    "updating": "更新中...",
+    "testing": "テスト中...",
+    "showGuide": "ガイドを表示",
+    "hideGuide": "ガイドを隠す",
+    "guideTitle": "Discord Webhook 設定方法",
+    "guideStep1": "Discordサーバーでチャンネルを選択し、編集アイコンをクリック",
+    "guideStep2": "「連携サービス」→「ウェブフック」→「新しいウェブフック」をクリック",
+    "guideStep3": "名前を設定し、「ウェブフックURLをコピー」をクリックしてここに貼り付け"
   },
   "TaskStreak": {
-    "todayStreak": "今日のタスク達成数"
+    "todayStreak": "今日のタスク達成数",
+    "excellent": "素晴らしい！",
+    "goodJob": "良い調子です！",
+    "keepGoing": "頑張りましょう！"
+  },
+  "Header": {
+    "dashboard": "ダッシュボード",
+    "welcomeMessage": "こんにちは、{username}さん",
+    "login": "ログイン",
+    "openMenu": "メニューを開く"
   }
 }
