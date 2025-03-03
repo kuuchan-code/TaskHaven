@@ -100,7 +100,10 @@
     "hour": "時間",
     "hours": "時間",
     "day": "日",
-    "days": "日"
+    "days": "日",
+    "taskTitlePlaceholder": "タスク名を入力",
+    "lowImportance": "低",
+    "highImportance": "高"
   },
   "TaskForm": {
     "taskAddedSuccess": "タスクが追加されました！",
