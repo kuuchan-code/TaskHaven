@@ -1,13 +1,15 @@
 "use client";
 
-import { useState } from "react";
-import { useTranslations } from "next-intl";
+import { useState, useEffect } from "react";
+import { useTranslations, useLocale } from "next-intl";
 import { buttonClasses, inputClasses } from "../../utils/designUtils";
 import { useAuthContext } from "../../utils/context/AuthContext";
-import { validateEmail, validateUsername, validatePasswordStrength } from "../../utils/validation";
+import { validateEmail, validateUsername, validatePasswordStrength, validatePasswordStrengthSync } from "../../utils/validation";
 
 export const SignUpForm = () => {
   const t = useTranslations("HomePage");
+  const tv = useTranslations("Validation");
+  const locale = useLocale();
   const {
     signUpUsername,
     setSignUpUsername,
@@ -59,9 +61,20 @@ export const SignUpForm = () => {
     }
   };
 
-  const handlePasswordChange = (value: string) => {
+  // パスワード変更時の処理
+  const handlePasswordChange = async (value: string) => {
     setSignUpPassword(value);
-    const strength = validatePasswordStrength(value);
+    
+    // 翻訳されたメッセージを準備
+    const messages = {
+      passwordEmpty: tv("passwordEmpty"),
+      passwordWeak: tv("passwordWeak"),
+      passwordMedium: tv("passwordMedium"),
+      passwordStrong: tv("passwordStrong")
+    };
+    
+    // 同期バージョンを使用（すでに翻訳メッセージを持っているため）
+    const strength = validatePasswordStrengthSync(value, messages);
     setPasswordStrength(strength);
     
     // 弱いパスワードでもfieldErrorsには設定しない（二重表示を避けるため）
