@@ -4,20 +4,20 @@
 import { createTranslator } from 'next-intl';
 
 // 言語に基づいてメッセージを取得する関数
-const getTranslations = async (locale: string = 'ja') => {
+const getTranslations = async (locale: string) => {
   try {
     return (await import(`../../../messages/${locale}.json`)).default;
   } catch (error) {
     console.error(`Failed to load translations for ${locale}:`, error);
-    // 言語ファイルの読み込みに失敗した場合、日本語をフォールバックとして使用
-    return (await import('../../../messages/ja.json')).default;
+    // 言語ファイルの読み込みに失敗した場合、英語をフォールバックとして使用
+    return (await import('../../../messages/en.json')).default;
   }
 };
 
 // パスワード検証のメッセージを取得する関数
 export const getPasswordValidationMessage = async (
   key: 'passwordEmpty' | 'passwordWeak' | 'passwordMedium' | 'passwordStrong',
-  locale: string = 'ja'
+  locale: string
 ): Promise<string> => {
   const translations = await getTranslations(locale);
   const t = createTranslator({ locale, messages: translations });
@@ -37,14 +37,12 @@ export const validateEmail = (email: string): boolean =>
   /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 
 /**
- * パスワード強度の検証
- * @param password 検証するパスワード
- * @param messages ローカライズされたメッセージ（オプション）
- * @returns object パスワード強度に関する情報
+ * パスワード強度の検証（同期バージョン）
+ * すでに翻訳が読み込まれている場合や、メッセージを直接提供する場合に使用します。
  */
-export const validatePasswordStrength = (
+export const validatePasswordStrengthSync = (
   password: string,
-  messages?: {
+  messages: {
     passwordEmpty: string;
     passwordWeak: string;
     passwordMedium: string;
@@ -55,19 +53,8 @@ export const validatePasswordStrength = (
   strength: 'weak' | 'medium' | 'strong';
   message: string;
 } => {
-  // デフォルトメッセージを設定（翻訳が提供されない場合用）
-  const defaultMessages = {
-    passwordEmpty: 'パスワードが入力されていません',
-    passwordWeak: '弱いパスワードです。8文字以上で、大文字、小文字、数字、特殊文字を含めてください。',
-    passwordMedium: '中程度のパスワードです。セキュリティを高めるためにより複雑にしてください。',
-    passwordStrong: '強いパスワードです。'
-  };
-  
-  // 提供されたメッセージまたはデフォルトメッセージを使用
-  const msgs = messages || defaultMessages;
-  
   if (!password) {
-    return { isValid: false, strength: 'weak', message: msgs.passwordEmpty };
+    return { isValid: false, strength: 'weak', message: messages.passwordEmpty };
   }
   
   // 強度チェック
@@ -89,19 +76,55 @@ export const validatePasswordStrength = (
     return { 
       isValid: false, 
       strength: 'weak', 
-      message: msgs.passwordWeak
+      message: messages.passwordWeak
     };
   } else if (passedChecks <= 4) {
     return { 
       isValid: true, 
       strength: 'medium', 
-      message: msgs.passwordMedium
+      message: messages.passwordMedium
     };
   } else {
     return { 
       isValid: true, 
       strength: 'strong', 
-      message: msgs.passwordStrong
+      message: messages.passwordStrong
     };
   }
+};
+
+/**
+ * パスワード強度の検証（非同期バージョン）
+ * @param password 検証するパスワード
+ * @param locale 現在の言語ロケール (例: 'ja', 'en')
+ * @param messages 明示的に指定するローカライズメッセージ（オプション）
+ * @returns object パスワード強度に関する情報
+ */
+export const validatePasswordStrength = async (
+  password: string,
+  locale: string,
+  messages?: {
+    passwordEmpty: string;
+    passwordWeak: string;
+    passwordMedium: string;
+    passwordStrong: string;
+  }
+): Promise<{ 
+  isValid: boolean;
+  strength: 'weak' | 'medium' | 'strong';
+  message: string;
+}> => {
+  // messagesが提供されていない場合は、localeを使って取得
+  let msgs = messages;
+  if (!msgs) {
+    msgs = {
+      passwordEmpty: await getPasswordValidationMessage('passwordEmpty', locale),
+      passwordWeak: await getPasswordValidationMessage('passwordWeak', locale),
+      passwordMedium: await getPasswordValidationMessage('passwordMedium', locale),
+      passwordStrong: await getPasswordValidationMessage('passwordStrong', locale)
+    };
+  }
+  
+  // 同期関数を再利用
+  return validatePasswordStrengthSync(password, msgs);
 }; 
