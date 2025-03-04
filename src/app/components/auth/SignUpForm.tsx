@@ -1,15 +1,14 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { useTranslations, useLocale } from "next-intl";
+import { useState } from "react";
+import { useTranslations } from "next-intl";
 import { buttonClasses, inputClasses } from "../../utils/designUtils";
 import { useAuthContext } from "../../utils/context/AuthContext";
-import { validateEmail, validateUsername, validatePasswordStrength, validatePasswordStrengthSync } from "../../utils/validation";
+import { validateEmail, validateUsername, validatePasswordStrengthSync } from "../../utils/validation";
 
 export const SignUpForm = () => {
   const t = useTranslations("HomePage");
   const tv = useTranslations("Validation");
-  const locale = useLocale();
   const {
     signUpUsername,
     setSignUpUsername,
