@@ -212,5 +212,11 @@
     "tasks": "タスク",
     "stats": "統計",
     "settings": "設定"
+  },
+  "Validation": {
+    "passwordEmpty": "パスワードが入力されていません",
+    "passwordWeak": "弱いパスワードです。8文字以上で、大文字、小文字、数字、特殊文字を含めてください。",
+    "passwordMedium": "中程度のパスワードです。セキュリティを高めるためにより複雑にしてください。",
+    "passwordStrong": "強いパスワードです。"
   }
 }

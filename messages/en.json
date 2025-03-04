@@ -212,5 +212,11 @@
     "tasks": "Tasks",
     "stats": "Statistics",
     "settings": "Settings"
+  },
+  "Validation": {
+    "passwordEmpty": "Password is empty",
+    "passwordWeak": "Weak password. Use at least 8 characters with a mix of uppercase, lowercase, numbers, and special characters.",
+    "passwordMedium": "Moderate password. Consider making it more complex for better security.",
+    "passwordStrong": "Strong password."
   }
 }
