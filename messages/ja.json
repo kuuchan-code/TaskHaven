@@ -187,7 +187,22 @@
     "achievementUnlocked": "実績解除！",
     "completedFiveTasks": "一日に5つのタスクを達成しました！",
     "noTasksYet": "まだタスクを完了していません。最初のタスクを完了させましょう！",
-    "highestCompleted": "過去最高: 一日に{count}個のタスクを達成"
+    "highestCompleted": "過去最高: 一日に{count}個のタスクを達成",
+    "badge": {
+      "taskMaster": "タスクマスター",
+      "productivityMaster": "プロダクティビティの達人",
+      "efficiencySage": "効率の賢者",
+      "taskAdventurer": "タスクの冒険者"
+    },
+    "days": {
+      "sun": "日",
+      "mon": "月",
+      "tue": "火",
+      "wed": "水",
+      "thu": "木",
+      "fri": "金",
+      "sat": "土"
+    }
   },
   "Header": {
     "dashboard": "ダッシュボード",

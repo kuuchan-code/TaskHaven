@@ -187,7 +187,22 @@
     "achievementUnlocked": "Achievement Unlocked!",
     "completedFiveTasks": "You've completed 5 tasks in one day!",
     "noTasksYet": "No tasks completed yet. Let's complete your first task!",
-    "highestCompleted": "Personal best: Completed {count} tasks in a day"
+    "highestCompleted": "Personal best: Completed {count} tasks in a day",
+    "badge": {
+      "taskMaster": "Task Master",
+      "productivityMaster": "Productivity Master",
+      "efficiencySage": "Efficiency Sage",
+      "taskAdventurer": "Task Adventurer"
+    },
+    "days": {
+      "sun": "Sun",
+      "mon": "Mon",
+      "tue": "Tue",
+      "wed": "Wed",
+      "thu": "Thu",
+      "fri": "Fri",
+      "sat": "Sat"
+    }
   },
   "Header": {
     "dashboard": "Dashboard",

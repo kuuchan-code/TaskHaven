@@ -114,7 +114,7 @@ export default function TaskStreak({ tasks }: TaskStreakProps) {
   
   // 曜日の略称を取得
   const getDayLabel = (dayOffset: number) => {
-    const days = ["日", "月", "火", "水", "木", "金", "土"];
+    const days = [t("days.sun"), t("days.mon"), t("days.tue"), t("days.wed"), t("days.thu"), t("days.fri"), t("days.sat")];
     const date = new Date();
     date.setDate(date.getDate() - (6 - dayOffset));
     return days[date.getDay()];
@@ -122,10 +122,10 @@ export default function TaskStreak({ tasks }: TaskStreakProps) {
   
   // 達成バッジを取得
   const getAchievementBadge = () => {
-    if (maxCompletedInDay >= 10) return { name: "タスクマスター", icon: "🏆", color: "bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200" };
-    if (maxCompletedInDay >= 5) return { name: "プロダクティビティの達人", icon: "🌟", color: "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200" };
-    if (maxCompletedInDay >= 3) return { name: "効率の賢者", icon: "🔥", color: "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200" };
-    return { name: "タスクの冒険者", icon: "🌱", color: "bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-200" };
+    if (maxCompletedInDay >= 10) return { name: t("badge.taskMaster"), icon: "🏆", color: "bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200" };
+    if (maxCompletedInDay >= 5) return { name: t("badge.productivityMaster"), icon: "🌟", color: "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200" };
+    if (maxCompletedInDay >= 3) return { name: t("badge.efficiencySage"), icon: "🔥", color: "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200" };
+    return { name: t("badge.taskAdventurer"), icon: "🌱", color: "bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-200" };
   };
 
   const feedback = getStreakFeedback();
